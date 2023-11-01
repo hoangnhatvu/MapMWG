@@ -1,32 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import Mapbox, { UserLocation } from '@rnmapbox/maps';
-import Geolocation from '@react-native-community/geolocation';
+import Mapbox from '@rnmapbox/maps';
 
-const APIKEY = 'sk.eyJ1IjoiaG9hbmduaGF0dnUzNTIwMiIsImEiOiJjbG9mM3dtYTcwcXFrMmtvMnQzOXloMDVwIn0.9CiSnF15Kbl9svo-jKMK_A';
+const APIKEY = 'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
 
 Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const App: React.FC = () => {
-  const [destination, setDestination] = useState<[number, number]>([106.7961, 10.8951]);
+  const [destination, setDestination] = useState<[number, number]>([106.7961, 10.89]);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([0, 0]);
-  const [locationLoaded, setLocationLoaded] = useState(false);
+  const [locationLoaded, setLocationLoaded] = useState(true);
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
-      position => {
-        setCurrentLocation([
-          position.coords.longitude,
-          position.coords.latitude,
-        ]);
-        setLocationLoaded(true);
-      },
-      error => { console.log(error); setLocationLoaded(true); },
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-    );
+    Mapbox.requestAndroidLocationPermissions();
   }, []);
+
+  const handleUserLocationUpdate = (location: any) => {
+    
+    const { latitude, longitude } = location.coords;
+    setCurrentLocation([longitude, latitude]);
+  };
 
   function makeRouterFeature(coordinates: [number, number][]): any {
     let routerFeature = {
@@ -99,7 +94,14 @@ const App: React.FC = () => {
           <Mapbox.PointAnnotation id="marker" coordinate={destination}>
             <View></View>
           </Mapbox.PointAnnotation>
-          <Mapbox.UserLocation />
+          <Mapbox.UserLocation 
+            minDisplacement={1}
+            visible={true}
+            onUpdate={handleUserLocationUpdate}            
+            showsUserHeadingIndicator={true}
+            androidRenderMode='gps'
+            animated={true}
+          />
           {routeDirection && (
             <Mapbox.ShapeSource
               id='line'
