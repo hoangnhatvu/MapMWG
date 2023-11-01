@@ -10,18 +10,32 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const App: React.FC = () => {
   const [destination, setDestination] = useState<[number, number]>([106.7961, 10.89]);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<[number, number]>([0, 0]);
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([106, 11]);
   const [locationLoaded, setLocationLoaded] = useState(true);
 
   useEffect(() => {
     Mapbox.requestAndroidLocationPermissions();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await createRouterLine(currentLocation, destination);
+    };
+  
+    fetchData(); // Call the function immediately
+  
+    const interval = setInterval(fetchData, 1000); // Call the function every 3 seconds
+  
+    return () => {
+      clearInterval(interval); // Clear the interval when the component unmounts
+    };
+  }, [currentLocation, destination]);
+
   const handleUserLocationUpdate = (location: any) => {
-    
     const { latitude, longitude } = location.coords;
     setCurrentLocation([longitude, latitude]);
   };
+
 
   function makeRouterFeature(coordinates: [number, number][]): any {
     let routerFeature = {
@@ -81,9 +95,7 @@ const App: React.FC = () => {
           rotateEnabled={true}
           zoomEnabled={true}
           onPress={handleMapPress}
-          onDidFinishLoadingMap={async () => {
-            createRouterLine(currentLocation, destination);
-          }}
+          onUserLocationUpdate={async() => createRouterLine(currentLocation, destination)}
         >
           <Mapbox.Camera
             centerCoordinate={currentLocation}
