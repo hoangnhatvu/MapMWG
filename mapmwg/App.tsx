@@ -1,118 +1,126 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import Mapbox, { UserLocation } from '@rnmapbox/maps';
+import Geolocation from '@react-native-community/geolocation';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const APIKEY = 'sk.eyJ1IjoiaG9hbmduaGF0dnUzNTIwMiIsImEiOiJjbG9mM3dtYTcwcXFrMmtvMnQzOXloMDVwIn0.9CiSnF15Kbl9svo-jKMK_A';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+Mapbox.setAccessToken(APIKEY);
+Mapbox.setWellKnownTileServer('Mapbox');
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const App: React.FC = () => {
+  const [destination, setDestination] = useState<[number, number]>([106.7961, 10.8951]);
+  const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([0, 0]);
+  const [locationLoaded, setLocationLoaded] = useState(false);
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setCurrentLocation([
+          position.coords.longitude,
+          position.coords.latitude,
+        ]);
+        setLocationLoaded(true);
+      },
+      error => { console.log(error); setLocationLoaded(true); },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+    );
+  }, []);
+
+  function makeRouterFeature(coordinates: [number, number][]): any {
+    let routerFeature = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: coordinates,
           },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+        },
+      ],
+    };
+    return routerFeature;
+  }
 
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  async function createRouterLine(startCoords: [number, number], endCoords: [number, number]): Promise<void> {
+    const startCoordinates = `${startCoords[0]},${startCoords[1]}`;
+    const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
+    const geometries = 'geojson';
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
+    console.log("url: " + url);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    try {
+      let response = await fetch(url);
+      let json = await response.json();
+      let coordinates = json.routes[0].geometry.coordinates;
+
+      if (coordinates.length) {
+        const routerFeature = makeRouterFeature([...coordinates]);
+        setRouteDirection(routerFeature);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleMapPress = (event: any) => {
+    if (event.geometry) {
+      // Lấy tọa độ điểm đến từ sự kiện click
+      const newDestination: [number, number] = [event.geometry.coordinates[0], event.geometry.coordinates[1]];
+      setDestination(newDestination);
+
+      // Tạo tuyến đường mới
+      createRouterLine(currentLocation, newDestination);
+    }
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.page}>
+      {locationLoaded && (
+        <Mapbox.MapView
+          style={styles.map}
+          styleURL='mapbox://styles/mapbox/outdoors-v12'
+          rotateEnabled={true}
+          zoomEnabled={true}
+          onPress={handleMapPress}
+          onDidFinishLoadingMap={async () => {
+            createRouterLine(currentLocation, destination);
+          }}
+        >
+          <Mapbox.Camera
+            centerCoordinate={currentLocation}
+            zoomLevel={15}
+            animationMode={'flyTo'}
+            animationDuration={6000}
+          />
+          <Mapbox.PointAnnotation id="marker" coordinate={destination}>
+            <View></View>
+          </Mapbox.PointAnnotation>
+          <Mapbox.UserLocation />
+          {routeDirection && (
+            <Mapbox.ShapeSource
+              id='line'
+              shape={routeDirection}
+            >
+              <Mapbox.LineLayer id="routerLine" style={{ lineColor: "blue", lineWidth: 6 }} />
+            </Mapbox.ShapeSource>
+          )}
+        </Mapbox.MapView>
+      )}
+    </View>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
+
+const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+  },
+  map: {
+    flex: 1
+  }
+});
