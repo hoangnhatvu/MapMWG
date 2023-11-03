@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, TextInput} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
-import {primaryColor, tertiaryColor} from '../constants/color';
+import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Icon from 'react-native-vector-icons/Feather';
+import SearchScreen from './SearchScreen';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -16,7 +17,8 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [locationLoaded, setLocationLoaded] = useState(true);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState<string>('');
 
   useEffect(() => {
     if (destination) {
@@ -38,6 +40,10 @@ const MapScreen: React.FC = () => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
   };
+
+  const handleSearch = () => {
+    setIsSearch(!isSearch);
+  }
 
   function makeRouterFeature(coordinates: [number, number][]): any {
     let routerFeature = {
@@ -97,7 +103,14 @@ const MapScreen: React.FC = () => {
   return (
     <View style={styles.page}>
       <View style={styles.page}>
-        {locationLoaded && (
+        {isSearch ? (
+          <SearchScreen
+            isSearch={isSearch}
+            setIsSearch={setIsSearch}
+            searchText={searchText}
+            setSearchText={setSearchText}
+          />
+        ) : (
           <Mapbox.MapView
             style={styles.map}
             styleURL="mapbox://styles/mapbox/outdoors-v12"
@@ -135,8 +148,15 @@ const MapScreen: React.FC = () => {
         )}
       </View>
       <View style={styles.search__bar}>
-        <Icon name="search" style={styles.search__bar_icon} size={30} color="black" />
-        <TextInput />
+        <Icon
+          name="search"
+          style={styles.search__bar_icon}
+          size={25}
+          color="black"
+        />
+        <TouchableOpacity style={styles.search__input} onPress={handleSearch}>
+          <TextInput placeholder="Search here" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -152,6 +172,7 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+    height: '100%',
   },
 
   search__bar: {
@@ -165,8 +186,16 @@ const styles = StyleSheet.create({
     top: 50,
     position: 'absolute',
     color: tertiaryColor,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   search__bar_icon: {
-    
+    marginLeft: 5,
+    marginRight: 5,
+  },
+  search__input: {
+    flex: 1,
+    color: textColor,
   },
 });
