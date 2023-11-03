@@ -41,9 +41,10 @@ const MapScreen: React.FC = () => {
     setCurrentLocation([longitude, latitude]);
   };
 
-  const handleSearch = () => {
+  const handleSearch = (event: any): any => {
     setIsSearch(!isSearch);
-  }
+    console.log(isSearch);
+  };
 
   function makeRouterFeature(coordinates: [number, number][]): any {
     let routerFeature = {
@@ -154,9 +155,11 @@ const MapScreen: React.FC = () => {
           size={25}
           color="black"
         />
-        <TouchableOpacity style={styles.search__input} onPress={handleSearch}>
-          <TextInput placeholder="Search here" />
-        </TouchableOpacity>
+        <TextInput
+          style={styles.search__input}
+          placeholder="Search here"
+          onFocus={handleSearch}
+        />
       </View>
     </View>
   );
