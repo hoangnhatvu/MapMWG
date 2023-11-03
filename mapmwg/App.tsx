@@ -14,17 +14,13 @@ const App: React.FC = () => {
   const [locationLoaded, setLocationLoaded] = useState(true);
 
   useEffect(() => {
-    Mapbox.requestAndroidLocationPermissions();
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
       await createRouterLine(currentLocation, destination);
     };
   
     fetchData(); // Call the function immediately
   
-    const interval = setInterval(fetchData, 1000); // Call the function every 3 seconds
+    const interval = setInterval(fetchData, 3000); // Call the function every 3 seconds
   
     return () => {
       clearInterval(interval); // Clear the interval when the component unmounts
@@ -95,7 +91,6 @@ const App: React.FC = () => {
           rotateEnabled={true}
           zoomEnabled={true}
           onPress={handleMapPress}
-          onUserLocationUpdate={async() => createRouterLine(currentLocation, destination)}
         >
           <Mapbox.Camera
             centerCoordinate={currentLocation}
