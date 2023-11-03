@@ -149,12 +149,22 @@ const MapScreen: React.FC = () => {
         )}
       </View>
       <View style={styles.search__bar}>
-        <Icon
-          name="search"
-          style={styles.search__bar_icon}
-          size={25}
-          color="black"
-        />
+        {isSearch ? (
+          <Icon
+            name="search"
+            style={styles.search__bar_icon}
+            size={25}
+            color="black"
+            onPress={() => setIsSearch(false)}
+          />
+        ) : (
+          <Icon
+            name="search"
+            style={styles.search__bar_icon}
+            size={25}
+            color="black"
+          />
+        )}
         <TextInput
           style={styles.search__input}
           placeholder="Search here"
