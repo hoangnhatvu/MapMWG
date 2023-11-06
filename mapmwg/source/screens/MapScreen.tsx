@@ -13,6 +13,8 @@ import SearchScreen from './SearchScreen';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {Text} from '@rneui/base';
 import {Alert} from 'react-native';
+import LocateButton from '../components/LocateButton';
+
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
 
@@ -35,6 +37,7 @@ const MapScreen: React.FC = () => {
     () => currentLocation,
     [currentLocation],
   );
+  const [isLocated, setIsLocated] = useState<boolean>(false);
 
   useEffect(() => {
     if (destination) {
@@ -208,6 +211,12 @@ const MapScreen: React.FC = () => {
       <View onTouchStart={handleViewPress} style={styles.turn_right}>
         <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
       </View>
+      <LocateButton
+        isLocated={isLocated}
+        onPress={() => {
+          isLocated ? setIsLocated(false) : setIsLocated(true);
+        }}
+      />
     </View>
   );
 };
