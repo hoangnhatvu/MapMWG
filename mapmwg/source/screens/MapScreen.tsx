@@ -1,17 +1,10 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  TextInput,
-  Modal,
-} from 'react-native';
+import {StyleSheet, View, TextInput} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
 import SearchScreen from './SearchScreen';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import {Text} from '@rneui/base';
 import {Alert} from 'react-native';
 import LocateButton from '../components/LocateButton';
 
@@ -132,8 +125,42 @@ const MapScreen: React.FC = () => {
 
   return (
     <View style={styles.page}>
-      <View style={styles.page}>
-        {isSearch ? (
+      <View style={styles.container}>
+        <Mapbox.MapView
+          style={styles.map}
+          styleURL="mapbox://styles/mapbox/outdoors-v12"
+          rotateEnabled={true}
+          zoomEnabled={true}
+          onPress={handleMapPress}>
+          <Mapbox.Camera
+            centerCoordinate={memoizedCurrentLocation}
+            zoomLevel={15}
+            animationMode={'flyTo'}
+            animationDuration={6000}
+          />
+          {destination && (
+            <Mapbox.PointAnnotation id="marker" coordinate={destination}>
+              <View></View>
+            </Mapbox.PointAnnotation>
+          )}
+          <Mapbox.UserLocation
+            minDisplacement={1}
+            visible={true}
+            onUpdate={handleUserLocationUpdate}
+            showsUserHeadingIndicator={true}
+            androidRenderMode="gps"
+            animated={true}
+          />
+          {routeDirection && (
+            <Mapbox.ShapeSource id="line" shape={routeDirection}>
+              <Mapbox.LineLayer
+                id="routerLine"
+                style={{lineColor: 'blue', lineWidth: 6}}
+              />
+            </Mapbox.ShapeSource>
+          )}
+        </Mapbox.MapView>
+        {isSearch && (
           <SearchScreen
             isSearch={isSearch}
             setIsSearch={setIsSearch}
@@ -141,47 +168,12 @@ const MapScreen: React.FC = () => {
             setSearchText={setSearchText}
             handleSearchResult={handleSearchResult}
           />
-        ) : (
-          <Mapbox.MapView
-            style={styles.map}
-            styleURL="mapbox://styles/mapbox/outdoors-v12"
-            rotateEnabled={true}
-            zoomEnabled={true}
-            onPress={handleMapPress}>
-            <Mapbox.Camera
-              centerCoordinate={memoizedCurrentLocation}
-              zoomLevel={15}
-              animationMode={'flyTo'}
-              animationDuration={6000}
-            />
-            {destination && (
-              <Mapbox.PointAnnotation id="marker" coordinate={destination}>
-                <View></View>
-              </Mapbox.PointAnnotation>
-            )}
-            <Mapbox.UserLocation
-              minDisplacement={1}
-              visible={true}
-              onUpdate={handleUserLocationUpdate}
-              showsUserHeadingIndicator={true}
-              androidRenderMode="gps"
-              animated={true}
-            />
-            {routeDirection && (
-              <Mapbox.ShapeSource id="line" shape={routeDirection}>
-                <Mapbox.LineLayer
-                  id="routerLine"
-                  style={{lineColor: 'blue', lineWidth: 6}}
-                />
-              </Mapbox.ShapeSource>
-            )}
-          </Mapbox.MapView>
         )}
       </View>
       <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
-            name="search"
+            name="arrow-left"
             style={styles.search__bar_icon}
             size={25}
             color="black"
@@ -226,15 +218,13 @@ export default MapScreen;
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    fontFamily: 'Times New Roman',
+  },
+  container: {
+    flex: 1,
   },
   map: {
     flex: 1,
-    height: '100%',
   },
-
   search__bar: {
     width: '80%',
     height: 40,

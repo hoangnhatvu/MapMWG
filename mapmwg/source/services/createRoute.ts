@@ -18,7 +18,7 @@ function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-const createRouterLine = async (
+export const createRouterLine = async (
   startCoords: [number, number],
   endCoords: [number, number],
 ) => {
@@ -43,4 +43,3 @@ const createRouterLine = async (
   }
 };
 
-export const createRoute = async () => {};
