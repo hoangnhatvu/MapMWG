@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {StyleSheet, View, TextInput} from 'react-native';
+import {StyleSheet, View, TextInput, Modal} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
@@ -15,13 +15,15 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [destination, setDestination] = useState<[number, number] | null>(null);
-  const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [isDirection, setIsDirection] = useState(true);
+
+  const [searchText, setSearchText] = useState<string>('');
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [isSearch, setIsSearch] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>('');
+  const [destination, setDestination] = useState<[number, number] | null>(null);
+  const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const handleViewPress = () => {
     Alert.alert('Notification', 'Click on View');
   };
@@ -127,10 +129,13 @@ const MapScreen: React.FC = () => {
     <View style={styles.page}>
       <View style={styles.container}>
         <Mapbox.MapView
+          logoEnabled={false}
           style={styles.map}
           styleURL="mapbox://styles/mapbox/outdoors-v12"
           rotateEnabled={true}
           zoomEnabled={true}
+          compassEnabled={true}
+          compassFadeWhenNorth={true}
           onPress={handleMapPress}>
           <Mapbox.Camera
             centerCoordinate={memoizedCurrentLocation}
@@ -170,6 +175,7 @@ const MapScreen: React.FC = () => {
           />
         )}
       </View>
+
       <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
@@ -195,6 +201,7 @@ const MapScreen: React.FC = () => {
           onChangeText={setSearchText}
         />
       </View>
+
       {/* <TouchableOpacity onPress={handleViewPress}>
         <View style={styles.turn_right}>
           <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
