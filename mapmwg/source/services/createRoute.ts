@@ -26,7 +26,6 @@ export const createRouterLine = async (
   const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
   const geometries = 'geojson';
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
-  console.log('url: ' + url);
 
   try {
     let response = await fetch(url);
@@ -35,6 +34,7 @@ export const createRouterLine = async (
 
     if (coordinates.length) {
       const routerFeature = makeRouterFeature([...coordinates]);
+      console.log(routerFeature.properties);
       return routerFeature;
     }
   } catch (error) {
