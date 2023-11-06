@@ -28,9 +28,9 @@ const LocateButton: React.FC<LocateButtonProps> = ({isLocated, onPress}) => {
       >
 
       {isLocated ? (
-        <FontAwesome6 name="location-crosshairs" size={30} color="blue" />
+        <FontAwesome6 name="location-crosshairs" size={30} color="#1A73E8" />
       ) : (
-        <Ionicons name="locate" size={30} />
+        <Ionicons name="locate" size={30} color="gray"/>
       )}
     </View>
   );

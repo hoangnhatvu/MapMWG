@@ -1,6 +1,12 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {StyleSheet, View, TextInput} from 'react-native';
-import Mapbox from '@rnmapbox/maps';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Modal,
+} from 'react-native';
+import Mapbox, {MapView, Camera} from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
 import SearchScreen from './SearchScreen';
@@ -24,11 +30,15 @@ const MapScreen: React.FC = () => {
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
 
+  const handleViewPress = () => {
+    Alert.alert('Notification', 'Click on View');
+  };
   const memoizedCurrentLocation = useMemo(
     () => currentLocation,
     [currentLocation],
   );
   const [isLocated, setIsLocated] = useState<boolean>(false);
+  const [isFly, setIsFly] = useState<boolean>(false);
 
   useEffect(() => {
     if (destination) {
@@ -119,6 +129,12 @@ const MapScreen: React.FC = () => {
     setSearchText('');
     setDestination(data);
     console.log('daa' + data);
+  };
+
+  const onCameraChange = () => {
+    if (isLocated) {
+      setIsLocated(false);
+    }
   };
 
   return (
@@ -247,8 +263,8 @@ const styles = StyleSheet.create({
   },
   turn_right: {
     position: 'absolute',
-    bottom: 60,
-    right: 18,
+    bottom: '2%',
+    right: '5%',
     width: 50,
     height: 50,
     backgroundColor: '#1A73E8',
