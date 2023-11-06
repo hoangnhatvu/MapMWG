@@ -7,6 +7,7 @@ import SearchScreen from './SearchScreen';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {Alert} from 'react-native';
 import LocateButton from '../components/LocateButton';
+import DirectionButton from '../components/DirectionButton';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -22,9 +23,6 @@ const MapScreen: React.FC = () => {
   ]);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
-  const handleViewPress = () => {
-    Alert.alert('Notification', 'Click on View');
-  };
 
   const memoizedCurrentLocation = useMemo(
     () => currentLocation,
@@ -170,7 +168,7 @@ const MapScreen: React.FC = () => {
           />
         )}
       </View>
-      <View style={styles.search__bar}>
+      {/* <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
             name="arrow-left"
@@ -194,21 +192,20 @@ const MapScreen: React.FC = () => {
           value={searchText}
           onChangeText={setSearchText}
         />
-      </View>
+      </View> */}
       {/* <TouchableOpacity onPress={handleViewPress}>
         <View style={styles.turn_right}>
           <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
         </View>
       </TouchableOpacity> */}
-      <View onTouchStart={handleViewPress} style={styles.turn_right}>
-        <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
-      </View>
+
       <LocateButton
         isLocated={isLocated}
         onPress={() => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
+      <DirectionButton />
     </View>
   );
 };
