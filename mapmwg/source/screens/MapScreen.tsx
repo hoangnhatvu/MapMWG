@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, TextInput} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
-import Icon from 'react-native-vector-icons/Feather';
+import Feather from 'react-native-vector-icons/Feather';
 import SearchScreen from './SearchScreen';
-
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import {Text} from '@rneui/base';
+import {Alert} from 'react-native';
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
 
@@ -19,6 +21,9 @@ const MapScreen: React.FC = () => {
   ]);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
+  const handleViewPress = () => {
+    Alert.alert('Notification', 'Click on View');
+  };
 
   useEffect(() => {
     if (destination) {
@@ -150,7 +155,7 @@ const MapScreen: React.FC = () => {
       </View>
       <View style={styles.search__bar}>
         {isSearch ? (
-          <Icon
+          <Feather
             name="search"
             style={styles.search__bar_icon}
             size={25}
@@ -158,7 +163,7 @@ const MapScreen: React.FC = () => {
             onPress={() => setIsSearch(false)}
           />
         ) : (
-          <Icon
+          <Feather
             name="search"
             style={styles.search__bar_icon}
             size={25}
@@ -170,6 +175,14 @@ const MapScreen: React.FC = () => {
           placeholder="Search here"
           onFocus={handleSearch}
         />
+      </View>
+      {/* <TouchableOpacity onPress={handleViewPress}>
+        <View style={styles.turn_right}>
+          <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
+        </View>
+      </TouchableOpacity> */}
+      <View onTouchStart={handleViewPress} style={styles.turn_right}>
+        <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
       </View>
     </View>
   );
@@ -210,5 +223,16 @@ const styles = StyleSheet.create({
   search__input: {
     flex: 1,
     color: textColor,
+  },
+  turn_right: {
+    position: 'absolute',
+    bottom: 60,
+    right: 18,
+    width: 50,
+    height: 50,
+    backgroundColor: '#1A73E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
   },
 });
