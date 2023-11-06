@@ -2,8 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, TextInput} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
-import Icon from 'react-native-vector-icons/Feather';
+import Feather from 'react-native-vector-icons/Feather';
 import SearchScreen from './SearchScreen';
+import LocateButton from '../components/LocateButton';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -19,6 +20,7 @@ const MapScreen: React.FC = () => {
   ]);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
+  const [isLocated, setIsLocated] = useState<boolean>(false);
 
   useEffect(() => {
     if (destination) {
@@ -150,7 +152,7 @@ const MapScreen: React.FC = () => {
       </View>
       <View style={styles.search__bar}>
         {isSearch ? (
-          <Icon
+          <Feather
             name="search"
             style={styles.search__bar_icon}
             size={25}
@@ -158,7 +160,7 @@ const MapScreen: React.FC = () => {
             onPress={() => setIsSearch(false)}
           />
         ) : (
-          <Icon
+          <Feather
             name="search"
             style={styles.search__bar_icon}
             size={25}
@@ -171,6 +173,12 @@ const MapScreen: React.FC = () => {
           onFocus={handleSearch}
         />
       </View>
+      <LocateButton
+        isLocated={isLocated}
+        onPress={() => {
+          isLocated ? setIsLocated(false) : setIsLocated(true);
+        }}
+      />
     </View>
   );
 };
