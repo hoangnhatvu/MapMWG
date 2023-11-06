@@ -7,92 +7,77 @@ import {
 } from 'react-native';
 import {primaryColor, tertiaryColor} from '../constants/color';
 import Icon from 'react-native-vector-icons/Feather';
+import { isString } from '@rnmapbox/maps/lib/typescript/utils';
 
 interface SearchScreenProps {
   isSearch: boolean;
   setIsSearch: (value: boolean) => void;
   searchText: string;
   setSearchText: (value: string) => void;
+ handleSearchResult: (value: [number, number]) => void;
 }
 
 const SearchScreen:React.FC<SearchScreenProps> = ({
   isSearch,
   setIsSearch,
   searchText,
-  setSearchText
+  setSearchText,
+  handleSearchResult,
 }) => {
   const searchLocation = [
     {
       id: 1,
-      coordinates: {latitude: 123.456, longitude: 789.012},
-      name: 'Địa điểm 1',
-      address: 'Địa chỉ 1',
+      coordinates: [70, 78],
+      name: 'Address 1',
+      address: 'Location 1',
     },
     {
       id: 2,
-      coordinates: {latitude: 111.222, longitude: 333.444},
-      name: 'Địa điểm 2',
-      address: 'Địa chỉ 2',
+      coordinates: [11, 33],
+      name: 'Address 2',
+      address: 'Location 2',
     },
     {
       id: 3,
-      coordinates: {latitude: 222.333, longitude: 444.555},
-      name: 'Địa điểm 3',
-      address: 'Địa chỉ 3',
+      coordinates: [22, 44],
+      name: 'Address 3',
+      address: 'Location 3',
     },
     {
       id: 4,
-      coordinates: {latitude: 333.444, longitude: 555.666},
-      name: 'Địa điểm 4',
-      address: 'Địa chỉ 4',
-    },
-    {
-      id: 5,
-      coordinates: {latitude: 444.555, longitude: 666.777},
-      name: 'Địa điểm 5',
-      address: 'Địa chỉ 5',
-    },
-    {
-      id: 6,
-      coordinates: {latitude: 555.666, longitude: 777.888},
-      name: 'Địa điểm 6',
-      address: 'Địa chỉ 6',
-    },
-    {
-      id: 7,
-      coordinates: {latitude: 666.777, longitude: 888.999},
-      name: 'Địa điểm 7',
-      address: 'Địa chỉ 7',
-    },
-    {
-      id: 8,
-      coordinates: {latitude: 777.888, longitude: 999.0},
-      name: 'Địa điểm 8',
-      address: 'Địa chỉ 8',
-    },
-    {
-      id: 9,
-      coordinates: {latitude: 888.999, longitude: 100.111},
-      name: 'Địa điểm 9',
-      address: 'Địa chỉ 9',
-    },
-    {
-      id: 10,
-      coordinates: {latitude: 999.0, longitude: 111.222},
-      name: 'Địa điểm 10',
-      address: 'Địa chỉ 10',
+      coordinates: [33, 55],
+      name: 'Address 4',
+      address: 'Location 4',
     },
   ];
+
+  const filterSearchResults = (searchText: string, searchLocation: any[]): any[] => {
+    if (searchText.trim() === '') {
+      // Return a random item if searchText is empty
+    }
+
+    return searchLocation.filter((location) => {
+      let nameMatch = location.name.toLowerCase().includes(searchText.toLowerCase());
+
+      return nameMatch;
+    });
+  };
+
+  const filteredSearchResults = filterSearchResults(searchText, searchLocation);
+
+  const handleSearchLocation = (location: any):any => {
+    handleSearchResult(location.coordinates);
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.search__container}>
         <ScrollView>
-          {searchLocation.map(location => (
+        {filteredSearchResults.map(location => (
             <TouchableOpacity
               key={location.id}
               style={styles.search__location}
-              onPress={() => {}}>
+              onPress={() => handleSearchLocation(location)}>
               <View style={{flexDirection: 'row'}}>
                 <View style={{marginRight: 16, alignItems: 'center'}}>
                   <Icon name="map-pin" size={20} />

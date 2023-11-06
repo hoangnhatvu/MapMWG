@@ -1,5 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, TouchableOpacity, TextInput} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Modal,
+} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Icon from 'react-native-vector-icons/Feather';
@@ -19,6 +25,11 @@ const MapScreen: React.FC = () => {
   ]);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
+
+  const memoizedCurrentLocation = useMemo(
+    () => currentLocation,
+    [currentLocation],
+  );
 
   useEffect(() => {
     if (destination) {
@@ -42,8 +53,12 @@ const MapScreen: React.FC = () => {
   };
 
   const handleSearch = (event: any): any => {
-    setIsSearch(!isSearch);
-    console.log(isSearch);
+    setIsSearch(true);
+  };
+
+  const exitSearch = (): any => {
+    setIsSearch(false);
+    setSearchText('');
   };
 
   function makeRouterFeature(coordinates: [number, number][]): any {
@@ -71,7 +86,6 @@ const MapScreen: React.FC = () => {
     const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
     const geometries = 'geojson';
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
-    console.log('url: ' + url);
 
     try {
       let response = await fetch(url);
@@ -101,6 +115,13 @@ const MapScreen: React.FC = () => {
     }
   };
 
+  const handleSearchResult = (data: [number, number]):any => {
+    setIsSearch(false);
+    setSearchText("");
+    setDestination(data);
+    console.log("daa"+ data);
+  }
+
   return (
     <View style={styles.page}>
       <View style={styles.page}>
@@ -110,6 +131,7 @@ const MapScreen: React.FC = () => {
             setIsSearch={setIsSearch}
             searchText={searchText}
             setSearchText={setSearchText}
+            handleSearchResult={handleSearchResult}
           />
         ) : (
           <Mapbox.MapView
@@ -119,7 +141,7 @@ const MapScreen: React.FC = () => {
             zoomEnabled={true}
             onPress={handleMapPress}>
             <Mapbox.Camera
-              centerCoordinate={currentLocation}
+              centerCoordinate={memoizedCurrentLocation}
               zoomLevel={15}
               animationMode={'flyTo'}
               animationDuration={6000}
@@ -151,11 +173,11 @@ const MapScreen: React.FC = () => {
       <View style={styles.search__bar}>
         {isSearch ? (
           <Icon
-            name="search"
+            name="arrow-left"
             style={styles.search__bar_icon}
             size={25}
             color="black"
-            onPress={() => setIsSearch(false)}
+            onPress={exitSearch}
           />
         ) : (
           <Icon
@@ -168,7 +190,9 @@ const MapScreen: React.FC = () => {
         <TextInput
           style={styles.search__input}
           placeholder="Search here"
-          onFocus={handleSearch}
+          onKeyPress={handleSearch}
+          value={searchText}
+          onChangeText={setSearchText}
         />
       </View>
     </View>
@@ -182,6 +206,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+    fontFamily: 'Times New Roman'
   },
   map: {
     flex: 1,
