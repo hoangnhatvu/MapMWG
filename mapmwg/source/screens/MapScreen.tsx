@@ -8,9 +8,11 @@ import {
 } from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
-import Icon from 'react-native-vector-icons/Feather';
+import Feather from 'react-native-vector-icons/Feather';
 import SearchScreen from './SearchScreen';
-
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import {Text} from '@rneui/base';
+import {Alert} from 'react-native';
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
 
@@ -25,6 +27,9 @@ const MapScreen: React.FC = () => {
   ]);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
+  const handleViewPress = () => {
+    Alert.alert('Notification', 'Click on View');
+  };
 
   const memoizedCurrentLocation = useMemo(
     () => currentLocation,
@@ -115,12 +120,12 @@ const MapScreen: React.FC = () => {
     }
   };
 
-  const handleSearchResult = (data: [number, number]):any => {
+  const handleSearchResult = (data: [number, number]): any => {
     setIsSearch(false);
-    setSearchText("");
+    setSearchText('');
     setDestination(data);
-    console.log("daa"+ data);
-  }
+    console.log('daa' + data);
+  };
 
   return (
     <View style={styles.page}>
@@ -172,15 +177,15 @@ const MapScreen: React.FC = () => {
       </View>
       <View style={styles.search__bar}>
         {isSearch ? (
-          <Icon
-            name="arrow-left"
+          <Feather
+            name="search"
             style={styles.search__bar_icon}
             size={25}
             color="black"
             onPress={exitSearch}
           />
         ) : (
-          <Icon
+          <Feather
             name="search"
             style={styles.search__bar_icon}
             size={25}
@@ -195,6 +200,14 @@ const MapScreen: React.FC = () => {
           onChangeText={setSearchText}
         />
       </View>
+      {/* <TouchableOpacity onPress={handleViewPress}>
+        <View style={styles.turn_right}>
+          <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
+        </View>
+      </TouchableOpacity> */}
+      <View onTouchStart={handleViewPress} style={styles.turn_right}>
+        <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
+      </View>
     </View>
   );
 };
@@ -206,7 +219,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    fontFamily: 'Times New Roman'
+    fontFamily: 'Times New Roman',
   },
   map: {
     flex: 1,
@@ -235,5 +248,16 @@ const styles = StyleSheet.create({
   search__input: {
     flex: 1,
     color: textColor,
+  },
+  turn_right: {
+    position: 'absolute',
+    bottom: 60,
+    right: 18,
+    width: 50,
+    height: 50,
+    backgroundColor: '#1A73E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
   },
 });
