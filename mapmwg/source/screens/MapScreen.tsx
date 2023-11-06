@@ -139,9 +139,10 @@ const MapScreen: React.FC = () => {
           onPress={handleMapPress}>
           <Mapbox.Camera
             centerCoordinate={memoizedCurrentLocation}
-            zoomLevel={15}
             animationMode={'flyTo'}
             animationDuration={6000}
+            followUserLocation={true}
+            followZoomLevel={15}
           />
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
@@ -153,8 +154,9 @@ const MapScreen: React.FC = () => {
             visible={true}
             onUpdate={handleUserLocationUpdate}
             showsUserHeadingIndicator={true}
-            androidRenderMode="gps"
             animated={true}
+            androidRenderMode="gps"
+            requestsAlwaysUse={true}
           />
           {routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
