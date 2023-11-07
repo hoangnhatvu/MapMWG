@@ -27,7 +27,7 @@ const MapScreen: React.FC = () => {
   const [isDirection, setIsDirection] = useState(true);
   const [isFly, setIsFly] = useState<boolean>(false);
   const [isLocated, setIsLocated] = useState<boolean>(false);
-  
+
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
@@ -35,11 +35,9 @@ const MapScreen: React.FC = () => {
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const [searchText, setSearchText] = useState<string>('');
 
-
   const handleViewPress = () => {
     Alert.alert('Notification', 'Click on View');
   };
- 
 
   useEffect(() => {
     if (destination && currentLocation) {
@@ -104,7 +102,6 @@ const MapScreen: React.FC = () => {
           compassEnabled={true}
           compassFadeWhenNorth={true}
           onPress={handleMapPress}>
-
           <Mapbox.Camera
             centerCoordinate={currentLocation}
             animationMode={'flyTo'}
