@@ -147,7 +147,10 @@ const MapScreen: React.FC = () => {
           />
         )}
       </View>
+<<<<<<< HEAD
+=======
 
+>>>>>>> main
       <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
