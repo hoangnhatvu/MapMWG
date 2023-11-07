@@ -176,7 +176,7 @@ const MapScreen: React.FC = () => {
           </Mapbox.MapView>
         )}
       </View>
-      {/* <View style={styles.search__bar}>
+      <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
             name="search"
@@ -200,12 +200,7 @@ const MapScreen: React.FC = () => {
           value={searchText}
           onChangeText={setSearchText}
         />
-      </View> */}
-      {/* <TouchableOpacity onPress={handleViewPress}>
-        <View style={styles.turn_right}>
-          <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
-        </View>
-      </TouchableOpacity> */}
+      </View>
 
       <LocateButton
         isLocated={isLocated}
