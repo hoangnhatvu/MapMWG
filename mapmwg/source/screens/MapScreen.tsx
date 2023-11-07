@@ -91,7 +91,7 @@ const MapScreen: React.FC = () => {
     setIsSearch(false);
     setSearchText('');
     setDestination(data);
-    console.log('daa' + data);
+    console.log('data' + data);
   };
 
   const onCameraChange = () => {
