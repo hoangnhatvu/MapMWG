@@ -18,7 +18,7 @@ function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-const createRouterLine = async (
+export const createRouterLine = async (
   startCoords: [number, number],
   endCoords: [number, number],
 ) => {
@@ -26,11 +26,11 @@ const createRouterLine = async (
   const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
   const geometries = 'geojson';
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
-  console.log('url: ' + url);
 
   try {
     let response = await fetch(url);
     let json = await response.json();
+    console.log(json);
     let coordinates = json.routes[0].geometry.coordinates;
 
     if (coordinates.length) {
@@ -43,4 +43,3 @@ const createRouterLine = async (
   }
 };
 
-export const createRoute = async () => {};

@@ -1,9 +1,18 @@
 import {Modal, StyleSheet, Text, TextInput, View} from 'react-native';
 import React from 'react';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-const DirectionScreen = () => {
-  return (
-    <Modal animationType="slide" transparent={true} visible={true}>
+
+interface DirectionScreenProps {
+  visible: boolean;
+  handleBack: () => void;
+}
+
+const DirectionScreen: React.FC<DirectionScreenProps> = ({
+  visible,
+  handleBack,
+}) => {
+  return ( 
+      <Modal animationType="slide" transparent={true} visible={visible}>
       <View
         style={{
           flexDirection: 'column',
@@ -18,7 +27,12 @@ const DirectionScreen = () => {
             marginTop: 10,
             marginLeft: 10,
           }}>
-          <FontAwesome6 name="arrow-left" size={25} style={{marginRight: 10}} />
+          <FontAwesome6
+            name="arrow-left"
+            size={25}
+            style={{marginRight: 10}}
+            onPress={handleBack}
+          />
           <FontAwesome6
             name="circle-dot"
             style={{marginLeft: 10, color: 'blue'}}
@@ -55,6 +69,7 @@ const DirectionScreen = () => {
         </View>
       </View>
     </Modal>
+    
   );
 };
 

@@ -6,15 +6,16 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import Mapbox from '@rnmapbox/maps';
+import Mapbox, {MapView, Camera} from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
-import SearchScreen from './SearchScreen';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import {Text} from '@rneui/base';
 import {Alert} from 'react-native';
 import LocateButton from '../components/LocateButton';
 import DirectionButton from '../components/DirectionButton';
+import {createRouterLine} from '../services/createRoute';
+import SearchScreen from './SearchScreen';
+import DirectionScreen from './DirectionScreen';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -23,29 +24,26 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [destination, setDestination] = useState<[number, number] | null>(null);
-  const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [isLocated, setIsLocated] = useState<boolean>(false);
+  const [isDirection, setIsDirection] = useState<boolean>(false);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [destination, setDestination] = useState<[number, number] | null>(null);
+  const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const [searchText, setSearchText] = useState<string>('');
 
-  const memoizedCurrentLocation = useMemo(
-    () => currentLocation,
-    [currentLocation],
-  );
-  const [isLocated, setIsLocated] = useState<boolean>(false);
-
   useEffect(() => {
-    if (destination) {
+    if (destination && currentLocation) {
       const fetchData = async () => {
-        await createRouterLine(currentLocation, destination);
+        const route = await createRouterLine(currentLocation, destination);
+        setRouteDirection(route);
       };
 
       fetchData(); // Call the function immediately
 
-      const interval = setInterval(fetchData, 4000); // Call the function every 4 seconds
+      const interval = setInterval(fetchData, 400000); // Call the function every 4 seconds
 
       return () => {
         clearInterval(interval); // Clear the interval when the component unmounts
@@ -62,50 +60,14 @@ const MapScreen: React.FC = () => {
     setIsSearch(true);
   };
 
+  const handleBack = () => {
+    setIsDirection(false);
+  };
+
   const exitSearch = (): any => {
     setIsSearch(false);
     setSearchText('');
   };
-
-  function makeRouterFeature(coordinates: [number, number][]): any {
-    let routerFeature = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: coordinates,
-          },
-        },
-      ],
-    };
-    return routerFeature;
-  }
-
-  async function createRouterLine(
-    startCoords: [number, number],
-    endCoords: [number, number],
-  ): Promise<void> {
-    const startCoordinates = `${startCoords[0]},${startCoords[1]}`;
-    const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
-    const geometries = 'geojson';
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
-
-    try {
-      let response = await fetch(url);
-      let json = await response.json();
-      let coordinates = json.routes[0].geometry.coordinates;
-
-      if (coordinates.length) {
-        const routerFeature = makeRouterFeature([...coordinates]);
-        setRouteDirection(routerFeature);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   const handleMapPress = (event: any) => {
     if (event.geometry) {
@@ -115,9 +77,7 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       setDestination(newDestination);
-
       // Create a new route
-      createRouterLine(currentLocation, newDestination);
     }
   };
 
@@ -128,58 +88,73 @@ const MapScreen: React.FC = () => {
     console.log('data' + data);
   };
 
+  const handleTouchMove = () => {
+    setIsLocated(false);
+  };
+
   return (
     <View style={styles.page}>
-      <View style={styles.page}>
-        {isSearch ? (
+      <View style={styles.container}>
+        <Mapbox.MapView
+          logoEnabled={false}
+          style={styles.map}
+          styleURL="mapbox://styles/mapbox/outdoors-v12"
+          rotateEnabled={true}
+          zoomEnabled={true}
+          compassEnabled={true}
+          compassFadeWhenNorth={true}
+          onPress={handleMapPress}
+          onTouchMove={handleTouchMove}>
+          {isLocated && (
+            <Mapbox.Camera
+              centerCoordinate={currentLocation}
+              animationMode={'flyTo'}
+              animationDuration={2000}
+              zoomLevel={15}
+            />
+          )}
+
+          {destination && (
+            <Mapbox.PointAnnotation id="marker" coordinate={destination}>
+              <View></View>
+            </Mapbox.PointAnnotation>
+          )}
+          <Mapbox.UserLocation
+            minDisplacement={1}
+            visible={true}
+            onUpdate={handleUserLocationUpdate}
+            showsUserHeadingIndicator={true}
+            animated={true}
+            androidRenderMode="gps"
+            requestsAlwaysUse={true}
+          />
+          {routeDirection && (
+            <Mapbox.ShapeSource id="line" shape={routeDirection}>
+              <Mapbox.LineLayer
+                id="routerLine"
+                style={{lineColor: 'blue', lineWidth: 6}}
+              />
+            </Mapbox.ShapeSource>
+          )}
+        </Mapbox.MapView>
+        {isSearch && (
           <SearchScreen
             isSearch={isSearch}
-            setIsSearch={setIsSearch}
             searchText={searchText}
+            setIsSearch={setIsSearch}
             setSearchText={setSearchText}
             handleSearchResult={handleSearchResult}
           />
-        ) : (
-          <Mapbox.MapView
-            style={styles.map}
-            styleURL="mapbox://styles/mapbox/outdoors-v12"
-            rotateEnabled={true}
-            zoomEnabled={true}
-            onPress={handleMapPress}>
-            <Mapbox.Camera
-              centerCoordinate={memoizedCurrentLocation}
-              zoomLevel={15}
-              animationMode={'flyTo'}
-              animationDuration={6000}
-            />
-            {destination && (
-              <Mapbox.PointAnnotation id="marker" coordinate={destination}>
-                <View></View>
-              </Mapbox.PointAnnotation>
-            )}
-            <Mapbox.UserLocation
-              minDisplacement={1}
-              visible={true}
-              onUpdate={handleUserLocationUpdate}
-              showsUserHeadingIndicator={true}
-              androidRenderMode="gps"
-              animated={true}
-            />
-            {routeDirection && (
-              <Mapbox.ShapeSource id="line" shape={routeDirection}>
-                <Mapbox.LineLayer
-                  id="routerLine"
-                  style={{lineColor: 'blue', lineWidth: 6}}
-                />
-              </Mapbox.ShapeSource>
-            )}
-          </Mapbox.MapView>
         )}
       </View>
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
       <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
-            name="search"
+            name="arrow-left"
             style={styles.search__bar_icon}
             size={25}
             color="black"
@@ -208,7 +183,16 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
-      <DirectionButton />
+      <DirectionButton
+        onPress={() => {
+          setIsDirection(true);
+        }}
+      />
+      {isDirection && (
+        <View style={{width:'100%', height: 40, position:'absolute', top: 0}}>
+          <DirectionScreen visible={true} handleBack={handleBack} />
+        </View>
+      )}
     </View>
   );
 };
@@ -218,21 +202,18 @@ export default MapScreen;
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    fontFamily: 'Times New Roman',
+  },
+  container: {
+    flex: 1,
   },
   map: {
     flex: 1,
-    height: '100%',
   },
-
   search__bar: {
-    width: '80%',
+    width: '90%',
     height: 40,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: tertiaryColor,
+    elevation: 5,
     backgroundColor: primaryColor,
     alignSelf: 'center',
     top: 50,
@@ -252,8 +233,8 @@ const styles = StyleSheet.create({
   },
   turn_right: {
     position: 'absolute',
-    bottom: 60,
-    right: 18,
+    bottom: '2%',
+    right: '5%',
     width: 50,
     height: 50,
     backgroundColor: '#1A73E8',
