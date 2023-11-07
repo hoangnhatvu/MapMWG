@@ -146,12 +146,14 @@ const MapScreen: React.FC = () => {
           rotateEnabled={true}
           zoomEnabled={true}
           onPress={handleMapPress}>
-          <Mapbox.Camera
-            centerCoordinate={memoizedCurrentLocation}
-            zoomLevel={15}
-            animationMode={'flyTo'}
-            animationDuration={6000}
-          />
+          {isLocated && (
+            <Mapbox.Camera
+              centerCoordinate={memoizedCurrentLocation}
+              zoomLevel={15}
+              animationMode={'flyTo'}
+              animationDuration={6000}
+            />
+          )}
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
               <View></View>
