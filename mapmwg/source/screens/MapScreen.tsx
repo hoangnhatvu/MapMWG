@@ -9,12 +9,12 @@ import {
 import Mapbox, {MapView, Camera} from '@rnmapbox/maps';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
-import SearchScreen from './SearchScreen';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {Alert} from 'react-native';
 import LocateButton from '../components/LocateButton';
 import DirectionButton from '../components/DirectionButton';
 import {createRouterLine} from '../services/createRoute';
+import SearchScreen from './SearchScreen';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -25,25 +25,27 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const MapScreen: React.FC = () => {
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [isDirection, setIsDirection] = useState(true);
-
-  const [searchText, setSearchText] = useState<string>('');
+  const [isFly, setIsFly] = useState<boolean>(false);
+  const [isLocated, setIsLocated] = useState<boolean>(false);
+  
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
   const [destination, setDestination] = useState<[number, number] | null>(null);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const [searchText, setSearchText] = useState<string>('');
 
-  const memoizedCurrentLocation = useMemo(
-    () => currentLocation,
-    [currentLocation],
-  );
-  const [isLocated, setIsLocated] = useState<boolean>(false);
-  const [isFly, setIsFly] = useState<boolean>(false);
+
+  const handleViewPress = () => {
+    Alert.alert('Notification', 'Click on View');
+  };
+ 
 
   useEffect(() => {
-    if (destination) {
+    if (destination && currentLocation) {
       const fetchData = async () => {
-        await createRouterLine(currentLocation, destination);
+        const route = await createRouterLine(currentLocation, destination);
+        setRouteDirection(route);
       };
 
       fetchData(); // Call the function immediately
@@ -80,7 +82,6 @@ const MapScreen: React.FC = () => {
       setDestination(newDestination);
 
       // Create a new route
-      createRouterLine(currentLocation, newDestination);
     }
   };
 
@@ -103,15 +104,14 @@ const MapScreen: React.FC = () => {
           compassEnabled={true}
           compassFadeWhenNorth={true}
           onPress={handleMapPress}>
-          {isLocated && (
-            <Mapbox.Camera
-              centerCoordinate={memoizedCurrentLocation}
-              animationMode={'flyTo'}
-              animationDuration={6000}
-              followUserLocation={true}
-              followZoomLevel={15}
-            />
-          )}
+
+          <Mapbox.Camera
+            centerCoordinate={currentLocation}
+            animationMode={'flyTo'}
+            animationDuration={6000}
+            followZoomLevel={15}
+            zoomLevel={15}
+          />
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
               <View></View>
@@ -138,8 +138,8 @@ const MapScreen: React.FC = () => {
         {isSearch && (
           <SearchScreen
             isSearch={isSearch}
-            setIsSearch={setIsSearch}
             searchText={searchText}
+            setIsSearch={setIsSearch}
             setSearchText={setSearchText}
             handleSearchResult={handleSearchResult}
           />
@@ -147,31 +147,29 @@ const MapScreen: React.FC = () => {
       </View>
 
       <View style={styles.search__bar}>
-        <View style={styles.search__bar}>
-          {isSearch ? (
-            <Feather
-              name="arrow-left"
-              style={styles.search__bar_icon}
-              size={25}
-              color="black"
-              onPress={exitSearch}
-            />
-          ) : (
-            <Feather
-              name="search"
-              style={styles.search__bar_icon}
-              size={25}
-              color="black"
-            />
-          )}
-          <TextInput
-            style={styles.search__input}
-            placeholder="Search here"
-            onKeyPress={handleSearch}
-            value={searchText}
-            onChangeText={setSearchText}
+        {isSearch ? (
+          <Feather
+            name="arrow-left"
+            style={styles.search__bar_icon}
+            size={25}
+            color="black"
+            onPress={exitSearch}
           />
-        </View>
+        ) : (
+          <Feather
+            name="search"
+            style={styles.search__bar_icon}
+            size={25}
+            color="black"
+          />
+        )}
+        <TextInput
+          style={styles.search__input}
+          placeholder="Search here"
+          onKeyPress={handleSearch}
+          value={searchText}
+          onChangeText={setSearchText}
+        />
       </View>
 
       <LocateButton
