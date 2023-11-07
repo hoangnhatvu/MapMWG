@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React, {useState} from 'react';
 import {primaryColor} from '../constants/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';

@@ -1,18 +1,14 @@
-import {Alert, StyleSheet, Text, View} from 'react-native';
-import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+import React from 'react';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import DirectionScreen from '../screens/DirectionScreen';
 
-const DirectionButton = () => {
-  const [isDirection, setIsDirection] = useState<boolean>(false);
+interface DirectionButtonProps {
+  onPress: () => void;
+}
 
-  const handleViewPress = () => {
-    setIsDirection(!isDirection);
-  };
-
+const DirectionButton: React.FC<DirectionButtonProps> = ({onPress}) => {
   return (
-    <View onTouchStart={handleViewPress} style={styles.turn_right}>
-      {isDirection && <DirectionScreen />}
+    <View onTouchStart={onPress} style={styles.turn_right}>
       <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
     </View>
   );
