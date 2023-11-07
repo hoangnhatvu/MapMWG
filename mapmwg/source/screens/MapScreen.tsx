@@ -154,48 +154,45 @@ const MapScreen: React.FC = () => {
       </View>
 
       <View style={styles.search__bar}>
-        {/* <View style={styles.search__bar}>
->>>>>>> cd92f9ea9511932669fd9a914f34a289a486b85b
-        {isSearch ? (
-          <Feather
-            name="arrow-left"
-            style={styles.search__bar_icon}
-            size={25}
-            color="black"
-            onPress={exitSearch}
+        <View style={styles.search__bar}>
+          {isSearch ? (
+            <Feather
+              name="arrow-left"
+              style={styles.search__bar_icon}
+              size={25}
+              color="black"
+              onPress={exitSearch}
+            />
+          ) : (
+            <Feather
+              name="search"
+              style={styles.search__bar_icon}
+              size={25}
+              color="black"
+            />
+          )}
+          <TextInput
+            style={styles.search__input}
+            placeholder="Search here"
+            onKeyPress={handleSearch}
+            value={searchText}
+            onChangeText={setSearchText}
           />
-        ) : (
-          <Feather
-            name="search"
-            style={styles.search__bar_icon}
-            size={25}
-            color="black"
-          />
-        )}
-        <TextInput
-          style={styles.search__input}
-          placeholder="Search here"
-          onKeyPress={handleSearch}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
+        </View>
       </View>
-
-      </View> */}
-        {/* <TouchableOpacity onPress={handleViewPress}>
+      <TouchableOpacity onPress={handleViewPress}>
         <View style={styles.turn_right}>
           <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
         </View>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
-        <LocateButton
-          isLocated={isLocated}
-          onPress={() => {
-            isLocated ? setIsLocated(false) : setIsLocated(true);
-          }}
-        />
-        <DirectionButton />
-      </View>
+      <LocateButton
+        isLocated={isLocated}
+        onPress={() => {
+          isLocated ? setIsLocated(false) : setIsLocated(true);
+        }}
+      />
+      <DirectionButton />
     </View>
   );
 };
