@@ -27,19 +27,12 @@ const MapScreen: React.FC = () => {
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [isLocated, setIsLocated] = useState<boolean>(false);
   const [isDirection, setIsDirection] = useState<boolean>(false);
-  
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
   const [destination, setDestination] = useState<[number, number] | null>(null);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const [searchText, setSearchText] = useState<string>('');
-
-
-  const handleViewPress = () => {
-    Alert.alert('Notification', 'Click on View');
-  };
- 
 
   useEffect(() => {
     if (destination && currentLocation) {
@@ -110,15 +103,17 @@ const MapScreen: React.FC = () => {
           zoomEnabled={true}
           compassEnabled={true}
           compassFadeWhenNorth={true}
-          onPress={handleMapPress}>
+          onPress={handleMapPress}
+          onTouchMove={handleTouchMove}>
+          {isLocated && (
+            <Mapbox.Camera
+              centerCoordinate={currentLocation}
+              animationMode={'flyTo'}
+              animationDuration={2000}
+              zoomLevel={15}
+            />
+          )}
 
-          <Mapbox.Camera
-            centerCoordinate={currentLocation}
-            animationMode={'flyTo'}
-            animationDuration={6000}
-            followZoomLevel={15}
-            zoomLevel={15}
-          />
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
               <View></View>
@@ -152,10 +147,7 @@ const MapScreen: React.FC = () => {
           />
         )}
       </View>
-<<<<<<< HEAD
-=======
 
->>>>>>> main
       <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
