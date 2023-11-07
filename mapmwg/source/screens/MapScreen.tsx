@@ -112,13 +112,15 @@ const MapScreen: React.FC = () => {
           compassEnabled={true}
           compassFadeWhenNorth={true}
           onPress={handleMapPress}>
-          <Mapbox.Camera
-            centerCoordinate={memoizedCurrentLocation}
-            animationMode={'flyTo'}
-            animationDuration={6000}
-            followUserLocation={true}
+          {isLocated && (
+            <Mapbox.Camera
+              centerCoordinate={memoizedCurrentLocation}
+                animationMode={'flyTo'}
+              animationDuration={6000}
+              followUserLocation={true}
             followZoomLevel={15}
           />
+          )}
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
               <View></View>
