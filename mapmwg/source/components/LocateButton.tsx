@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 50,
     backgroundColor: primaryColor,
-    bottom: '10%',
+    bottom: '12%',
     right: '5%',
     zIndex: 1,
     elevation: 1.5,
