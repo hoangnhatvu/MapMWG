@@ -15,6 +15,7 @@ import LocateButton from '../components/LocateButton';
 import DirectionButton from '../components/DirectionButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
+import DirectionScreen from './DirectionScreen';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -24,10 +25,8 @@ Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
   const [isSearch, setIsSearch] = useState<boolean>(false);
-  const [isDirection, setIsDirection] = useState(true);
-  const [isFly, setIsFly] = useState<boolean>(false);
   const [isLocated, setIsLocated] = useState<boolean>(false);
-
+  
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
@@ -35,9 +34,11 @@ const MapScreen: React.FC = () => {
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const [searchText, setSearchText] = useState<string>('');
 
+
   const handleViewPress = () => {
     Alert.alert('Notification', 'Click on View');
   };
+ 
 
   useEffect(() => {
     if (destination && currentLocation) {
@@ -48,7 +49,7 @@ const MapScreen: React.FC = () => {
 
       fetchData(); // Call the function immediately
 
-      const interval = setInterval(fetchData, 4000); // Call the function every 4 seconds
+      const interval = setInterval(fetchData, 400000); // Call the function every 4 seconds
 
       return () => {
         clearInterval(interval); // Clear the interval when the component unmounts
@@ -65,6 +66,10 @@ const MapScreen: React.FC = () => {
     setIsSearch(true);
   };
 
+  const handleBack = () => {
+    setIsDirection(false);
+  };
+
   const exitSearch = (): any => {
     setIsSearch(false);
     setSearchText('');
@@ -78,7 +83,6 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       setDestination(newDestination);
-
       // Create a new route
     }
   };
@@ -88,6 +92,10 @@ const MapScreen: React.FC = () => {
     setSearchText('');
     setDestination(data);
     console.log('data' + data);
+  };
+
+  const handleTouchMove = () => {
+    setIsLocated(false);
   };
 
   return (
@@ -102,6 +110,7 @@ const MapScreen: React.FC = () => {
           compassEnabled={true}
           compassFadeWhenNorth={true}
           onPress={handleMapPress}>
+
           <Mapbox.Camera
             centerCoordinate={currentLocation}
             animationMode={'flyTo'}
@@ -175,7 +184,16 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
-      <DirectionButton />
+      <DirectionButton
+        onPress={() => {
+          setIsDirection(true);
+        }}
+      />
+      {isDirection && (
+        <View style={{width:'100%', height: 40, position:'absolute', top: 0}}>
+          <DirectionScreen visible={true} handleBack={handleBack} />
+        </View>
+      )}
     </View>
   );
 };
@@ -193,11 +211,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   search__bar: {
-    width: '80%',
+    width: '90%',
     height: 40,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: tertiaryColor,
+    elevation: 5,
     backgroundColor: primaryColor,
     alignSelf: 'center',
     top: 50,
