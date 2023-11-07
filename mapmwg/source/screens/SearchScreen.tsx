@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 import {primaryColor, tertiaryColor} from '../constants/color';
 import Icon from 'react-native-vector-icons/Feather';
-import {isString} from '@rnmapbox/maps/lib/typescript/utils';
 import {SearchProps} from '../props/SearchProps';
 
 const SearchScreen: React.FC<SearchProps> = ({

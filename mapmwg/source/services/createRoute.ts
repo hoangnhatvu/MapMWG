@@ -30,11 +30,11 @@ export const createRouterLine = async (
   try {
     let response = await fetch(url);
     let json = await response.json();
+    console.log(json);
     let coordinates = json.routes[0].geometry.coordinates;
 
     if (coordinates.length) {
       const routerFeature = makeRouterFeature([...coordinates]);
-      console.log(routerFeature.properties);
       return routerFeature;
     }
   } catch (error) {
