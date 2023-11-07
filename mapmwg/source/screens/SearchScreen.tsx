@@ -7,17 +7,9 @@ import {
 } from 'react-native';
 import {primaryColor, tertiaryColor} from '../constants/color';
 import Icon from 'react-native-vector-icons/Feather';
-import { isString } from '@rnmapbox/maps/lib/typescript/utils';
+import {SearchProps} from '../props/SearchProps';
 
-interface SearchScreenProps {
-  isSearch: boolean;
-  setIsSearch: (value: boolean) => void;
-  searchText: string;
-  setSearchText: (value: string) => void;
- handleSearchResult: (value: [number, number]) => void;
-}
-
-const SearchScreen:React.FC<SearchScreenProps> = ({
+const SearchScreen: React.FC<SearchProps> = ({
   isSearch,
   setIsSearch,
   searchText,
@@ -51,13 +43,18 @@ const SearchScreen:React.FC<SearchScreenProps> = ({
     },
   ];
 
-  const filterSearchResults = (searchText: string, searchLocation: any[]): any[] => {
+  const filterSearchResults = (
+    searchText: string,
+    searchLocation: any[],
+  ): any[] => {
     if (searchText.trim() === '') {
       // Return a random item if searchText is empty
     }
 
-    return searchLocation.filter((location) => {
-      let nameMatch = location.name.toLowerCase().includes(searchText.toLowerCase());
+    return searchLocation.filter(location => {
+      let nameMatch = location.name
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
 
       return nameMatch;
     });
@@ -65,15 +62,15 @@ const SearchScreen:React.FC<SearchScreenProps> = ({
 
   const filteredSearchResults = filterSearchResults(searchText, searchLocation);
 
-  const handleSearchLocation = (location: any):any => {
+  const handleSearchLocation = (location: any): any => {
     handleSearchResult(location.coordinates);
-  }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.search__container}>
         <ScrollView>
-        {filteredSearchResults.map(location => (
+          {filteredSearchResults.map(location => (
             <TouchableOpacity
               key={location.id}
               style={styles.search__location}
@@ -111,6 +108,9 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColor,
     flex: 1,
     alignItems: 'center',
+    position: 'absolute',
+    height:'100%',
+    width: '100%',
   },
   search__container: {
     flex: 1,
