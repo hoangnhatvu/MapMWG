@@ -14,6 +14,7 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {Alert} from 'react-native';
 import LocateButton from '../components/LocateButton';
 import DirectionButton from '../components/DirectionButton';
+import {createRouterLine} from '../services/createRoute';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -22,13 +23,15 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [destination, setDestination] = useState<[number, number] | null>(null);
-  const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [isDirection, setIsDirection] = useState(true);
+
+  const [searchText, setSearchText] = useState<string>('');
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [isSearch, setIsSearch] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>('');
+  const [destination, setDestination] = useState<[number, number] | null>(null);
+  const [routeDirection, setRouteDirection] = useState<any | null>(null);
 
   const handleViewPress = () => {
     Alert.alert('Notification', 'Click on View');
@@ -70,46 +73,6 @@ const MapScreen: React.FC = () => {
     setSearchText('');
   };
 
-  function makeRouterFeature(coordinates: [number, number][]): any {
-    let routerFeature = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: coordinates,
-          },
-        },
-      ],
-    };
-    return routerFeature;
-  }
-
-  async function createRouterLine(
-    startCoords: [number, number],
-    endCoords: [number, number],
-  ): Promise<void> {
-    const startCoordinates = `${startCoords[0]},${startCoords[1]}`;
-    const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
-    const geometries = 'geojson';
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
-
-    try {
-      let response = await fetch(url);
-      let json = await response.json();
-      let coordinates = json.routes[0].geometry.coordinates;
-
-      if (coordinates.length) {
-        const routerFeature = makeRouterFeature([...coordinates]);
-        setRouteDirection(routerFeature);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   const handleMapPress = (event: any) => {
     if (event.geometry) {
       // Get location by click
@@ -141,18 +104,22 @@ const MapScreen: React.FC = () => {
     <View style={styles.page}>
       <View style={styles.container}>
         <Mapbox.MapView
+          logoEnabled={false}
           style={styles.map}
           styleURL="mapbox://styles/mapbox/outdoors-v12"
           rotateEnabled={true}
           zoomEnabled={true}
+          compassEnabled={true}
+          compassFadeWhenNorth={true}
           onPress={handleMapPress}>
           {isLocated && (
             <Mapbox.Camera
               centerCoordinate={memoizedCurrentLocation}
-              zoomLevel={15}
-              animationMode={'flyTo'}
+                animationMode={'flyTo'}
               animationDuration={6000}
-            />
+              followUserLocation={true}
+            followZoomLevel={15}
+          />
           )}
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
@@ -164,8 +131,9 @@ const MapScreen: React.FC = () => {
             visible={true}
             onUpdate={handleUserLocationUpdate}
             showsUserHeadingIndicator={true}
-            androidRenderMode="gps"
             animated={true}
+            androidRenderMode="gps"
+            requestsAlwaysUse={true}
           />
           {routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
@@ -186,36 +154,39 @@ const MapScreen: React.FC = () => {
           />
         )}
       </View>
-      {/* <View style={styles.search__bar}>
-        {isSearch ? (
-          <Feather
-            name="arrow-left"
-            style={styles.search__bar_icon}
-            size={25}
-            color="black"
-            onPress={exitSearch}
+
+      <View style={styles.search__bar}>
+        <View style={styles.search__bar}>
+          {isSearch ? (
+            <Feather
+              name="arrow-left"
+              style={styles.search__bar_icon}
+              size={25}
+              color="black"
+              onPress={exitSearch}
+            />
+          ) : (
+            <Feather
+              name="search"
+              style={styles.search__bar_icon}
+              size={25}
+              color="black"
+            />
+          )}
+          <TextInput
+            style={styles.search__input}
+            placeholder="Search here"
+            onKeyPress={handleSearch}
+            value={searchText}
+            onChangeText={setSearchText}
           />
-        ) : (
-          <Feather
-            name="search"
-            style={styles.search__bar_icon}
-            size={25}
-            color="black"
-          />
-        )}
-        <TextInput
-          style={styles.search__input}
-          placeholder="Search here"
-          onKeyPress={handleSearch}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View> */}
-      {/* <TouchableOpacity onPress={handleViewPress}>
+        </View>
+      </View>
+      <TouchableOpacity onPress={handleViewPress}>
         <View style={styles.turn_right}>
           <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
         </View>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
       <LocateButton
         isLocated={isLocated}
