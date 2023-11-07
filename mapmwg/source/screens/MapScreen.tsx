@@ -33,9 +33,6 @@ const MapScreen: React.FC = () => {
   const [destination, setDestination] = useState<[number, number] | null>(null);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
 
-  const handleViewPress = () => {
-    Alert.alert('Notification', 'Click on View');
-  };
   const memoizedCurrentLocation = useMemo(
     () => currentLocation,
     [currentLocation],
@@ -94,12 +91,6 @@ const MapScreen: React.FC = () => {
     console.log('data' + data);
   };
 
-  const onCameraChange = () => {
-    if (isLocated) {
-      setIsLocated(false);
-    }
-  };
-
   return (
     <View style={styles.page}>
       <View style={styles.container}>
@@ -115,11 +106,11 @@ const MapScreen: React.FC = () => {
           {isLocated && (
             <Mapbox.Camera
               centerCoordinate={memoizedCurrentLocation}
-                animationMode={'flyTo'}
+              animationMode={'flyTo'}
               animationDuration={6000}
               followUserLocation={true}
-            followZoomLevel={15}
-          />
+              followZoomLevel={15}
+            />
           )}
           {destination && (
             <Mapbox.PointAnnotation id="marker" coordinate={destination}>
@@ -182,11 +173,6 @@ const MapScreen: React.FC = () => {
           />
         </View>
       </View>
-      <TouchableOpacity onPress={handleViewPress}>
-        <View style={styles.turn_right}>
-          <FontAwesome6 name="diamond-turn-right" size={25} color="white" />
-        </View>
-      </TouchableOpacity>
 
       <LocateButton
         isLocated={isLocated}
