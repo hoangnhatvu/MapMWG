@@ -26,6 +26,7 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const MapScreen: React.FC = () => {
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [isLocated, setIsLocated] = useState<boolean>(false);
+  const [isDirection, setIsDirection] = useState<boolean>(false);
   
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
