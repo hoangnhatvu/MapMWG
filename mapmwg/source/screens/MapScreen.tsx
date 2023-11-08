@@ -187,12 +187,11 @@ const MapScreen: React.FC = () => {
         }}
       />
       {isDirection && (
-        <View style={{width:'100%', height: 40, position:'absolute', top: 0}}>
+        <View style={{width: '100%', height: 40, position: 'absolute', top: 0}}>
           <DirectionScreen handleBack={handleBack} />
         </View>
       )}
       <BottomSheet />
-      
     </View>
   );
 };

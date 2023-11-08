@@ -9,11 +9,13 @@ import {
   FlatList,
   Text,
   ScrollView,
+  Button,
+  Pressable,
 } from 'react-native';
-import {primaryColor, tertiaryColor} from '../constants/color';
+import {primaryColor, secondaryColor, tertiaryColor} from '../constants/color';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.6;
-const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.1;
+const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
 const MAX_UPWARD_TRANSLATE_Y =
   BOTTOM_SHEET_MIN_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT;
 const MAX_DOWNWARD_TRANSLATE_Y = 0;
@@ -88,21 +90,40 @@ const BottomSheet = () => {
         <View style={styles.drag_handle} />
       </View>
       <View style={styles.content__container}>
-      <FlatList
-        data={[
-          {key: 'Devin'},
-          {key: 'Dan'},
-          {key: 'Dominic'},
-          {key: 'Jackson'},
-          {key: 'James'},
-          {key: 'Joel'},
-          {key: 'John'},
-          {key: 'Jillian'},
-          {key: 'Jimmy'},
-          {key: 'Julie'},
-        ]}
-        renderItem={({item}: {item: any})  => <Text style={styles.item}>{item.key}</Text>}
-      />
+        <ScrollView style={{}} horizontal={true}>
+          <Pressable style={styles.button}>
+            <Text style={styles.text}>Press</Text>
+          </Pressable>
+          <Pressable style={styles.button}>
+            <Text style={styles.text}>Press</Text>
+          </Pressable>
+          <Pressable style={styles.button}>
+            <Text style={styles.text}>Press</Text>
+          </Pressable>
+          <Pressable style={styles.button}>
+            <Text style={styles.text}>Press</Text>
+          </Pressable>
+          <Pressable style={styles.button}>
+            <Text style={styles.text}>Press</Text>
+          </Pressable>
+        </ScrollView>
+        <FlatList
+          data={[
+            {key: 'Devin'},
+            {key: 'Dan'},
+            {key: 'Dominic'},
+            {key: 'Jackson'},
+            {key: 'James'},
+            {key: 'Joel'},
+            {key: 'John'},
+            {key: 'Jillian'},
+            {key: 'Jimmy'},
+            {key: 'Julie'},
+          ]}
+          renderItem={({item}: {item: any}) => (
+            <Text style={styles.item}>{item.key}</Text>
+          )}
+        />
       </View>
     </Animated.View>
   );
@@ -135,12 +156,35 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   content__container: {
+    flex: 1,
     width: '100%',
     alignItems: 'center',
   },
+  button__container: {
+    height: '20%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    borderRadius: 16,
+    elevation: 3,
+    backgroundColor: secondaryColor,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
   item: {
     fontSize: 40,
-  }
+  },
 });
 
 export default BottomSheet;
