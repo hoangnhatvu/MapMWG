@@ -31,7 +31,7 @@ export const createRouterLine = async (
     let response = await fetch(url);
     let json = await response.json();
     const distanceInKilometers = (json.routes[0].distance / 1000.0).toFixed(2);
-    console.log('=======================================');
+    console.log(url);
     console.log(distanceInKilometers + ' km');
     console.log(json.waypoints[1].name);
     let coordinates = json.routes[0].geometry.coordinates;
