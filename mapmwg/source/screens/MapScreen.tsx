@@ -86,7 +86,7 @@ const MapScreen: React.FC = () => {
     setIsSearch(false);
     setSearchText('');
     setDestination(data);
-    console.log('data' + data);
+    // console.log('data' + data);
   };
 
   const handleTouchMove = () => {
