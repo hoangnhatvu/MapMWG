@@ -16,6 +16,7 @@ import DirectionButton from '../components/DirectionButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
+import BottomSheet from '../components/BottomSheet';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -186,10 +187,12 @@ const MapScreen: React.FC = () => {
         }}
       />
       {isDirection && (
-        <View style={{width:'100%', height: 40, position:'absolute', top: 0}}>
+        <View style={{width: '100%', height: 40, position: 'absolute', top: 0}}>
           <DirectionScreen visible={true} handleBack={handleBack} />
         </View>
       )}
+
+      <BottomSheet />
     </View>
   );
 };
