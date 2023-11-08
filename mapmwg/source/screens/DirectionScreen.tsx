@@ -1,75 +1,120 @@
-import {StyleSheet, TextInput, View} from 'react-native';
-import React from 'react';
+import {StyleSheet, TextInput, View, Animated, Easing} from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import React, {useState, useEffect} from 'react';
+import DirectionButton from '../components/DirectionButton';
 
-interface DirectionScreenProps {
-  handleBack?: () => void;
-}
+const DirectionScreen = () => {
+  const [showView, setShowView] = useState(false);
+  const slideAnimation = new Animated.Value(0);
 
-const DirectionScreen: React.FC<DirectionScreenProps> = ({handleBack}) => {
+  useEffect(() => {
+    Animated.timing(slideAnimation, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start();
+  }, [showView]);
+
+  const slideDown = slideAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-200, 100],
+  });
+
+  const slideUp = slideAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -200],
+  });
+  const handleBack = () => {
+    setShowView(false);
+  };
+
+  const handleOnPress = () => {
+    setShowView(true);
+  };
+
   return (
-    <View
-      style={{
-        width: '100%',
-        height: '20%',
-        backgroundColor: 'white',
-        position: 'absolute',
-      }}>
-      <View
+    <>
+      <DirectionButton onPress={handleOnPress} />
+
+      <Animated.View
         style={{
-          flexDirection: 'column',
-          height: '22%',
+          transform: showView
+            ? [{translateY: slideDown}]
+            : [{translateY: slideUp}],
           width: '100%',
+          height: '20%',
+          backgroundColor: 'white',
+          position: 'absolute',
+          elevation: 5,
+          top: -100,
         }}>
         <View
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: 10,
-            marginLeft: 10,
+            flexDirection: 'column',
           }}>
-          <FontAwesome6
-            name="arrow-left"
-            size={25}
-            style={{marginRight: 10}}
-            onPress={handleBack}
-          />
-          <FontAwesome6
-            name="circle-dot"
-            style={{marginLeft: 10, color: 'blue'}}
-          />
-          <TextInput style={styles.input_text} placeholder="Vị trí của bạn" />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 10,
+              marginLeft: 10,
+            }}>
+            <FontAwesome6
+              name="arrow-left"
+              size={25}
+              style={{marginRight: 10}}
+              onPress={handleBack}
+            />
+            <FontAwesome6
+              name="circle-dot"
+              style={{marginLeft: 10, color: 'blue'}}
+            />
+            <TextInput style={styles.input_text} placeholder="Vị trí của bạn" />
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 10,
+            }}>
+            <FontAwesome6
+              name="location-dot"
+              size={20}
+              style={{marginLeft: 40, color: 'red'}}
+            />
+            <TextInput
+              style={[styles.input_text, {marginLeft: 12}]}
+              placeholder="Chọn điểm đến"
+            />
+          </View>
+          <View
+            style={{
+              marginTop: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-evenly',
+            }}>
+            <FontAwesome6 name="car" size={20} style={{marginRight: 10}} />
+            <FontAwesome6
+              name="motorcycle"
+              size={20}
+              style={{marginRight: 10}}
+            />
+            <FontAwesome6
+              name="truck-fast"
+              size={20}
+              style={{marginRight: 10}}
+            />
+            <FontAwesome6
+              name="person-walking"
+              size={25}
+              style={{marginRight: 10}}
+            />
+          </View>
         </View>
-        <View
-          style={{flexDirection: 'row', alignItems: 'center', marginLeft: 10}}>
-          <FontAwesome6
-            name="location-dot"
-            size={20}
-            style={{marginLeft: 40, color: 'red'}}
-          />
-          <TextInput
-            style={[styles.input_text, {marginLeft: 12}]}
-            placeholder="Chọn điểm đến"
-          />
-        </View>
-        <View
-          style={{
-            marginTop: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-          }}>
-          <FontAwesome6 name="car" size={20} style={{marginRight: 10}} />
-          <FontAwesome6 name="motorcycle" size={20} style={{marginRight: 10}} />
-          <FontAwesome6 name="truck-fast" size={20} style={{marginRight: 10}} />
-          <FontAwesome6
-            name="person-walking"
-            size={25}
-            style={{marginRight: 10}}
-          />
-        </View>
-      </View>
-    </View>
+      </Animated.View>
+    </>
   );
 };
 
