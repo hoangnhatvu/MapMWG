@@ -192,6 +192,7 @@ const MapScreen: React.FC = () => {
         </View>
       )}
       <BottomSheet />
+      
     </View>
   );
 };
