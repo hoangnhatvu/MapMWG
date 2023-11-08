@@ -54,6 +54,7 @@ const MapScreen: React.FC = () => {
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
+    console.log(currentLocation);
   };
 
   const handleSearch = (event: any): any => {
@@ -147,7 +148,6 @@ const MapScreen: React.FC = () => {
           />
         )}
       </View>
-
       <View style={styles.search__bar}>
         {isSearch ? (
           <Feather
@@ -185,11 +185,8 @@ const MapScreen: React.FC = () => {
           setIsDirection(true);
         }}
       />
-      {isDirection && (
-        <View style={{width:'100%', height: 40, position:'absolute', top: 0}}>
-          <DirectionScreen visible={true} handleBack={handleBack} />
-        </View>
-      )}
+
+      <DirectionScreen handleBack={handleBack} />
     </View>
   );
 };

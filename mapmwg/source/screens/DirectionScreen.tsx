@@ -1,22 +1,23 @@
-import {Modal, StyleSheet, Text, TextInput, View} from 'react-native';
+import {StyleSheet, TextInput, View} from 'react-native';
 import React from 'react';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
 interface DirectionScreenProps {
-  visible: boolean;
-  handleBack: () => void;
+  handleBack?: () => void;
 }
 
-const DirectionScreen: React.FC<DirectionScreenProps> = ({
-  visible,
-  handleBack,
-}) => {
-  return ( 
-      <Modal animationType="slide" transparent={true} visible={visible}>
+const DirectionScreen: React.FC<DirectionScreenProps> = ({handleBack}) => {
+  return (
+    <View
+      style={{
+        width: '100%',
+        height: '20%',
+        backgroundColor: 'white',
+        position: 'absolute',
+      }}>
       <View
         style={{
           flexDirection: 'column',
-          backgroundColor: 'white',
           height: '22%',
           width: '100%',
         }}>
@@ -68,8 +69,7 @@ const DirectionScreen: React.FC<DirectionScreenProps> = ({
           />
         </View>
       </View>
-    </Modal>
-    
+    </View>
   );
 };
 
