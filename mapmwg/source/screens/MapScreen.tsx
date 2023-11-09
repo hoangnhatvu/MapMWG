@@ -137,31 +137,6 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-<<<<<<< HEAD
-  search__bar: {
-    width: '90%',
-    height: 45,
-    borderRadius: 50,
-    elevation: 5,
-    backgroundColor: primaryColor,
-    alignSelf: 'center',
-    top: 15,
-    position: 'absolute',
-    color: tertiaryColor,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  search__bar_icon: {
-    marginLeft: 5,
-    marginRight: 5,
-  },
-  search__input: {
-    flex: 1,
-    color: textColor,
-  },
-=======
->>>>>>> main
   turn_right: {
     position: 'absolute',
     bottom: '2%',
