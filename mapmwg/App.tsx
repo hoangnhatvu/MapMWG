@@ -1,9 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import MapScreen from './source/screens/MapScreen';
-import DirectionScreen from './source/screens/DirectionScreen';
+import {Provider} from 'react-redux';
+import store from './source/redux/store';
 
 const App: React.FC = () => {
-  return <MapScreen />;
+  return (
+    <Provider store={store}>
+      <MapScreen />        
+    </Provider>
+  );
 };
 
 export default App;
