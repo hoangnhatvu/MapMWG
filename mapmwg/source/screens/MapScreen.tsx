@@ -5,6 +5,10 @@ import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
+import { useSelector, useDispatch } from 'react-redux';
+import RootState from '../../redux';
+import DirectionButton from '../components/DirectionButton';
+import { setDestination } from '../redux/destinationSlice';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -17,6 +21,7 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
+  const [isDirection, setIsDirection] = useState<boolean>(false);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const destination = useSelector(
     (state: RootState) => state.destination.value,
@@ -121,7 +126,7 @@ const MapScreen: React.FC = () => {
         }}
       />
 
-      <DirectionScreen handleBack={handleBack} />
+      <DirectionScreen/>
     </View>
   );
 };
