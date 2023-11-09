@@ -5,6 +5,7 @@ import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
+import BottomSheet from '../components/BottomSheet';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/destinationSlice';
 import RootState from '../../redux';
@@ -118,6 +119,7 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
+
       <DirectionScreen />
     </View>
   );
