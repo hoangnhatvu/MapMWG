@@ -5,10 +5,13 @@ import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
-import { useSelector, useDispatch } from 'react-redux';
+<<<<<<<<< Temporary merge branch 1
+import BottomSheet from '../components/BottomSheet';
+=========
+import {useSelector, useDispatch} from 'react-redux';
+import {setDestination} from '../redux/destinationSlice';
 import RootState from '../../redux';
-import DirectionButton from '../components/DirectionButton';
-import { setDestination } from '../redux/destinationSlice';
+>>>>>>>>> Temporary merge branch 2
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -120,13 +123,21 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
+<<<<<<<<< Temporary merge branch 1
       <DirectionButton
         onPress={() => {
           setIsDirection(true);
         }}
       />
-
-      <DirectionScreen/>
+      {isDirection && (
+        <View style={{width: '100%', height: 40, position: 'absolute', top: 0}}>
+          <DirectionScreen handleBack={handleBack} />
+        </View>
+      )}
+      <BottomSheet />
+=========
+      <DirectionScreen />
+>>>>>>>>> Temporary merge branch 2
     </View>
   );
 };
