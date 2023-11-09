@@ -43,7 +43,11 @@
 // const styles = StyleSheet.create({
 //   search__bar: {
 //     width: '80%',
+<<<<<<< HEAD
 //     height: 50,
+=======
+//     height: 40,
+>>>>>>> main
 //     borderRadius: 20,
 //     borderWidth: 1,
 //     borderColor: tertiaryColor,
