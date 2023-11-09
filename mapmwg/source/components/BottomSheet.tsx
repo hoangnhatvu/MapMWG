@@ -12,7 +12,7 @@ import {
   Button,
   Pressable,
 } from 'react-native';
-import {primaryColor, secondaryColor, tertiaryColor} from '../constants/color';
+import {primaryColor, secondaryColor, tertiaryColor, textColor} from '../constants/color';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.6;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
@@ -90,7 +90,7 @@ const BottomSheet = () => {
         <View style={styles.drag_handle} />
       </View>
       <View style={styles.content__container}>
-        <ScrollView style={{}} horizontal={true}>
+        <ScrollView style={styles.button__container} horizontal={true}>
           <Pressable style={styles.button}>
             <Text style={styles.text}>Press</Text>
           </Pressable>
@@ -161,26 +161,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button__container: {
-    height: '20%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    height: '13%'
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 8,
     borderRadius: 16,
+    borderColor: tertiaryColor,
     elevation: 3,
-    backgroundColor: secondaryColor,
+    backgroundColor: primaryColor,
     paddingVertical: 12,
     paddingHorizontal: 32,
+    height: '100%',
+    width: 128,
   },
   text: {
     fontSize: 16,
     lineHeight: 21,
     fontWeight: 'bold',
     letterSpacing: 0.25,
-    color: 'white',
+    color: textColor,
   },
   item: {
     fontSize: 40,
