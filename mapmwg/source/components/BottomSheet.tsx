@@ -12,7 +12,13 @@ import {
   Button,
   Pressable,
 } from 'react-native';
-import {primaryColor, secondaryColor, tertiaryColor, textColor} from '../constants/color';
+import {
+  primaryColor,
+  secondaryColor,
+  tertiaryColor,
+  textColor,
+} from '../constants/color';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.6;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
@@ -91,20 +97,29 @@ const BottomSheet = () => {
       </View>
       <View style={styles.content__container}>
         <ScrollView style={styles.button__container} horizontal={true}>
-          <Pressable style={styles.button}>
-            <Text style={styles.text}>Press</Text>
+          <Pressable style={styles.button} onPress={() => {}}>
+            <FontAwesome6 name="route" size={16} />
+            <Text style={styles.text}>Directions</Text>
           </Pressable>
           <Pressable style={styles.button}>
-            <Text style={styles.text}>Press</Text>
+            <FontAwesome6 name="location-arrow" size={16} />
+            <Text style={styles.text}>Start</Text>
           </Pressable>
           <Pressable style={styles.button}>
-            <Text style={styles.text}>Press</Text>
+            <FontAwesome6 name="bookmark" size={16} />
+            <Text style={styles.text}>Save</Text>
           </Pressable>
           <Pressable style={styles.button}>
-            <Text style={styles.text}>Press</Text>
+            <FontAwesome6 name="share" size={16} />
+            <Text style={styles.text}>Share</Text>
           </Pressable>
           <Pressable style={styles.button}>
-            <Text style={styles.text}>Press</Text>
+            <FontAwesome6 name="plus" size={16} />
+            <Text style={styles.text}>Post</Text>
+          </Pressable>
+          <Pressable style={styles.button}>
+            <FontAwesome6 name="pen-to-square" size={16} />
+            <Text style={styles.text}>Post</Text>
           </Pressable>
         </ScrollView>
         <FlatList
@@ -144,7 +159,7 @@ const styles = StyleSheet.create({
   },
   dragable__area: {
     width: 100,
-    height: 32,
+    height: 40,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
@@ -161,20 +176,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button__container: {
-    height: '13%'
+    height: '13%',
+    margin: 5,
   },
   button: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     marginHorizontal: 8,
     borderRadius: 16,
     borderColor: tertiaryColor,
+    borderWidth: 2,
     elevation: 3,
     backgroundColor: primaryColor,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
     height: '100%',
     width: 128,
+    flexDirection: 'row',
   },
   text: {
     fontSize: 16,

@@ -2,6 +2,8 @@ import {StyleSheet, TextInput, View, Animated, Easing} from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import React, {useState, useEffect} from 'react';
 import DirectionButton from '../components/DirectionButton';
+import BottomSheet from '../components/BottomSheet';
+import { primaryColor, tertiaryColor } from '../constants/color';
 
 const DirectionScreen = () => {
   const [showView, setShowView] = useState(false);
@@ -36,7 +38,7 @@ const DirectionScreen = () => {
   return (
     <>
       <DirectionButton onPress={handleOnPress} />
-
+    
       <Animated.View
         style={{
           transform: showView
@@ -44,7 +46,7 @@ const DirectionScreen = () => {
             : [{translateY: slideUp}],
           width: '100%',
           height: '20%',
-          backgroundColor: 'white',
+          backgroundColor: primaryColor,
           position: 'absolute',
           elevation: 5,
           top: -100,
@@ -114,6 +116,7 @@ const DirectionScreen = () => {
           </View>
         </View>
       </Animated.View>
+      <BottomSheet />
     </>
   );
 };
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
   input_text: {
     height: 40,
     width: '65%',
-    borderColor: 'gray',
+    borderColor: tertiaryColor,
     borderWidth: 1,
     borderRadius: 8,
     marginLeft: 15,

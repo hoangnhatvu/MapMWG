@@ -9,7 +9,6 @@ import BottomSheet from '../components/BottomSheet';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/destinationSlice';
 import RootState from '../../redux';
-import DirectionButton from '../components/DirectionButton';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -19,10 +18,11 @@ Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
   const [isLocated, setIsLocated] = useState<boolean>(false);
+  const [isDirected, setIsDirected] = useState<boolean>(false);
+
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [isDirection, setIsDirection] = useState<boolean>(false);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
   const destination = useSelector(
     (state: RootState) => state.destination.value,
@@ -121,16 +121,8 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
-      <DirectionButton
-        onPress={() => {
-          setIsDirection(true);
-        }}
-      />
-      {isDirection && (
-        <View style={{width: '100%', height: 40, position: 'absolute', top: 0}}>
-          <DirectionScreen/>
-        </View>
-      )}
+
+      <DirectionScreen />
       <BottomSheet />
     </View>
   );
