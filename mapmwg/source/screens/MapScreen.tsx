@@ -107,7 +107,7 @@ const MapScreen: React.FC = () => {
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
               <Mapbox.LineLayer
                 id="routerLine"
-                style={{lineColor: 'blue', lineWidth: 6}}
+                style={{lineColor: '#00B0FF', lineWidth: 7, lineBlur: 3}}
               />
             </Mapbox.ShapeSource>
           )}
