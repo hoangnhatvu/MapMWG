@@ -10,7 +10,7 @@ import {
   Text,
   ScrollView,
   Button,
-  Pressable,
+  TouchableOpacity,
 } from 'react-native';
 import {
   primaryColor,
@@ -20,7 +20,7 @@ import {
 } from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
-const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.6;
+const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
 const MAX_UPWARD_TRANSLATE_Y =
   BOTTOM_SHEET_MIN_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT;
@@ -96,34 +96,46 @@ const BottomSheet = () => {
         <View style={styles.drag_handle} />
       </View>
       <View style={styles.content__container}>
-        <ScrollView style={styles.button__container} horizontal={true}>
-          <Pressable style={styles.button} onPress={() => {}}>
-            <FontAwesome6 name="route" size={16} />
-            <Text style={styles.text}>Directions</Text>
-          </Pressable>
-          <Pressable style={styles.button}>
-            <FontAwesome6 name="location-arrow" size={16} />
-            <Text style={styles.text}>Start</Text>
-          </Pressable>
-          <Pressable style={styles.button}>
-            <FontAwesome6 name="bookmark" size={16} />
-            <Text style={styles.text}>Save</Text>
-          </Pressable>
-          <Pressable style={styles.button}>
-            <FontAwesome6 name="share" size={16} />
-            <Text style={styles.text}>Share</Text>
-          </Pressable>
-          <Pressable style={styles.button}>
-            <FontAwesome6 name="plus" size={16} />
-            <Text style={styles.text}>Post</Text>
-          </Pressable>
-          <Pressable style={styles.button}>
-            <FontAwesome6 name="pen-to-square" size={16} />
-            <Text style={styles.text}>Post</Text>
-          </Pressable>
-        </ScrollView>
-        <View>
-          
+        <View style={styles.button__container}>
+          <ScrollView style={{}} horizontal={true} showsHorizontalScrollIndicator={false}>
+            <TouchableOpacity style={styles.button} onPress={() => {}}>
+              <FontAwesome6 name="route" size={16} />
+              <Text style={styles.text}>Đường đi</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <FontAwesome6 name="location-arrow" size={16} />
+              <Text style={styles.text}>Bắt đầu</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <FontAwesome6 name="bookmark" size={16} />
+              <Text style={styles.text}>Lưu</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <FontAwesome6 name="share" size={16} />
+              <Text style={styles.text}>Chia sẻ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <FontAwesome6 name="plus" size={16} />
+              <Text style={styles.text}>Đăng</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <FontAwesome6 name="pen-to-square" size={16} />
+              <Text style={styles.text}>Post</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+        <View style={{marginHorizontal: 8}}>
+          <Text style={{fontSize: 32, fontWeight: 'bold'}}>
+            Công Ty cổ phần kinh doanh bất động sản
+          </Text>
+          <Text style={{fontSize: 16}}>
+            Địa chỉ: 213/C35 đường Nguyễn Trãi, phường Nguyễn Cương Trinh, Quận
+            8, Thành Phố Hồ Chí Minh
+          </Text>
+          <View style={{flexDirection: 'row', marginTop: 8}}>
+            <FontAwesome6 name="car" size={16} />
+            <Text style={{fontSize: 16, marginLeft: 8}}>17km</Text>
+          </View>
         </View>
       </View>
     </Animated.View>
@@ -157,13 +169,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   content__container: {
-    flex: 1,
-    width: '100%',
     alignItems: 'center',
   },
   button__container: {
-    height: '13%',
-    margin: 5,
+    marginTop: 20,
+    height: 80,
   },
   button: {
     alignItems: 'center',
@@ -174,7 +184,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     elevation: 3,
     backgroundColor: primaryColor,
-    height: '100%',
+    height: 40,
     width: 128,
     flexDirection: 'row',
   },
