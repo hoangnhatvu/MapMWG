@@ -122,23 +122,9 @@ const BottomSheet = () => {
             <Text style={styles.text}>Post</Text>
           </Pressable>
         </ScrollView>
-        <FlatList
-          data={[
-            {key: 'Devin'},
-            {key: 'Dan'},
-            {key: 'Dominic'},
-            {key: 'Jackson'},
-            {key: 'James'},
-            {key: 'Joel'},
-            {key: 'John'},
-            {key: 'Jillian'},
-            {key: 'Jimmy'},
-            {key: 'Julie'},
-          ]}
-          renderItem={({item}: {item: any}) => (
-            <Text style={styles.item}>{item.key}</Text>
-          )}
-        />
+        <View>
+          
+        </View>
       </View>
     </Animated.View>
   );
