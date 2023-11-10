@@ -7,7 +7,7 @@ import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
 import {useSelector, useDispatch} from 'react-redux';
-import {setDestination} from '../redux/destinationSlice';
+import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
 
 const APIKEY =

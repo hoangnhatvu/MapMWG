@@ -1,4 +1,3 @@
-// destinationSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface DestinationState {
@@ -6,7 +5,7 @@ interface DestinationState {
 }
 
 const initialState: DestinationState = {
-  value: [0, 0], // Giá trị mặc định ban đầu
+  value: [0, 0],
 };
 
 const destinationSlice = createSlice({
