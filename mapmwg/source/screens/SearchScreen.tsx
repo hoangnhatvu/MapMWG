@@ -9,14 +9,17 @@ import {
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
 import {StoreData, storesData} from '../data/stores';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {setDestination} from '../redux/destinationSlice';
+import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
+import SearchBar from '../components/SearchBar';
+import { setIsSearch } from '../redux/slices/isSearchSlice';
+import { setSearchText } from '../redux/slices/searchTextSlice';
 
 const SearchScreen = () => {
-  const [isSearch, setIsSearch] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>('');
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const searchText = useSelector((state: RootState) => state.searchText.value);
   const searchLocation = storesData;
   const destination = useSelector(
     (state: RootState) => state.destination.value,
@@ -39,25 +42,22 @@ const SearchScreen = () => {
     });
   };
 
+  useEffect(() => {
+    console.log(isSearch)
+  }, [isSearch])
+
   const filteredSearchResults = filterSearchResults(searchText, searchLocation);
 
-  const handleSearchLocation = (location: any): any => {
-    handleSearchResult(location.coordinates);
+  const handleSearchLocation = (location: any) => {
+    handleSearchResult(location.coordinates, location.name);
   };
 
-  const handleSearchResult = (data: [number, number]): any => {
-    setIsSearch(false);
-    setSearchText('');
+  const handleSearchResult = (data: [number, number], name: string) => {
+    dispatch(setIsSearch(false));
+    console.log(name)
+    dispatch(setSearchText(name));
     dispatch(setDestination(data));
     console.log('data' + data);
-  };
-
-  const exitSearch = (): any => {
-    setIsSearch(false);
-    setSearchText('');
-  };
-  const handleSearch = (event: any): any => {
-    setIsSearch(true);
   };
 
   return (
@@ -97,31 +97,7 @@ const SearchScreen = () => {
           </View>
         </View>
       )}
-      <View style={styles.search__bar}>
-        {isSearch ? (
-          <Feather
-            name="arrow-left"
-            style={styles.search__bar_icon}
-            size={25}
-            color="black"
-            onPress={exitSearch}
-          />
-        ) : (
-          <Feather
-            name="search"
-            style={styles.search__bar_icon}
-            size={25}
-            color="black"
-          />
-        )}
-        <TextInput
-          style={styles.search__input}
-          placeholder="Search here"
-          onKeyPress={handleSearch}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View>
+      <SearchBar/>
     </>
   );
 };
@@ -149,28 +125,6 @@ const styles = StyleSheet.create({
   addressText: {
     fontSize: 14,
     color: '#888',
-  },
-  search__bar: {
-    width: '90%',
-    height: 40,
-    borderRadius: 20,
-    elevation: 5,
-    backgroundColor: primaryColor,
-    alignSelf: 'center',
-    top: 50,
-    position: 'absolute',
-    color: tertiaryColor,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  search__bar_icon: {
-    marginLeft: 5,
-    marginRight: 5,
-  },
-  search__input: {
-    flex: 1,
-    color: textColor,
   },
 });
 
