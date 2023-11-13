@@ -4,60 +4,55 @@ import {
   Text,
   TouchableOpacity,
   View,
-  TextInput,
 } from 'react-native';
-import {primaryColor, tertiaryColor, textColor} from '../constants/color';
+import {
+  lightGray,
+  primaryColor,
+  tertiaryColor,
+  textColor,
+} from '../constants/color';
 import Feather from 'react-native-vector-icons/Feather';
-import {StoreData, storesData} from '../data/stores';
 import {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
 import SearchBar from '../components/SearchBar';
-import { setIsSearch } from '../redux/slices/isSearchSlice';
-import { setSearchText } from '../redux/slices/searchTextSlice';
+import {setIsSearch} from '../redux/slices/isSearchSlice';
+import {setSearchText} from '../redux/slices/searchTextSlice';
+import {searchApi} from '../services/search';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SearchScreen = () => {
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const searchText = useSelector((state: RootState) => state.searchText.value);
-  const searchLocation = storesData;
+  const [searchList, setSearchList] = useState<any[] | []>([]);
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
   const dispatch = useDispatch();
 
-  const filterSearchResults = (
-    searchText: string,
-    searchLocation: readonly StoreData[],
-  ): any[] => {
-    if (searchText.trim() === '') {
+  const getSearchList = async () => {
+    try {
+      const data = await searchApi(searchText);
+      console.log(data);
+      setSearchList(data);
+    } catch (error) {
+      console.log(error);
     }
-
-    return searchLocation.filter(location => {
-      let nameMatch = location.name
-        .toLowerCase()
-        .includes(searchText.toLowerCase());
-
-      return nameMatch;
-    });
   };
 
   useEffect(() => {
-    console.log(isSearch)
-  }, [isSearch])
-
-  const filteredSearchResults = filterSearchResults(searchText, searchLocation);
+    getSearchList();
+  }, [searchText]);
 
   const handleSearchLocation = (location: any) => {
-    handleSearchResult(location.coordinates, location.name);
+    handleSearchResult(location.properties.coordinates, location.properties.searchAddress);
   };
 
   const handleSearchResult = (data: [number, number], name: string) => {
     dispatch(setIsSearch(false));
-    console.log(name)
     dispatch(setSearchText(name));
     dispatch(setDestination(data));
-    console.log('data' + data);
   };
 
   return (
@@ -66,38 +61,31 @@ const SearchScreen = () => {
         <View style={styles.container}>
           <View style={styles.search__container}>
             <ScrollView>
-              {filteredSearchResults.map(location => (
-                <TouchableOpacity
-                  key={location.id}
-                  style={styles.search__location}
-                  onPress={() => handleSearchLocation(location)}>
-                  <View style={{flexDirection: 'row'}}>
-                    <View style={{marginRight: 16, alignItems: 'center'}}>
-                      <Feather name="map-pin" size={20} />
-                      <Text>15km</Text>
+              {searchList?.map(location => (
+                <View style={styles.menuWrapper}>
+                  <Ionicons name="location-outline" size={24} />
+                  <TouchableOpacity
+                    key={location?.id}
+                    style={styles.search__location}
+                    onPress={() => handleSearchLocation(location)}>
+                    <View style={{flexDirection: 'row'}}>
+                      <View>
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={styles.addressText}>
+                          {location.properties.searchAddress}
+                        </Text>
+                      </View>
                     </View>
-                    <View>
-                      <Text
-                        numberOfLines={3}
-                        ellipsizeMode="tail"
-                        style={styles.addressText}>
-                        Tên: {location.name}
-                      </Text>
-                      <Text
-                        numberOfLines={3}
-                        ellipsizeMode="tail"
-                        style={styles.addressText}>
-                        Địa chỉ: {location.address}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
               ))}
             </ScrollView>
           </View>
         </View>
       )}
-      <SearchBar/>
+      <SearchBar />
     </>
   );
 };
@@ -120,7 +108,11 @@ const styles = StyleSheet.create({
   search__location: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: tertiaryColor,
+    borderBottomColor: lightGray,
+  },
+  menuWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   addressText: {
     fontSize: 14,
