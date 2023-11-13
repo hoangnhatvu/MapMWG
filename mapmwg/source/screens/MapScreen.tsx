@@ -37,22 +37,22 @@ const MapScreen: React.FC = () => {
   );
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (destination && currentLocation) {
-      const fetchData = async () => {
-        const route = await createRouterLine(currentLocation, destination);
-        setRouteDirection(route);
-      };
+  // useEffect(() => {
+  //   if (destination && currentLocation) {
+  //     const fetchData = async () => {
+  //       const route = await createRouterLine(currentLocation, destination);
+  //       setRouteDirection(route);
+  //     };
 
-      fetchData(); // Call the function immediately
+  //     fetchData(); 
 
-      const interval = setInterval(fetchData, 400000); // Call the function every 4 seconds
+  //     const interval = setInterval(fetchData, 400000);
 
-      return () => {
-        clearInterval(interval); // Clear the interval when the component unmounts
-      };
-    }
-  }, [currentLocation, destination]);
+  //     return () => {
+  //       clearInterval(interval); 
+  //     };
+  //   }
+  // }, [currentLocation, destination]);
 
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
@@ -74,6 +74,7 @@ const MapScreen: React.FC = () => {
       const route = await callRoutingAPI(currentLocation, newDestination);
       setDistance(route.Data.features[0].properties.summary.distance);
       setIsDirected(true);
+      dispatch(setRouteDirection(null));
     }
   };
 
@@ -143,6 +144,7 @@ const MapScreen: React.FC = () => {
             name={address?.object?.searchName || "Chưa có dữ liệu trên hệ thống"}
             address={address?.object?.searchAddress || "Chưa có dữ liệu trên hệ thống"}
             distance={distance || 0}
+            currentLocation={currentLocation}
           />
       )}
     </View>
