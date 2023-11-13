@@ -22,8 +22,6 @@ function makeRouterFeature(coordinates: [number, number][]): any {
 
 export const createRouterLine = async(currentLocation: [number,number], destination: [number, number]) => {
   const data = await callRoutingAPI(currentLocation, destination);
-  console.log(JSON.stringify(data));
-
   let coordinates = data.Data.features[0].geometry.coordinates
 
   if (coordinates.length) {
