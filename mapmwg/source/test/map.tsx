@@ -2,13 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import LocateButton from '../components/LocateButton';
-import {createRouterLine} from '../services/createRoute';
-import SearchScreen from './SearchScreen';
-import DirectionScreen from './DirectionScreen';
-import BottomSheet from '../components/BottomSheet';
+
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
+import {
+  callRoutingAPI,
+  searchAddressAPI,
+  createRouterLine,
+  createRouterLine2,
+} from '../services/fetchAPI';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -17,13 +20,13 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [isLocated, setIsLocated] = useState<boolean>(true);
-  const [isDirected, setIsDirected] = useState<boolean>(false);
+  const [isLocated, setIsLocated] = useState<boolean>(false);
 
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
   const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const [routeDirection2, setRouteDirection2] = useState<any | null>(null);
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
@@ -34,6 +37,23 @@ const MapScreen: React.FC = () => {
       const fetchData = async () => {
         const route = await createRouterLine(currentLocation, destination);
         setRouteDirection(route);
+      };
+
+      fetchData(); // Call the function immediately
+
+      const interval = setInterval(fetchData, 400000); // Call the function every 4 seconds
+
+      return () => {
+        clearInterval(interval); // Clear the interval when the component unmounts
+      };
+    }
+  }, [currentLocation, destination]);
+
+  useEffect(() => {
+    if (destination && currentLocation) {
+      const fetchData = async () => {
+        const route = await createRouterLine2(currentLocation, destination);
+        setRouteDirection2(route);
       };
 
       fetchData(); // Call the function immediately
@@ -104,15 +124,23 @@ const MapScreen: React.FC = () => {
             requestsAlwaysUse={true}
           />
           {routeDirection && (
-            <Mapbox.ShapeSource id="line" shape={routeDirection}>
+            <Mapbox.ShapeSource id="line2" shape={routeDirection2}>
               <Mapbox.LineLayer
-                id="routerLine"
-                style={{lineColor: '#00B0FF', lineWidth: 7, lineBlur: 3}}
+                id="routerLine2"
+                style={{lineColor: '#ffffff', lineWidth: 14, lineBlur: 3}}
               />
             </Mapbox.ShapeSource>
           )}
+          {routeDirection && (
+            <Mapbox.ShapeSource id="line" shape={routeDirection}>
+              <Mapbox.LineLayer
+                id="routerLine"
+                style={{lineColor: '#237126', lineWidth: 3, lineBlur: 0}}
+              />
+            </Mapbox.ShapeSource>
+          )}
+
         </Mapbox.MapView>
-        <SearchScreen />
       </View>
 
       <LocateButton
@@ -121,9 +149,6 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
-
-      <DirectionScreen />
-      <BottomSheet />
     </View>
   );
 };

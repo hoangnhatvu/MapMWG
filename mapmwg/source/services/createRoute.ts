@@ -1,3 +1,5 @@
+import { callRoutingAPI } from "./fetchAPI";
+
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
 
@@ -18,30 +20,14 @@ function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-export const createRouterLine = async (
-  startCoords: [number, number],
-  endCoords: [number, number],
-) => {
-  const startCoordinates = `${startCoords[0]},${startCoords[1]}`;
-  const endCoordinates = `${endCoords[0]},${endCoords[1]}`;
-  const geometries = 'geojson';
-  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoordinates};${endCoordinates}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${APIKEY}`;
+export const createRouterLine = async(currentLocation: [number,number], destination: [number, number]) => {
+  const data = await callRoutingAPI(currentLocation, destination);
+  console.log(JSON.stringify(data));
 
-  try {
-    let response = await fetch(url);
-    let json = await response.json();
-    const distanceInKilometers = (json.routes[0].distance / 1000.0).toFixed(2);
-    console.log(url);
-    console.log(distanceInKilometers + ' km');
-    console.log(json.waypoints[1].name);
-    let coordinates = json.routes[0].geometry.coordinates;
+  let coordinates = data.Data.features[0].geometry.coordinates
 
-    if (coordinates.length) {
-      const routerFeature = makeRouterFeature([...coordinates]);
-      return routerFeature;
-    }
-  } catch (error) {
-    return null;
-    console.error(error);
+  if (coordinates.length) {
+    const routerFeature = makeRouterFeature([...coordinates]);
+    return routerFeature;
   }
-};
+}
