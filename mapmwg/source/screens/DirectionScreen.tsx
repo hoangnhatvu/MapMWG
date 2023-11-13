@@ -3,7 +3,7 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import React, {useState, useEffect} from 'react';
 import DirectionButton from '../components/DirectionButton';
 import BottomSheet from '../components/BottomSheet';
-import { primaryColor, tertiaryColor } from '../constants/color';
+import {primaryColor, tertiaryColor} from '../constants/color';
 
 const DirectionScreen = () => {
   const [showView, setShowView] = useState(false);
@@ -38,7 +38,7 @@ const DirectionScreen = () => {
   return (
     <>
       <DirectionButton onPress={handleOnPress} />
-    
+
       <Animated.View
         style={{
           transform: showView
