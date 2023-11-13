@@ -121,9 +121,12 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
-
-      <DirectionScreen />
-      <BottomSheet />
+      {isDirected && (
+        <>
+          <DirectionScreen />
+          <BottomSheet />
+        </>
+      )}
     </View>
   );
 };
