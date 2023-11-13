@@ -17,7 +17,7 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [isLocated, setIsLocated] = useState<boolean>(false);
+  const [isLocated, setIsLocated] = useState<boolean>(true);
   const [isDirected, setIsDirected] = useState<boolean>(false);
 
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([

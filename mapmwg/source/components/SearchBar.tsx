@@ -1,12 +1,12 @@
 import {StyleSheet, TextInput, View} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
 import Feather from 'react-native-vector-icons/Feather';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
-import {useState} from 'react'
+import {useState} from 'react';
 
 const SearchBar = () => {
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
@@ -18,9 +18,12 @@ const SearchBar = () => {
     dispatch(setIsSearch(false));
     dispatch(setSearchText(''));
   };
-  const handleSearch = () => {
+
+  useEffect(() => {
     dispatch(setIsSearch(true));
-  };
+    dispatch(setSearchText(searchKey));
+    console.log(searchText);
+  }, [searchKey]);
 
   return (
     <View style={styles.search__bar}>
@@ -43,9 +46,11 @@ const SearchBar = () => {
       <TextInput
         style={styles.search__input}
         placeholder="Search here"
-        onKeyPress={handleSearch}
-        value = {isSearch? searchKey : searchText}
-        onChangeText={setSearchKey}
+        onChangeText={value => {
+          dispatch(setSearchText(value));
+          setSearchKey(value);
+        }}
+        value={isSearch ? searchKey : searchText}
       />
     </View>
   );
