@@ -12,7 +12,7 @@ const destinationSlice = createSlice({
   name: 'destination',
   initialState,
   reducers: {
-    setDestination: (state, action: PayloadAction<[number, number]>) => {
+    setDestination: (state, action: PayloadAction<any | null>) => {
       state.value = action.payload;
     },
   },

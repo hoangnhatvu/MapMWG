@@ -27,7 +27,15 @@ const MAX_UPWARD_TRANSLATE_Y =
 const MAX_DOWNWARD_TRANSLATE_Y = 0;
 const DRAG_THRESHOLD = 0;
 
-const BottomSheet = () => {
+interface BottomSheetProps {
+  name?: string;
+  address?: string;
+  distance?: number;
+  getRoute?: () => void;
+  start?: () => void;
+}
+
+const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRoute, start}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
 
@@ -90,6 +98,10 @@ const BottomSheet = () => {
     ],
   };
 
+  const makeRoute = async () => {
+    
+  }
+
   return (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>
       <View style={styles.dragable__area} {...panResponder.panHandlers}>
@@ -126,15 +138,14 @@ const BottomSheet = () => {
         </View>
         <View style={{marginHorizontal: 8}}>
           <Text style={{fontSize: 32, fontWeight: 'bold'}}>
-            Công Ty cổ phần kinh doanh bất động sản
+            {name || null}
           </Text>
           <Text style={{fontSize: 16}}>
-            Địa chỉ: 213/C35 đường Nguyễn Trãi, phường Nguyễn Cương Trinh, Quận
-            8, Thành Phố Hồ Chí Minh
+            {address || null}
           </Text>
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <FontAwesome6 name="car" size={16} />
-            <Text style={{fontSize: 16, marginLeft: 8}}>17km</Text>
+            <Text style={{fontSize: 16, marginLeft: 8}}>{distance} km</Text>
           </View>
         </View>
       </View>

@@ -9,6 +9,8 @@ import BottomSheet from '../components/BottomSheet';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
+import { callRoutingAPI, getCoordinatesAPI } from '../services/fetchAPI';
+import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -19,11 +21,17 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const MapScreen: React.FC = () => {
   const [isLocated, setIsLocated] = useState<boolean>(true);
   const [isDirected, setIsDirected] = useState<boolean>(false);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [address, setAddress] = useState<any>(null);
+  const [distance, setDistance] = useState<number | null>(null);
 
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [routeDirection, setRouteDirection] = useState<any | null>(null);
+  const routeDirection = useSelector(
+    (state: RootState) => state.routeDirection.value,
+  )
+
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
@@ -49,10 +57,9 @@ const MapScreen: React.FC = () => {
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
-    console.log(currentLocation);
   };
 
-  const handleMapPress = (event: any) => {
+  const handleMapPress = async (event: any) => {
     if (event.geometry) {
       // Get location by click
       const newDestination: [number, number] = [
@@ -60,6 +67,13 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       dispatch(setDestination(newDestination));
+
+      const coords = await getCoordinatesAPI(newDestination);
+      setAddress(coords);
+
+      const route = await callRoutingAPI(currentLocation, newDestination);
+      setDistance(route.Data.features[0].properties.summary.distance);
+      setIsDirected(true);
     }
   };
 
@@ -103,7 +117,7 @@ const MapScreen: React.FC = () => {
             androidRenderMode="gps"
             requestsAlwaysUse={true}
           />
-          {routeDirection && (
+          {isDirected && routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
               <Mapbox.LineLayer
                 id="routerLine"
@@ -112,7 +126,7 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
-        <SearchScreen />
+        {isSearch && <SearchScreen />}
       </View>
 
       <LocateButton
@@ -122,10 +136,14 @@ const MapScreen: React.FC = () => {
         }}
       />
       {isDirected && (
-        <>
-          <DirectionScreen />
-          <BottomSheet />
-        </>
+        <DirectionScreen />
+      )}
+      {isDirected && (
+          <BottomSheet 
+            name={address?.object?.searchName || "Chưa có dữ liệu trên hệ thống"}
+            address={address?.object?.searchAddress || "Chưa có dữ liệu trên hệ thống"}
+            distance={distance || 0}
+          />
       )}
     </View>
   );
