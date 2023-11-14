@@ -9,8 +9,9 @@ import BottomSheet from '../components/BottomSheet';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
-import { callRoutingAPI, getCoordinatesAPI } from '../services/fetchAPI';
-import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
+import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
+import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
+import {setInstructions} from '../redux/slices/instructionsSlice';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -24,16 +25,22 @@ const MapScreen: React.FC = () => {
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
+  const [step, setStep] = useState<number>(0);
+  const thresholdDistance = 0.01;
 
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
-  )
+  );
 
   const destination = useSelector(
     (state: RootState) => state.destination.value,
+  );
+
+  const instructions = useSelector(
+    (state: RootState) => state.instructions.value,
   );
   const dispatch = useDispatch();
 
@@ -44,19 +51,69 @@ const MapScreen: React.FC = () => {
   //       setRouteDirection(route);
   //     };
 
-  //     fetchData(); 
+  //     fetchData();
 
   //     const interval = setInterval(fetchData, 400000);
 
   //     return () => {
-  //       clearInterval(interval); 
+  //       clearInterval(interval);
   //     };
   //   }
   // }, [currentLocation, destination]);
 
+  const haversine = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ) => {
+    const R = 6371; // Bán kính trái đất tính theo km
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Khoảng cách giữa hai điểm
+
+    return distance;
+  };
+
+  const toRadians = (degrees: number) => {
+    return (degrees * Math.PI) / 180;
+  };
+
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
+    let minDistance = 1;
+    let instruction = ''
+    if (instructions) {
+      for (const step of instructions) {
+        if (step?.maneuver?.location) {
+          const stepLatitude = step?.maneuver?.location[1];
+          const stepLongitude = step?.maneuver?.location[0];
+
+          const distance = haversine(
+            latitude,
+            longitude,
+            stepLatitude,
+            stepLongitude,
+          );
+
+          if (distance < thresholdDistance) {
+            if (distance < minDistance){
+              minDistance = distance
+              instruction = step.instruction
+            }
+          }
+        }
+      }
+    }
+    console.log(instruction);
   };
 
   const handleMapPress = async (event: any) => {
@@ -72,6 +129,12 @@ const MapScreen: React.FC = () => {
       setAddress(coords);
 
       const route = await callRoutingAPI(currentLocation, newDestination);
+      dispatch(
+        setInstructions(
+          route.Data?.features[0]?.properties?.segments[0]?.steps,
+        ),
+      );
+      console.log('Hướng dẫn: ' + instructions[1].instruction);
       setDistance(route.Data.features[0].properties.summary.distance);
       setIsDirected(true);
       dispatch(setRouteDirection(null));
@@ -136,16 +199,16 @@ const MapScreen: React.FC = () => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
+      {isDirected && <DirectionScreen />}
       {isDirected && (
-        <DirectionScreen />
-      )}
-      {isDirected && (
-          <BottomSheet 
-            name={address?.object?.searchName || "Chưa có dữ liệu trên hệ thống"}
-            address={address?.object?.searchAddress || "Chưa có dữ liệu trên hệ thống"}
-            distance={distance || 0}
-            currentLocation={currentLocation}
-          />
+        <BottomSheet
+          name={address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'}
+          address={
+            address?.object?.searchAddress || 'Chưa có dữ liệu trên hệ thống'
+          }
+          distance={distance || 0}
+          currentLocation={currentLocation}
+        />
       )}
     </View>
   );
