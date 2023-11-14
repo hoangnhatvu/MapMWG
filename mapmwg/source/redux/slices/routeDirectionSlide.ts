@@ -12,7 +12,7 @@ const routeDirectionSlice = createSlice({
   name: 'routeDirection',
   initialState,
   reducers: {
-    setRouteDirection: (state, action: PayloadAction<[number, number]>) => {
+    setRouteDirection: (state, action: PayloadAction<[number, number] | null>) => {
       state.value = action.payload;
     },
   },

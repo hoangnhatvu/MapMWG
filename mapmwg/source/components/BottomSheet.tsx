@@ -19,6 +19,10 @@ import {
   textColor,
 } from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
+import { createRouterLine } from '../services/createRoute';
+import { useDispatch, useSelector } from 'react-redux';
+import RootState from '../../redux';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
@@ -33,11 +37,16 @@ interface BottomSheetProps {
   distance?: number;
   getRoute?: () => void;
   start?: () => void;
+  currentLocation: [number, number],
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRoute, start}) => {
+const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRoute, start, currentLocation}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
+  const destination = useSelector(
+    (state: RootState) => state.destination.value,
+  );
+  const dispatch = useDispatch();
 
   const panResponder = useRef(
     PanResponder.create({
@@ -99,7 +108,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
   };
 
   const makeRoute = async () => {
-    
+    const route = await createRouterLine(currentLocation, destination);
+    dispatch(setRouteDirection(route));
   }
 
   return (
@@ -110,7 +120,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
       <View style={styles.content__container}>
         <View style={styles.button__container}>
           <ScrollView style={{}} horizontal={true} showsHorizontalScrollIndicator={false}>
-            <TouchableOpacity style={styles.button} onPress={() => {}}>
+            <TouchableOpacity style={styles.button} onPress={makeRoute}>
               <FontAwesome6 name="route" size={16} />
               <Text style={styles.text}>Đường đi</Text>
             </TouchableOpacity>
