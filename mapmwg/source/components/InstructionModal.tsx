@@ -4,30 +4,34 @@ import {primaryColor, secondaryColor, textColor} from '../constants/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface InstructionProps {
-  instruction: string;  
+  instruction: string;
   nextInstruct?: string;
 }
 
-const InstructionModal:React.FC<InstructionProps> = ({instruction}) => {  
-  const [instructIcon, setInstructIcon] = useState("arrow-up-outline");
-  
+const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
+  const [instructIcon, setInstructIcon] = useState('arrow-up-outline');
+
   useEffect(() => {
     // Kiểm tra xem instruction có chứa từ "Trái" không và đặt icon tương ứng
-    if (instruction.toLowerCase().includes("trái")) {
-      setInstructIcon("arrow-back-outline");
-    } else if (instruction.toLowerCase().includes("phải")) {
-      setInstructIcon("arrow-forward-outline");
+    if (instruction.toLowerCase().includes('trái')) {
+      setInstructIcon('arrow-back-outline');
+    } else if (instruction.toLowerCase().includes('phải')) {
+      setInstructIcon('arrow-forward-outline');
     } else {
       // Nếu không có "Trái" hoặc "Phải", sử dụng icon mặc định
-      setInstructIcon("arrow-up-outline");
+      setInstructIcon('arrow-up-outline');
     }
   }, [instruction]);
 
   return (
     <View style={styles.container}>
       <View style={styles.instructionContainer}>
-        <Ionicons name ={instructIcon} size={32} color={textColor} />
-        <Text style={styles.instructionText}>{instruction}</Text>
+        <View style={{alignSelf:'center', marginHorizontal: 32}}>
+          <Ionicons name={instructIcon} size={32} color={textColor} />
+        </View>
+        <View style={{alignSelf: 'center', marginRight: 16}}>
+          <Text style={styles.instructionText}>{instruction}</Text>
+        </View>
       </View>
     </View>
   );
@@ -46,8 +50,6 @@ const styles = StyleSheet.create({
     backgroundColor: secondaryColor,
     height: '70%',
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
     flexDirection: 'row',
   },
   nextInstructContainer: {
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
   instructionText: {
     color: textColor,
     fontSize: 24,
-    fontWeight: 'bold',   
+    fontWeight: 'bold',
   },
 });
 
