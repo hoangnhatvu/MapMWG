@@ -116,7 +116,6 @@ const DirectionScreen = () => {
           </View>
         </View>
       </Animated.View>
-      <BottomSheet />
     </>
   );
 };

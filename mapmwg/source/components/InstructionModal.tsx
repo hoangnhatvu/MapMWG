@@ -1,17 +1,33 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-import {primaryColor} from '../constants/color';
+import {primaryColor, secondaryColor, textColor} from '../constants/color';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface InstructionProps {
   instruction: string;  
   nextInstruct?: string;
 }
 
-const InstructionModal:React.FC<InstructionProps> = ({instruction, nextInstruct}) => {
+const InstructionModal:React.FC<InstructionProps> = ({instruction}) => {  
+  const [instructIcon, setInstructIcon] = useState("arrow-up-outline");
+  
+  useEffect(() => {
+    // Kiểm tra xem instruction có chứa từ "Trái" không và đặt icon tương ứng
+    if (instruction.toLowerCase().includes("trái")) {
+      setInstructIcon("arrow-back-outline");
+    } else if (instruction.toLowerCase().includes("phải")) {
+      setInstructIcon("arrow-forward-outline");
+    } else {
+      // Nếu không có "Trái" hoặc "Phải", sử dụng icon mặc định
+      setInstructIcon("arrow-up-outline");
+    }
+  }, [instruction]);
+
   return (
     <View style={styles.container}>
       <View style={styles.instructionContainer}>
-        <Text>{instruction}</Text>
+        <Ionicons name ={instructIcon} size={32} color={textColor} />
+        <Text style={styles.instructionText}>{instruction}</Text>
       </View>
     </View>
   );
@@ -27,15 +43,23 @@ const styles = StyleSheet.create({
     marginTop: '15%',
   },
   instructionContainer: {
-    backgroundColor: primaryColor,
+    backgroundColor: secondaryColor,
     height: '70%',
     borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    flexDirection: 'row',
   },
   nextInstructContainer: {
     height: '30%',
     width: '40%',
-    backgroundColor: primaryColor,
-  }
+    backgroundColor: secondaryColor,
+  },
+  instructionText: {
+    color: textColor,
+    fontSize: 24,
+    fontWeight: 'bold',   
+  },
 });
 
 export default InstructionModal;
