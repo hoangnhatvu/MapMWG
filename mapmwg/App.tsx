@@ -1,7 +1,7 @@
 import React from 'react';
 import {Provider} from 'react-redux';
 import store from './source/redux/store';
-import MapScreen from './source/screens/MapScreen';
+import MapScreen from './source/test/map';
 
 const App: React.FC = () => {
 
