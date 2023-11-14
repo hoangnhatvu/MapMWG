@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import Mapbox from '@rnmapbox/maps';
+import Mapbox, {
+  CircleLayer,
+  UserLocationRenderMode as UserLocationRenderModeType,
+  UserTrackingMode,
+} from '@rnmapbox/maps';
 import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
@@ -20,12 +24,15 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [isLocated, setIsLocated] = useState<boolean>(true);
+  const [isLocated, setIsLocated] = useState<boolean>(false);
   const [isDirected, setIsDirected] = useState<boolean>(false);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [step, setStep] = useState<number>(0);
+  const [followUserLocation, setFollowUserLocation] = useState(false);
+  const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
+    useState(true);
   const thresholdDistance = 0.01;
 
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
@@ -90,7 +97,7 @@ const MapScreen: React.FC = () => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
     let minDistance = 1;
-    let instruction = ''
+    let instruction = '';
     if (instructions) {
       for (const step of instructions) {
         if (step?.maneuver?.location) {
@@ -105,9 +112,9 @@ const MapScreen: React.FC = () => {
           );
 
           if (distance < thresholdDistance) {
-            if (distance < minDistance){
-              minDistance = distance
-              instruction = step.instruction
+            if (distance < minDistance) {
+              minDistance = distance;
+              instruction = step.instruction;
             }
           }
         }
@@ -164,6 +171,8 @@ const MapScreen: React.FC = () => {
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={15}
+              followUserLocation={followUserLocation}
+              followUserMode={UserTrackingMode.FollowWithHeading}
             />
           )}
 
@@ -173,14 +182,21 @@ const MapScreen: React.FC = () => {
             </Mapbox.PointAnnotation>
           )}
           <Mapbox.UserLocation
-            minDisplacement={1}
+            minDisplacement={10}
             visible={true}
             onUpdate={handleUserLocationUpdate}
             showsUserHeadingIndicator={true}
             animated={true}
             androidRenderMode="gps"
             requestsAlwaysUse={true}
-          />
+            renderMode={UserLocationRenderModeType.Native}
+          >
+            <CircleLayer
+                  key="customer-user-location-children-red"
+                  id="customer-user-location-children-red"
+                  style={{ circleColor: 'red', circleRadius: 8 }}
+                />
+          </Mapbox.UserLocation>
           {isDirected && routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
               <Mapbox.LineLayer
