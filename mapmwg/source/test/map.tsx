@@ -41,7 +41,7 @@ const MapScreen: React.FC = () => {
       const fetchData = async () => {
         const data = await callRoutingAPI(currentLocation, destination);
 
-        setInstruction(data.Data.features[0].properties.segments[0].steps[0].instruction || "Đi thẳng");
+        setInstruction(data.Data.features[0].properties.segments[0].steps[0].instruction || "Đi Thẳng");
         setNextInstruct(data.Data.features[0].properties.segments[0].steps[1].instruction || "");
         const route = await createRouterLine2(currentLocation, destination);
         setRouteDirection2(route);
