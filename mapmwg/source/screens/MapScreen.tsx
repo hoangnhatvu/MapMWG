@@ -17,7 +17,9 @@ import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import SearchBar from '../components/SearchBar';
-import { setIsDirected } from '../redux/slices/isDirectedSlide';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
+import InstructionModal from '../components/InstructionModal';
+import InstructionSheet from '../components/InstructionSheet';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -29,10 +31,10 @@ const MapScreen: React.FC = () => {
   // State
   const [initial, setInitial] = useState<boolean>(true);
   const [isLocated, setIsLocated] = useState<boolean>(false);
+  const [isSearchBar, setIsSearchBar] = useState<boolean>(true);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [step, setStep] = useState<number>(0);
-  const [followUserLocation, setFollowUserLocation] = useState(false);
   const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
     useState(true);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
@@ -44,6 +46,9 @@ const MapScreen: React.FC = () => {
   // Redux
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const isDirected = useSelector((state: RootState) => state.isSearch.value);
+  const isInstructed = useSelector(
+    (state: RootState) => state.isInstructed.value,
+  );
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
@@ -54,7 +59,7 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.instructions.value,
   );
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
     const delay = 4000;
 
@@ -64,6 +69,14 @@ const MapScreen: React.FC = () => {
 
     return () => clearTimeout(timeoutId);
   }, []);
+
+  useEffect(() => {
+    if (isDirected === true || isInstructed === true) {
+      setIsSearchBar(false);
+    } else if (isDirected === false && isInstructed === false) {
+      setIsSearchBar(true);
+    }
+  }, [isDirected, isInstructed]);
 
   // useEffect(() => {
   //   if (destination && currentLocation) {
@@ -193,9 +206,18 @@ const MapScreen: React.FC = () => {
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={15}
-              followUserLocation={followUserLocation}
               followUserMode={UserTrackingMode.FollowWithHeading}
             />
+          )}
+          {isInstructed && (
+                 <Mapbox.Camera
+                 centerCoordinate={currentLocation}
+                 animationMode={'flyTo'}
+                 animationDuration={2000}
+                 zoomLevel={18}
+                 pitch={60}
+                 followUserMode={UserTrackingMode.FollowWithHeading}
+               />
           )}
 
           {destination && (
@@ -218,7 +240,7 @@ const MapScreen: React.FC = () => {
               style={{circleColor: 'red', circleRadius: 8}}
             />
           </Mapbox.UserLocation>
-          {isDirected && routeDirection && (
+          {routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
               <Mapbox.LineLayer
                 id="routerLine"
@@ -229,7 +251,7 @@ const MapScreen: React.FC = () => {
         </Mapbox.MapView>
         {isSearch && <SearchScreen />}
       </View>
-      <SearchBar />
+      {isSearchBar && <SearchBar />}
 
       <LocateButton
         isLocated={isLocated}
@@ -238,7 +260,13 @@ const MapScreen: React.FC = () => {
         }}
       />
       {isDirected && <DirectionScreen />}
-      {(isDirected || destination) && (
+      {isInstructed && (
+        <>
+          <InstructionModal instruction={instructions[0].instruction} />
+          <InstructionSheet distance={1} time={1} />
+        </>
+      )}
+      {destination && !isInstructed && (
         <BottomSheet
           name={address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'}
           address={

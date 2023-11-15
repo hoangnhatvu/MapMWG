@@ -27,7 +27,7 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
     <View style={styles.container}>
       <View style={styles.instructionContainer}>
         <View style={{alignSelf:'center', marginHorizontal: 32}}>
-          <Ionicons name={instructIcon} size={32} color={textColor} />
+          <Ionicons name={instructIcon} size={32} color={'white'} />
         </View>
         <View style={{alignSelf: 'center', marginRight: 16}}>
           <Text style={styles.instructionText}>{instruction}</Text>
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     marginTop: '15%',
   },
   instructionContainer: {
-    backgroundColor: "#00ffff",
+    backgroundColor: "forestgreen",
     height: '70%',
     borderRadius: 16,
     flexDirection: 'row',
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     backgroundColor: secondaryColor,
   },
   instructionText: {
-    color: textColor,
+    color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
   },
