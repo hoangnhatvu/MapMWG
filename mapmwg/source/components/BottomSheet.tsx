@@ -19,10 +19,13 @@ import {
   textColor,
 } from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
-import { createRouterLine } from '../services/createRoute';
-import { useDispatch, useSelector } from 'react-redux';
+import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
+import {createRouterLine} from '../services/createRoute';
+import {useDispatch, useSelector} from 'react-redux';
 import RootState from '../../redux';
+import { setIsInstructed } from '../redux/slices/isInstructedSlice';
+import { setIsDirected } from '../redux/slices/isDirectedSlide';
+import { setIsSearch } from '../redux/slices/isSearchSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
@@ -37,15 +40,36 @@ interface BottomSheetProps {
   distance?: number;
   getRoute?: () => void;
   start?: () => void;
-  currentLocation: [number, number],
+  currentLocation: [number, number];
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRoute, start, currentLocation}) => {
+const BottomSheet: React.FC<BottomSheetProps> = ({
+  name,
+  address,
+  distance,
+  getRoute,
+  start,
+  currentLocation,
+}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
+
+  const isInstructed = useSelector(
+    (state: RootState) => state.isInstructed.value,
+  );
+  const isDirected = useSelector(
+    (state: RootState) => state.isDirected.value,
+  );
+  const isSearch = useSelector(
+    (state: RootState) => state.isSearch.value,
+  );
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
+  const routeDirection = useSelector(
+    (state: RootState) => state.routeDirection.value,
+  );
+
   const dispatch = useDispatch();
 
   const panResponder = useRef(
@@ -108,16 +132,30 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
   };
 
   const makeRoute = async () => {
-    if(!destination){
+    if (!destination) {
       return null;
     }
     const route = await createRouterLine(currentLocation, destination);
+    dispatch(setIsDirected(true));
     dispatch(setRouteDirection(route));
-  }
+  };
 
-  const instruct = async() => {
-    
-  }
+  const instruct = async () => {
+    try {
+      if (!routeDirection) {
+        await makeRoute();
+      }
+
+      dispatch(setIsSearch(false));
+      dispatch(setIsInstructed(true));
+
+      
+      
+    } catch (error) {
+      console.error("Can't make route: " + error);
+      return null;
+    }
+  };
 
   return (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>
@@ -126,7 +164,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
       </View>
       <View style={styles.content__container}>
         <View style={styles.button__container}>
-          <ScrollView style={{}} horizontal={true} showsHorizontalScrollIndicator={false}>
+          <ScrollView
+            style={{}}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}>
             <TouchableOpacity style={styles.button} onPress={makeRoute}>
               <FontAwesome6 name="route" size={16} />
               <Text style={styles.text}>Đường đi</Text>
@@ -154,12 +195,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
           </ScrollView>
         </View>
         <View style={{marginHorizontal: 8}}>
-          <Text style={{fontSize: 32, fontWeight: 'bold'}}>
-            {name || null}
-          </Text>
-          <Text style={{fontSize: 16}}>
-            {address || null}
-          </Text>
+          <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name || null}</Text>
+          <Text style={{fontSize: 16}}>{address || null}</Text>
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <FontAwesome6 name="car" size={16} />
             <Text style={{fontSize: 16, marginLeft: 8}}>{distance} km</Text>
