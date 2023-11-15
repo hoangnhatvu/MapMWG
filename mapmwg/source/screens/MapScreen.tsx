@@ -26,6 +26,7 @@ Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
   // State
+  const [initial, setInitial] = useState<boolean>(true);
   const [isLocated, setIsLocated] = useState<boolean>(false);
   const [isDirected, setIsDirected] = useState<boolean>(false);
   const [address, setAddress] = useState<any>(null);
@@ -33,11 +34,11 @@ const MapScreen: React.FC = () => {
   const [step, setStep] = useState<number>(0);
   const [followUserLocation, setFollowUserLocation] = useState(false);
   const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
-  useState(true);
+    useState(true);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  
+
   const thresholdDistance = 0.01;
 
   // Redux
@@ -52,6 +53,11 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.instructions.value,
   );
   const dispatch = useDispatch();
+  
+  useEffect(() => {
+    // Chạy sau khi component đã mount
+    setInitial(false);
+  }, []); 
 
   // useEffect(() => {
   //   if (destination && currentLocation) {
@@ -167,13 +173,16 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
-          <Mapbox.Camera 
-            centerCoordinate={currentLocation}
-            animationMode={'flyTo'}
-            animationDuration={2000}
-            zoomLevel={15}
-          />
-          {isLocated && (
+          {destination && (
+            <Mapbox.Camera
+              centerCoordinate={destination}
+              animationMode={'flyTo'}
+              animationDuration={2000}
+              zoomLevel={15}
+              pitch={10}
+            />
+          )}
+          {initial || isLocated && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
@@ -197,13 +206,12 @@ const MapScreen: React.FC = () => {
             animated={true}
             androidRenderMode="gps"
             requestsAlwaysUse={true}
-            renderMode={UserLocationRenderModeType.Native}
-          >
+            renderMode={UserLocationRenderModeType.Native}>
             <CircleLayer
-                  key="customer-user-location-children-red"
-                  id="customer-user-location-children-red"
-                  style={{ circleColor: 'red', circleRadius: 8 }}
-                />
+              key="customer-user-location-children-red"
+              id="customer-user-location-children-red"
+              style={{circleColor: 'red', circleRadius: 8}}
+            />
           </Mapbox.UserLocation>
           {isDirected && routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>

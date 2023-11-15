@@ -46,7 +46,7 @@ const SearchScreen = () => {
   }, [searchText]);
 
   const handleSearchLocation = (location: any) => {
-    handleSearchResult(location.properties.coordinates, location.properties.searchAddress);
+    handleSearchResult(location.geometry.coordinates, location.properties.searchAddress);
   };
 
   const handleSearchResult = (data: [number, number], name: string) => {
