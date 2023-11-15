@@ -17,6 +17,7 @@ import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import SearchBar from '../components/SearchBar';
+import { setIsDirected } from '../redux/slices/isDirectedSlide';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -28,7 +29,6 @@ const MapScreen: React.FC = () => {
   // State
   const [initial, setInitial] = useState<boolean>(true);
   const [isLocated, setIsLocated] = useState<boolean>(false);
-  const [isDirected, setIsDirected] = useState<boolean>(false);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [step, setStep] = useState<number>(0);
@@ -43,6 +43,7 @@ const MapScreen: React.FC = () => {
 
   // Redux
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const isDirected = useSelector((state: RootState) => state.isSearch.value);
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
@@ -55,9 +56,14 @@ const MapScreen: React.FC = () => {
   const dispatch = useDispatch();
   
   useEffect(() => {
-    // Chạy sau khi component đã mount
-    setInitial(false);
-  }, []); 
+    const delay = 4000;
+
+    const timeoutId = setTimeout(() => {
+      setInitial(false);
+    }, delay);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // useEffect(() => {
   //   if (destination && currentLocation) {
@@ -149,9 +155,8 @@ const MapScreen: React.FC = () => {
           route.Data?.features[0]?.properties?.segments[0]?.steps,
         ),
       );
-      console.log('Hướng dẫn: ' + instructions[1].instruction);
       setDistance(route.Data.features[0].properties.summary.distance);
-      setIsDirected(true);
+      dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
   };
@@ -182,7 +187,7 @@ const MapScreen: React.FC = () => {
               pitch={10}
             />
           )}
-          {initial || isLocated && (
+          {(initial || isLocated) && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
@@ -233,7 +238,7 @@ const MapScreen: React.FC = () => {
         }}
       />
       {isDirected && <DirectionScreen />}
-      {isDirected && (
+      {(isDirected || destination) && (
         <BottomSheet
           name={address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'}
           address={

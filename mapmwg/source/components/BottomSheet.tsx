@@ -108,8 +108,15 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
   };
 
   const makeRoute = async () => {
+    if(!destination){
+      return null;
+    }
     const route = await createRouterLine(currentLocation, destination);
     dispatch(setRouteDirection(route));
+  }
+
+  const instruct = async() => {
+    
   }
 
   return (
@@ -124,7 +131,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({name,address, distance, getRou
               <FontAwesome6 name="route" size={16} />
               <Text style={styles.text}>Đường đi</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={instruct}>
               <FontAwesome6 name="location-arrow" size={16} />
               <Text style={styles.text}>Bắt đầu</Text>
             </TouchableOpacity>

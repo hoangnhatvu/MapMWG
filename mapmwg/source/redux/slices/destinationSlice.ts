@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface DestinationState {
-  value: [number, number];
+  value: [number, number] | null;
 }
 
 const initialState: DestinationState = {
-  value: [0, 0],
+  value: null,
 };
 
 const destinationSlice = createSlice({

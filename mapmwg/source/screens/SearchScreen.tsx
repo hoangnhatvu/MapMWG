@@ -57,7 +57,6 @@ const SearchScreen = () => {
 
   return (
     <>
-      {isSearch && (
         <View style={styles.container}>
           <View style={styles.search__container}>
             <ScrollView>
@@ -84,8 +83,6 @@ const SearchScreen = () => {
             </ScrollView>
           </View>
         </View>
-      )}
-      <SearchBar />
     </>
   );
 };
