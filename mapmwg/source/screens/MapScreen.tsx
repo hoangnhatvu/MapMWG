@@ -20,6 +20,7 @@ import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import InstructionModal from '../components/InstructionModal';
 import InstructionSheet from '../components/InstructionSheet';
+import { setInstruction } from '../redux/slices/instructionSlice';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -52,6 +53,9 @@ const MapScreen: React.FC = () => {
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
+  const instruction = useSelector(
+    (state: RootState) => state.instruction.value,
+  );
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
@@ -71,14 +75,12 @@ const MapScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isDirected === true || isInstructed === true) {
+    if(isInstructed === true){
       setIsSearchBar(false);
-    } else if (isDirected === false && isInstructed === false) {
+    } else {
       setIsSearchBar(true);
     }
   }, [isDirected, isInstructed]);
-
-  const heading = instructions[0].bearing_after-instructions[0].bearing_before;
 
   // useEffect(() => {
   //   if (destination && currentLocation) {
@@ -126,7 +128,7 @@ const MapScreen: React.FC = () => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
     let minDistance = 1;
-    let instruction = '';
+    let newInstruction = '';
     if (instructions) {
       for (const step of instructions) {
         if (step?.maneuver?.location) {
@@ -143,13 +145,14 @@ const MapScreen: React.FC = () => {
           if (distance < thresholdDistance) {
             if (distance < minDistance) {
               minDistance = distance;
-              instruction = step.instruction;
+              newInstruction = step.instruction;
             }
           }
         }
       }
     }
-    console.log(instruction);
+    console.log(newInstruction);
+    dispatch(setInstruction(newInstruction))
   };
 
   const handleMapPress = async (event: any) => {
@@ -179,6 +182,10 @@ const MapScreen: React.FC = () => {
   const handleTouchMove = () => {
     setIsLocated(false);
   };
+
+  useEffect(() => {
+    
+  }, [instructions])
 
   return (
     <View style={styles.page}>
@@ -252,21 +259,23 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
-        {isSearch && <SearchScreen />}
       </View>
-      {isSearchBar && <SearchBar />}
 
+        {isSearch && <SearchScreen />}
+        {isSearchBar && <SearchBar />}
       <LocateButton
         isLocated={isLocated}
         onPress={() => {
           isLocated ? setIsLocated(false) : setIsLocated(true);
         }}
       />
-      {isDirected && <DirectionScreen />}
       {isInstructed && (
         <>
-          <InstructionModal instruction={instructions[0].instruction} />
-          <InstructionSheet distance={instructions[0].distance} time={instructions[0].duration} />
+          <InstructionModal instruction={instruction} />
+          <InstructionSheet
+            distance={instructions[0].distance}
+            time={instructions[0].duration}
+          />
         </>
       )}
       {destination && !isInstructed && (
