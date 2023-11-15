@@ -16,6 +16,7 @@ import RootState from '../../redux';
 import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {setInstructions} from '../redux/slices/instructionsSlice';
+import SearchBar from '../components/SearchBar';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -26,7 +27,7 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const MapScreen: React.FC = () => {
   const [isLocated, setIsLocated] = useState<boolean>(false);
   const [isDirected, setIsDirected] = useState<boolean>(false);
-  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [step, setStep] = useState<number>(0);
@@ -208,6 +209,7 @@ const MapScreen: React.FC = () => {
         </Mapbox.MapView>
         {isSearch && <SearchScreen />}
       </View>
+      <SearchBar />
 
       <LocateButton
         isLocated={isLocated}

@@ -13,6 +13,7 @@ const SearchBar = () => {
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchKey, setSearchKey] = useState<string>('');
   const dispatch = useDispatch();
+  console.log(isSearch);
 
   const exitSearch = () => {
     dispatch(setIsSearch(false));
@@ -49,6 +50,7 @@ const SearchBar = () => {
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
+          dispatch(setIsSearch(!!value)); // Set isSearch to true if there is a value, otherwise false
         }}
         value={isSearch ? searchKey : searchText}
       />

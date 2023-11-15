@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-import {primaryColor, secondaryColor, textColor} from '../constants/color';
+import {primaryColor, secondaryColor, tertiaryColor, textColor} from '../constants/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface InstructionProps {
@@ -47,10 +47,12 @@ const styles = StyleSheet.create({
     marginTop: '15%',
   },
   instructionContainer: {
-    backgroundColor: secondaryColor,
+    backgroundColor: "#00ffff",
     height: '70%',
     borderRadius: 16,
     flexDirection: 'row',
+    borderColor: tertiaryColor,
+    borderWidth: 1,
   },
   nextInstructContainer: {
     height: '30%',
