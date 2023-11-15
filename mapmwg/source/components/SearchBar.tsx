@@ -20,11 +20,14 @@ const SearchBar = () => {
   };
 
   useEffect(() => {
-    dispatch(setIsSearch(true));
-    dispatch(setSearchText(searchKey));
-    console.log(searchText);
+    if (searchKey !== '') {
+      dispatch(setIsSearch(true));
+      dispatch(setSearchText(searchKey));
+    } else {
+      dispatch(setIsSearch(false));
+    }
   }, [searchKey]);
-
+  
   return (
     <View style={styles.search__bar}>
       {isSearch ? (
@@ -49,6 +52,7 @@ const SearchBar = () => {
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
+          dispatch(setIsSearch(!!value)); // Set isSearch to true if there is a value, otherwise false
         }}
         value={isSearch ? searchKey : searchText}
       />

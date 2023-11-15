@@ -46,7 +46,7 @@ const SearchScreen = () => {
   }, [searchText]);
 
   const handleSearchLocation = (location: any) => {
-    handleSearchResult(location.properties.coordinates, location.properties.searchAddress);
+    handleSearchResult(location.geometry.coordinates, location.properties.searchAddress);
   };
 
   const handleSearchResult = (data: [number, number], name: string) => {
@@ -57,7 +57,6 @@ const SearchScreen = () => {
 
   return (
     <>
-      {isSearch && (
         <View style={styles.container}>
           <View style={styles.search__container}>
             <ScrollView>
@@ -84,8 +83,6 @@ const SearchScreen = () => {
             </ScrollView>
           </View>
         </View>
-      )}
-      <SearchBar />
     </>
   );
 };

@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import Mapbox from '@rnmapbox/maps';
+import Mapbox, {
+  CircleLayer,
+  UserLocationRenderMode as UserLocationRenderModeType,
+  UserTrackingMode,
+} from '@rnmapbox/maps';
 import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
@@ -12,6 +16,8 @@ import RootState from '../../redux';
 import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {setInstructions} from '../redux/slices/instructionsSlice';
+import SearchBar from '../components/SearchBar';
+import { setIsDirected } from '../redux/slices/isDirectedSlide';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -20,29 +26,44 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
-  const [isLocated, setIsLocated] = useState<boolean>(true);
-  const [isDirected, setIsDirected] = useState<boolean>(false);
-  const [isSearch, setIsSearch] = useState<boolean>(false);
+  // State
+  const [initial, setInitial] = useState<boolean>(true);
+  const [isLocated, setIsLocated] = useState<boolean>(false);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [step, setStep] = useState<number>(0);
-  const thresholdDistance = 0.01;
-
+  const [followUserLocation, setFollowUserLocation] = useState(false);
+  const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
+    useState(true);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
+
+  const thresholdDistance = 0.01;
+
+  // Redux
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const isDirected = useSelector((state: RootState) => state.isSearch.value);
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
-
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
-
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
   );
   const dispatch = useDispatch();
+  
+  useEffect(() => {
+    const delay = 4000;
+
+    const timeoutId = setTimeout(() => {
+      setInitial(false);
+    }, delay);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // useEffect(() => {
   //   if (destination && currentLocation) {
@@ -90,7 +111,7 @@ const MapScreen: React.FC = () => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
     let minDistance = 1;
-    let instruction = ''
+    let instruction = '';
     if (instructions) {
       for (const step of instructions) {
         if (step?.maneuver?.location) {
@@ -105,9 +126,9 @@ const MapScreen: React.FC = () => {
           );
 
           if (distance < thresholdDistance) {
-            if (distance < minDistance){
-              minDistance = distance
-              instruction = step.instruction
+            if (distance < minDistance) {
+              minDistance = distance;
+              instruction = step.instruction;
             }
           }
         }
@@ -134,9 +155,8 @@ const MapScreen: React.FC = () => {
           route.Data?.features[0]?.properties?.segments[0]?.steps,
         ),
       );
-      console.log('Hướng dẫn: ' + instructions[1].instruction);
       setDistance(route.Data.features[0].properties.summary.distance);
-      setIsDirected(true);
+      dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
   };
@@ -158,12 +178,23 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
-          {isLocated && (
+          {destination && (
+            <Mapbox.Camera
+              centerCoordinate={destination}
+              animationMode={'flyTo'}
+              animationDuration={2000}
+              zoomLevel={15}
+              pitch={10}
+            />
+          )}
+          {(initial || isLocated) && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={15}
+              followUserLocation={followUserLocation}
+              followUserMode={UserTrackingMode.FollowWithHeading}
             />
           )}
 
@@ -173,14 +204,20 @@ const MapScreen: React.FC = () => {
             </Mapbox.PointAnnotation>
           )}
           <Mapbox.UserLocation
-            minDisplacement={1}
+            minDisplacement={10}
             visible={true}
             onUpdate={handleUserLocationUpdate}
             showsUserHeadingIndicator={true}
             animated={true}
             androidRenderMode="gps"
             requestsAlwaysUse={true}
-          />
+            renderMode={UserLocationRenderModeType.Native}>
+            <CircleLayer
+              key="customer-user-location-children-red"
+              id="customer-user-location-children-red"
+              style={{circleColor: 'red', circleRadius: 8}}
+            />
+          </Mapbox.UserLocation>
           {isDirected && routeDirection && (
             <Mapbox.ShapeSource id="line" shape={routeDirection}>
               <Mapbox.LineLayer
@@ -192,6 +229,7 @@ const MapScreen: React.FC = () => {
         </Mapbox.MapView>
         {isSearch && <SearchScreen />}
       </View>
+      <SearchBar />
 
       <LocateButton
         isLocated={isLocated}
@@ -200,7 +238,7 @@ const MapScreen: React.FC = () => {
         }}
       />
       {isDirected && <DirectionScreen />}
-      {isDirected && (
+      {(isDirected || destination) && (
         <BottomSheet
           name={address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'}
           address={
