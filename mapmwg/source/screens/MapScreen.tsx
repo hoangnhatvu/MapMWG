@@ -78,6 +78,8 @@ const MapScreen: React.FC = () => {
     }
   }, [isDirected, isInstructed]);
 
+  const heading = instructions[0].bearing_after-instructions[0].bearing_before;
+
   // useEffect(() => {
   //   if (destination && currentLocation) {
   //     const fetchData = async () => {
@@ -210,14 +212,15 @@ const MapScreen: React.FC = () => {
             />
           )}
           {isInstructed && (
-                 <Mapbox.Camera
-                 centerCoordinate={currentLocation}
-                 animationMode={'flyTo'}
-                 animationDuration={2000}
-                 zoomLevel={18}
-                 pitch={60}
-                 followUserMode={UserTrackingMode.FollowWithHeading}
-               />
+            <Mapbox.Camera
+              centerCoordinate={currentLocation}
+              animationMode={'flyTo'}
+              animationDuration={2000}
+              zoomLevel={18}
+              pitch={60}
+              followUserMode={UserTrackingMode.FollowWithHeading}
+              followHeading={0}
+            />
           )}
 
           {destination && (
@@ -263,7 +266,7 @@ const MapScreen: React.FC = () => {
       {isInstructed && (
         <>
           <InstructionModal instruction={instructions[0].instruction} />
-          <InstructionSheet distance={1} time={1} />
+          <InstructionSheet distance={instructions[0].distance} time={instructions[0].duration} />
         </>
       )}
       {destination && !isInstructed && (
