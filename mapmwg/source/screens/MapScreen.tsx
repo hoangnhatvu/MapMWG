@@ -25,28 +25,29 @@ Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
 
 const MapScreen: React.FC = () => {
+  // State
   const [isLocated, setIsLocated] = useState<boolean>(false);
   const [isDirected, setIsDirected] = useState<boolean>(false);
-  const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [step, setStep] = useState<number>(0);
   const [followUserLocation, setFollowUserLocation] = useState(false);
   const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
-    useState(true);
-  const thresholdDistance = 0.01;
-
+  useState(true);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
+  
+  const thresholdDistance = 0.01;
+
+  // Redux
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
-
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
-
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
   );
@@ -166,6 +167,12 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
+          <Mapbox.Camera 
+            centerCoordinate={currentLocation}
+            animationMode={'flyTo'}
+            animationDuration={2000}
+            zoomLevel={15}
+          />
           {isLocated && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}

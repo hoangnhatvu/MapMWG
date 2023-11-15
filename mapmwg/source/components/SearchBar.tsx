@@ -13,7 +13,6 @@ const SearchBar = () => {
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchKey, setSearchKey] = useState<string>('');
   const dispatch = useDispatch();
-  console.log(isSearch);
 
   const exitSearch = () => {
     dispatch(setIsSearch(false));
@@ -21,11 +20,14 @@ const SearchBar = () => {
   };
 
   useEffect(() => {
-    dispatch(setIsSearch(true));
-    dispatch(setSearchText(searchKey));
-    console.log(searchText);
+    if (searchKey !== '') {
+      dispatch(setIsSearch(true));
+      dispatch(setSearchText(searchKey));
+    } else {
+      dispatch(setIsSearch(false));
+    }
   }, [searchKey]);
-
+  
   return (
     <View style={styles.search__bar}>
       {isSearch ? (
