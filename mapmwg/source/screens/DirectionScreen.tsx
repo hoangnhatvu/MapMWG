@@ -1,13 +1,36 @@
 import {StyleSheet, TextInput, View, Animated, Easing} from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import React, {useState, useEffect} from 'react';
-import DirectionButton from '../components/DirectionButton';
-import BottomSheet from '../components/BottomSheet';
+import React, {useEffect} from 'react';
 import {primaryColor, tertiaryColor} from '../constants/color';
+import RootState from '../../redux';
+import {useSelector, useDispatch} from 'react-redux';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
+import {setIsSearchCurrent} from '../redux/slices/isSearchCurrentSlice';
+import {setIsSearchDestination} from '../redux/slices/isSearchDestinationSlice';
+import SearchScreen from './SearchScreen';
+import DirectionButton from '../components/DirectionButton';
+import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+import { setDestinationInfo } from '../redux/slices/destinationInfoSlice';
+import { setCurrentInfo } from '../redux/slices/currentInfoSlice';
 
 const DirectionScreen = () => {
-  const [showView, setShowView] = useState(false);
+  const isDirected = useSelector((state: RootState) => state.isDirected.value);
+  const currentInfo = useSelector(
+    (state: RootState) => state.currentInfo.value,
+  );
+  const destinationInfo = useSelector(
+    (state: RootState) => state.destinationInfo.value,
+  );
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const isSearchCurrent = useSelector(
+    (state: RootState) => state.isSearchCurrent.value,
+  );
+  const isSearchDestination = useSelector(
+    (state: RootState) => state.isSearchDestination.value,
+  );
+  const searchText = useSelector((state: RootState) => state.searchText.value);
   const slideAnimation = new Animated.Value(0);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     Animated.timing(slideAnimation, {
@@ -16,7 +39,7 @@ const DirectionScreen = () => {
       easing: Easing.linear,
       useNativeDriver: false,
     }).start();
-  }, [showView]);
+  }, [isDirected]);
 
   const slideDown = slideAnimation.interpolate({
     inputRange: [0, 1],
@@ -28,94 +51,117 @@ const DirectionScreen = () => {
     outputRange: [0, -200],
   });
   const handleBack = () => {
-    setShowView(false);
+    dispatch(setIsDirected(false));
+    dispatch(setIsSearchCurrent(false));
+    dispatch(setIsSearchDestination(false));
+    dispatch(setIsSearchBar(true));
+    dispatch(setDestinationInfo(null));
+    dispatch(setCurrentInfo(null));
   };
 
   const handleOnPress = () => {
-    setShowView(true);
+    dispatch(setIsDirected(true));
+    dispatch(setIsSearchBar(false));
   };
 
   return (
     <>
       <DirectionButton onPress={handleOnPress} />
-
-      <Animated.View
-        style={{
-          transform: showView
-            ? [{translateY: slideDown}]
-            : [{translateY: slideUp}],
-          width: '100%',
-          height: '20%',
-          backgroundColor: primaryColor,
-          position: 'absolute',
-          elevation: 5,
-          top: -100,
-        }}>
-        <View
+      {isDirected && (
+        <Animated.View
           style={{
-            flexDirection: 'column',
+            transform: isDirected
+              ? [{translateY: slideDown}]
+              : [{translateY: slideUp}],
+            width: '100%',
+            height: '20%',
+            backgroundColor: primaryColor,
+            position: 'absolute',
+            elevation: 5,
+            top: -100,
           }}>
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 10,
-              marginLeft: 10,
+              flexDirection: 'column',
             }}>
-            <FontAwesome6
-              name="arrow-left"
-              size={25}
-              style={{marginRight: 10}}
-              onPress={handleBack}
-            />
-            <FontAwesome6
-              name="circle-dot"
-              style={{marginLeft: 10, color: 'blue'}}
-            />
-            <TextInput style={styles.input_text} placeholder="Vị trí của bạn" />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 10,
+                marginLeft: 10,
+              }}>
+              <FontAwesome6
+                name="arrow-left"
+                size={25}
+                style={{marginRight: 10}}
+                onPress={handleBack}
+              />
+              <FontAwesome6
+                name="circle-dot"
+                style={{marginLeft: 10, color: 'blue'}}
+              />
+              <TextInput
+                style={styles.input_text}
+                placeholder="Vị trí của bạn"
+                value={currentInfo?.properties?.searchAddress}
+                focusable={false}
+                onPressIn={() => {
+                  dispatch(setIsSearchCurrent(true));
+                  dispatch(setIsDirected(false));
+                }}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginLeft: 10,
+              }}>
+              <FontAwesome6
+                name="location-dot"
+                size={20}
+                style={{marginLeft: 40, color: 'red'}}
+              />
+              <TextInput
+                style={[styles.input_text, {marginLeft: 12}]}
+                placeholder="Chọn điểm đến"
+                value={destinationInfo?.properties?.searchAddress}
+                onPressIn={() => {
+                  dispatch(setIsSearchDestination(true));
+                  dispatch(setIsDirected(false));
+                }}
+              />
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-evenly',
+              }}>
+              <FontAwesome6 name="car" size={20} style={{marginRight: 10}} />
+              <FontAwesome6
+                name="motorcycle"
+                size={20}
+                style={{marginRight: 10}}
+              />
+              <FontAwesome6
+                name="truck-fast"
+                size={20}
+                style={{marginRight: 10}}
+              />
+              <FontAwesome6
+                name="person-walking"
+                size={25}
+                style={{marginRight: 10}}
+              />
+            </View>
           </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginLeft: 10,
-            }}>
-            <FontAwesome6
-              name="location-dot"
-              size={20}
-              style={{marginLeft: 40, color: 'red'}}
-            />
-            <TextInput
-              style={[styles.input_text, {marginLeft: 12}]}
-              placeholder="Chọn điểm đến"
-            />
-          </View>
-          <View
-            style={{
-              marginTop: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-evenly',
-            }}>
-            <FontAwesome6 name="car" size={20} style={{marginRight: 10}} />
-            <FontAwesome6
-              name="motorcycle"
-              size={20}
-              style={{marginRight: 10}}
-            />
-            <FontAwesome6
-              name="truck-fast"
-              size={20}
-              style={{marginRight: 10}}
-            />
-            <FontAwesome6
-              name="person-walking"
-              size={25}
-              style={{marginRight: 10}}
-            />
-          </View>
-        </View>
-      </Animated.View>
+        </Animated.View>
+      )}
+
+      {isSearchCurrent || isSearchDestination ? <SearchScreen /> : <></>}
     </>
   );
 };

@@ -8,26 +8,33 @@ import {
 import {
   lightGray,
   primaryColor,
-  tertiaryColor,
-  textColor,
 } from '../constants/color';
-import Feather from 'react-native-vector-icons/Feather';
 import {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
-import SearchBar from '../components/SearchBar';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
 import {searchApi} from '../services/search';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { setIsSearchCurrent } from '../redux/slices/isSearchCurrentSlice';
+import { setCurrent } from '../redux/slices/currentSlice';
+import { setIsSearchDestination } from '../redux/slices/isSearchDestinationSlice';
+import SearchBar from '../components/SearchBar';
+import { setIsDirected } from '../redux/slices/isDirectedSlide';
+import { setIsSearchBar } from '../redux/slices/isSearchBarSlice';
+import { setDestinationInfo } from '../redux/slices/destinationInfoSlice';
+import { setCurrentInfo } from '../redux/slices/currentInfoSlice';
 
 const SearchScreen = () => {
-  const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchList, setSearchList] = useState<any[] | []>([]);
-  const destination = useSelector(
-    (state: RootState) => state.destination.value,
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const isSearchCurrent = useSelector(
+    (state: RootState) => state.isSearchCurrent.value,
+  );
+  const isSearchDestination = useSelector(
+    (state: RootState) => state.isSearchDestination.value,
   );
   const dispatch = useDispatch();
 
@@ -46,13 +53,32 @@ const SearchScreen = () => {
   }, [searchText]);
 
   const handleSearchLocation = (location: any) => {
-    handleSearchResult(location.geometry.coordinates, location.properties.searchAddress);
+    if(isSearchCurrent || isSearchDestination) {
+      dispatch(setIsDirected(true));
+      dispatch(setIsSearchBar(false));
+    }
+    handleSearchResult(location);
   };
 
-  const handleSearchResult = (data: [number, number], name: string) => {
-    dispatch(setIsSearch(false));
-    dispatch(setSearchText(name));
-    dispatch(setDestination(data));
+  const handleSearchResult = (location: any) => {
+    if(isSearch){
+      dispatch(setIsSearch(false));
+      dispatch(setSearchText(location.properties.searchAddress));
+      dispatch(setDestination(location.geometry.coordinates));
+      dispatch(setDestinationInfo(location))
+    } else if (isSearchCurrent)
+    {
+      dispatch(setIsSearchCurrent(false));
+      dispatch(setCurrentInfo(location));
+      dispatch(setCurrent(location.geometry.coordinates));
+      dispatch(setSearchText(''));
+    } else if (isSearchDestination){
+      dispatch(setIsSearchDestination(false));
+      dispatch(setDestinationInfo(location));
+      dispatch(setDestination(location.geometry.coordinates));
+      dispatch(setSearchText(''));
+    }  
+    
   };
 
   return (
@@ -64,7 +90,7 @@ const SearchScreen = () => {
                 <View style={styles.menuWrapper}>
                   <Ionicons name="location-outline" size={24} />
                   <TouchableOpacity
-                    key={location?.id}
+                    key={location.id}
                     style={styles.search__location}
                     onPress={() => handleSearchLocation(location)}>
                     <View style={{flexDirection: 'row'}}>
@@ -83,6 +109,7 @@ const SearchScreen = () => {
             </ScrollView>
           </View>
         </View>
+        {isSearchCurrent || isSearchDestination ? <SearchBar/> : <></>}
     </>
   );
 };

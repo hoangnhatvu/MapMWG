@@ -21,6 +21,9 @@ import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import InstructionModal from '../components/InstructionModal';
 import InstructionSheet from '../components/InstructionSheet';
 import {setInstruction} from '../redux/slices/instructionSlice';
+import DirectionButton from '../components/DirectionButton';
+import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+import {getDistance} from '../helps/get_distance';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -32,10 +35,8 @@ const MapScreen: React.FC = () => {
   // State
   const [initial, setInitial] = useState<boolean>(true);
   const [isLocated, setIsLocated] = useState<boolean>(false);
-  const [isSearchBar, setIsSearchBar] = useState<boolean>(true);
   const [address, setAddress] = useState<any>(null);
   const [distance, setDistance] = useState<number | null>(null);
-  const [step, setStep] = useState<number>(0);
   const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
     useState(true);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
@@ -46,9 +47,21 @@ const MapScreen: React.FC = () => {
 
   // Redux
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const isSearchBar = useSelector(
+    (state: RootState) => state.isSearchBar.value,
+  );
   const isDirected = useSelector((state: RootState) => state.isSearch.value);
+  const currentInfo = useSelector(
+    (state: RootState) => state.currentInfo.value,
+  );
+  const destinationInfo = useSelector(
+    (state: RootState) => state.destinationInfo.value,
+  );
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
+  );
+  const isHandleDirect = useSelector(
+    (state: RootState) => state.isHandleDirect.value,
   );
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
@@ -56,11 +69,18 @@ const MapScreen: React.FC = () => {
   const instruction = useSelector(
     (state: RootState) => state.instruction.value,
   );
+  const current = useSelector((state: RootState) => state.destination.value);
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
+  );
+  const isSearchCurrent = useSelector(
+    (state: RootState) => state.isSearchCurrent.value,
+  );
+  const isSearchDestination = useSelector(
+    (state: RootState) => state.isSearchDestination.value,
   );
   const dispatch = useDispatch();
 
@@ -76,9 +96,9 @@ const MapScreen: React.FC = () => {
 
   useEffect(() => {
     if (isInstructed === true) {
-      setIsSearchBar(false);
+      dispatch(setIsSearchBar(false));
     } else {
-      setIsSearchBar(true);
+      dispatch(setIsSearchBar(true));
     }
   }, [isDirected, isInstructed]);
 
@@ -263,6 +283,7 @@ const MapScreen: React.FC = () => {
         </Mapbox.MapView>
       </View>
 
+      <DirectionScreen />
       {isSearch && <SearchScreen />}
       {isSearchBar && <SearchBar />}
       <LocateButton
@@ -282,12 +303,19 @@ const MapScreen: React.FC = () => {
       )}
       {destination && !isInstructed && (
         <BottomSheet
-          name={address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'}
-          address={
-            address?.object?.searchAddress || 'Chưa có dữ liệu trên hệ thống'
+          name={
+            destinationInfo
+              ? destinationInfo?.properties?.searchName
+              : address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'
           }
-          distance={distance || 0}
-          currentLocation={currentLocation}
+          address={
+            destinationInfo
+              ? destinationInfo?.properties?.searchAddress
+              : address?.object?.searchAddress ||
+                'Chưa có dữ liệu trên hệ thống'
+          }
+          distance={destinationInfo ? getDistance() : distance || 0}
+          currentLocation={currentInfo ? current : currentLocation}
         />
       )}
     </View>
