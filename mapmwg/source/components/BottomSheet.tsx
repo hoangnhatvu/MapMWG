@@ -37,10 +37,10 @@ const DRAG_THRESHOLD = 0;
 interface BottomSheetProps {
   name?: string;
   address?: string;
-  distance?: number;
+  distance?: number | any;
   getRoute?: () => void;
   start?: () => void;
-  currentLocation: [number, number];
+  currentLocation: [number, number] | any;
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
