@@ -6,6 +6,8 @@ import routeDirectionReducer from './slices/routeDirectionSlide';
 import instructionsReducer from './slices/instructionsSlice';
 import isDirectedReducer from './slices/isDirectedSlide';
 import isInstructedReducer from './slices/isInstructedSlice';
+import instructionReducer from './slices/instructionSlice';
+
 
 const store = configureStore({
   reducer: {
@@ -16,6 +18,7 @@ const store = configureStore({
     isInstructed: isInstructedReducer,
     routeDirection: routeDirectionReducer,
     instructions: instructionsReducer,
+    instruction: instructionReducer,
   },
 });
 
