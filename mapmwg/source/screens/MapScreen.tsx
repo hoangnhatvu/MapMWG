@@ -190,14 +190,6 @@ const MapScreen: React.FC = () => {
 
       const coords = await getCoordinatesAPI(newDestination);
       setAddress(coords);
-
-      const route = await callRoutingAPI(currentLocation, newDestination);
-      dispatch(
-        setInstructions(
-          route.Data?.features[0]?.properties?.segments[0]?.steps,
-        ),
-      );
-      setDistance(route.Data.features[0].properties.summary.distance);
       dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
@@ -314,7 +306,7 @@ const MapScreen: React.FC = () => {
               : address?.object?.searchAddress ||
                 'Chưa có dữ liệu trên hệ thống'
           }
-          distance={destinationInfo ? getDistance() : distance || 0}
+          // distance={destinationInfo ? getDistance() : distance || 0}
           currentLocation={currentInfo ? current : currentLocation}
         />
       )}
