@@ -82,22 +82,23 @@ const MapScreen: React.FC = () => {
     }
   }, [isDirected, isInstructed]);
 
-  // useEffect(() => {
-  //   if (destination && currentLocation) {
-  //     const fetchData = async () => {
-  //       const route = await createRouterLine(currentLocation, destination);
-  //       setRouteDirection(route);
-  //     };
+  // Update routeDirection after some seconds
+  useEffect(() => {
+    if (destination && routeDirection) {
+      const fetchData = async () => {
+        const route = await createRouterLine(currentLocation, destination);
+        setRouteDirection(route);
+      };
 
-  //     fetchData();
+      fetchData();
 
-  //     const interval = setInterval(fetchData, 400000);
+      const interval = setInterval(fetchData, 4000);
 
-  //     return () => {
-  //       clearInterval(interval);
-  //     };
-  //   }
-  // }, [currentLocation, destination]);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [currentLocation, destination]);
 
   const haversine = (
     lat1: number,
@@ -151,11 +152,14 @@ const MapScreen: React.FC = () => {
         }
       }
     }
-    console.log(newInstruction);
     dispatch(setInstruction(newInstruction))
   };
 
   const handleMapPress = async (event: any) => {
+    if(isDirected === true || isInstructed === true){
+      return null;
+    }
+
     if (event.geometry) {
       // Get location by click
       const newDestination: [number, number] = [
@@ -182,10 +186,6 @@ const MapScreen: React.FC = () => {
   const handleTouchMove = () => {
     setIsLocated(false);
   };
-
-  useEffect(() => {
-    
-  }, [instructions])
 
   return (
     <View style={styles.page}>
@@ -271,7 +271,7 @@ const MapScreen: React.FC = () => {
       />
       {isInstructed && (
         <>
-          <InstructionModal instruction={instruction} />
+          <InstructionModal instruction={instruction || 'Đi thẳng'} />
           <InstructionSheet
             distance={instructions[0].distance}
             time={instructions[0].duration}

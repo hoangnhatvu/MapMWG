@@ -42,10 +42,10 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={close}>
-        <Ionicons name="close-circle-outline" size={32} color={textColor} />
+      <TouchableOpacity style={styles.button} onPress={close}>
+        <Ionicons name="close-circle-outline" size={40} color={textColor} />
       </TouchableOpacity>
-      <View style={{flexDirection: 'column', margin: 10}}>
+      <View style={{flexDirection: 'column', marginBottom: 10, alignItems: 'center'}}>
         <Text style={{color:'forestgreen', fontWeight: 'bold', fontSize: 32}}>
             {time} min
         </Text>
@@ -53,7 +53,11 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
             {distance} km
         </Text>
       </View>
-      <View></View>
+      <View>
+      <TouchableOpacity style={styles.button} onPress={close}>
+        <Ionicons name="close-circle-outline" size={40} color={textColor} />
+      </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -72,6 +76,9 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColor,
     bottom: 0,
   },
+  button: {
+    marginHorizontal: 10,
+  }
 
 });
 
