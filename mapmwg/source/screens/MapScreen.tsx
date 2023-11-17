@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Mapbox, {
   CircleLayer,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
+  Camera
 } from '@rnmapbox/maps';
 import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
@@ -23,6 +24,7 @@ import InstructionSheet from '../components/InstructionSheet';
 import {setInstruction} from '../redux/slices/instructionSlice';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+import { setIsInstructed } from '../redux/slices/isInstructedSlice';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -41,6 +43,8 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
+
+  const [isGuided, setIsGuided] = useState<boolean>(false);
 
   const thresholdDistance = 0.02;
 
@@ -170,7 +174,6 @@ const MapScreen: React.FC = () => {
         }
       }
     }
-    console.log(newInstruction);
     if (newInstruction) {
       dispatch(setInstruction(newInstruction));
     } else {
@@ -200,7 +203,25 @@ const MapScreen: React.FC = () => {
 
   const handleTouchMove = () => {
     setIsLocated(false);
+    setIsGuided(false);
   };
+
+  const handleLocate = () => {
+    if(isInstructed) {
+      setIsGuided(true);
+      return null;
+    }
+    setIsLocated(!isLocated);
+  }
+
+  useEffect(() => {
+    if(isInstructed){
+      setIsGuided(true);
+    } else {
+      setIsGuided(false);
+    }
+  }, [isInstructed])
+
 
   return (
     <View style={styles.page}>
@@ -233,7 +254,7 @@ const MapScreen: React.FC = () => {
               followUserMode={UserTrackingMode.FollowWithHeading}
             />
           )}
-          {isInstructed && (
+          {isGuided && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
@@ -281,9 +302,7 @@ const MapScreen: React.FC = () => {
       {isSearchBar && <SearchBar />}
       <LocateButton
         isLocated={isLocated}
-        onPress={() => {
-          isLocated ? setIsLocated(false) : setIsLocated(true);
-        }}
+        onPress={handleLocate}
       />
       {isInstructed && (
         <>

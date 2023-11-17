@@ -166,14 +166,13 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
       dispatch(setIsSearch(false));
       dispatch(setIsInstructed(true));
-
-      
       
     } catch (error) {
       console.error("Can't make route: " + error);
       return null;
     }
   };
+  
 
   return (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>
