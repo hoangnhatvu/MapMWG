@@ -1,5 +1,5 @@
 import {WINDOW_HEIGHT} from '../utils/window_height';
-import React, {useRef} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -26,6 +26,8 @@ import RootState from '../../redux';
 import { setIsInstructed } from '../redux/slices/isInstructedSlice';
 import { setIsDirected } from '../redux/slices/isDirectedSlide';
 import { setIsSearch } from '../redux/slices/isSearchSlice';
+import { callRoutingAPI } from '../services/fetchAPI';
+import { setInstructions } from '../redux/slices/instructionsSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
@@ -37,7 +39,6 @@ const DRAG_THRESHOLD = 0;
 interface BottomSheetProps {
   name?: string;
   address?: string;
-  distance?: number | any;
   getRoute?: () => void;
   start?: () => void;
   currentLocation: [number, number] | any;
@@ -46,13 +47,14 @@ interface BottomSheetProps {
 const BottomSheet: React.FC<BottomSheetProps> = ({
   name,
   address,
-  distance,
   getRoute,
   start,
   currentLocation,
 }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
+  const [distance, setDistance] = useState<number | null>(null);
+
 
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
@@ -71,6 +73,21 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   );
 
   const dispatch = useDispatch();
+
+  const getData = async () => {
+    const data = await callRoutingAPI(currentLocation, destination);
+    dispatch(
+      setInstructions(
+        data.Data?.features[0]?.properties?.segments[0]?.steps,
+      ),
+    );
+    setDistance(data.Data.features[0].properties.summary.distance);
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
 
   const panResponder = useRef(
     PanResponder.create({
@@ -135,6 +152,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     if (!destination) {
       return null;
     }
+
     const route = await createRouterLine(currentLocation, destination);
     dispatch(setIsDirected(true));
     dispatch(setRouteDirection(route));
@@ -148,14 +166,13 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
       dispatch(setIsSearch(false));
       dispatch(setIsInstructed(true));
-
-      
       
     } catch (error) {
       console.error("Can't make route: " + error);
       return null;
     }
   };
+  
 
   return (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>

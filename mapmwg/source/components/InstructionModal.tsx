@@ -2,26 +2,42 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import {primaryColor, secondaryColor, tertiaryColor, textColor} from '../constants/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Tts from "react-native-tts";
 
 interface InstructionProps {
   instruction: string;
   nextInstruct?: string;
 }
 
+Tts.setDefaultLanguage('vi-VN');
+
 const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
   const [instructIcon, setInstructIcon] = useState('arrow-up-outline');
 
   useEffect(() => {
-    // Kiểm tra xem instruction có chứa từ "Trái" không và đặt icon tương ứng
+    const speak = () => {
+      Tts.speak(instruction);
+    };
+    speak();
+
+    // const timeoutId = setTimeout(() => {
+    //   speak();
+    // }, 50000);
+
+    // return () => clearTimeout(timeoutId);
+  }, [instruction])
+
+  useEffect(() => {
     if (instruction.toLowerCase().includes('trái')) {
       setInstructIcon('arrow-back-outline');
     } else if (instruction.toLowerCase().includes('phải')) {
       setInstructIcon('arrow-forward-outline');
     } else {
-      // Nếu không có "Trái" hoặc "Phải", sử dụng icon mặc định
       setInstructIcon('arrow-up-outline');
     }
   }, [instruction]);
+
+  
 
   return (
     <View style={styles.container}>
@@ -63,6 +79,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
+    overflow: 'hidden',
   },
 });
 

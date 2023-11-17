@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Mapbox, {
   CircleLayer,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
+  Camera
 } from '@rnmapbox/maps';
 import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
@@ -23,7 +24,7 @@ import InstructionSheet from '../components/InstructionSheet';
 import {setInstruction} from '../redux/slices/instructionSlice';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
-import {getDistance} from '../helps/get_distance';
+import { setIsInstructed } from '../redux/slices/isInstructedSlice';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -42,6 +43,8 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
+
+  const [isGuided, setIsGuided] = useState<boolean>(false);
 
   const thresholdDistance = 0.02;
 
@@ -117,7 +120,7 @@ const MapScreen: React.FC = () => {
         clearInterval(interval);
       };
     }
-  }, [routeDirection]);
+  }, [currentLocation, destination]);
 
   const haversine = (
     lat1: number,
@@ -171,7 +174,6 @@ const MapScreen: React.FC = () => {
         }
       }
     }
-    console.log(newInstruction);
     if (newInstruction) {
       dispatch(setInstruction(newInstruction));
     } else {
@@ -180,6 +182,10 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
+    if(isDirected === true || isInstructed === true){
+      return null;
+    }
+
     if (event.geometry) {
       // Get location by click
       const newDestination: [number, number] = [
@@ -190,14 +196,6 @@ const MapScreen: React.FC = () => {
 
       const coords = await getCoordinatesAPI(newDestination);
       setAddress(coords);
-
-      const route = await callRoutingAPI(currentLocation, newDestination);
-      dispatch(
-        setInstructions(
-          route.Data?.features[0]?.properties?.segments[0]?.steps,
-        ),
-      );
-      setDistance(route.Data.features[0].properties.summary.distance);
       dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
@@ -205,9 +203,25 @@ const MapScreen: React.FC = () => {
 
   const handleTouchMove = () => {
     setIsLocated(false);
+    setIsGuided(false);
   };
 
-  useEffect(() => {}, [instructions]);
+  const handleLocate = () => {
+    if(isInstructed) {
+      setIsGuided(true);
+      return null;
+    }
+    setIsLocated(!isLocated);
+  }
+
+  useEffect(() => {
+    if(isInstructed){
+      setIsGuided(true);
+    } else {
+      setIsGuided(false);
+    }
+  }, [isInstructed])
+
 
   return (
     <View style={styles.page}>
@@ -240,7 +254,7 @@ const MapScreen: React.FC = () => {
               followUserMode={UserTrackingMode.FollowWithHeading}
             />
           )}
-          {isInstructed && (
+          {isGuided && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
@@ -288,13 +302,11 @@ const MapScreen: React.FC = () => {
       {isSearchBar && <SearchBar />}
       <LocateButton
         isLocated={isLocated}
-        onPress={() => {
-          isLocated ? setIsLocated(false) : setIsLocated(true);
-        }}
+        onPress={handleLocate}
       />
       {isInstructed && (
         <>
-          <InstructionModal instruction={instruction} />
+          <InstructionModal instruction={instruction || 'Đi thẳng'} />
           <InstructionSheet
             distance={instructions[0].distance}
             time={instructions[0].duration}
@@ -314,7 +326,7 @@ const MapScreen: React.FC = () => {
               : address?.object?.searchAddress ||
                 'Chưa có dữ liệu trên hệ thống'
           }
-          distance={destinationInfo ? getDistance() : distance || 0}
+          // distance={destinationInfo ? getDistance() : distance || 0}
           currentLocation={currentInfo ? current : currentLocation}
         />
       )}

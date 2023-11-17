@@ -38,6 +38,7 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
 
   return (
     <View style={styles.container}>
+<<<<<<< HEAD
       <TouchableOpacity onPress={close}>
         <Ionicons
           name="close-circle-outline"
@@ -48,9 +49,21 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
       <View style={{flexDirection: 'column', margin: 10}}>
         <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
           {time} min
+=======
+      <TouchableOpacity style={styles.button} onPress={close}>
+        <Ionicons name="close-circle-outline" size={40} color={textColor} />
+      </TouchableOpacity>
+      <View style={{flexDirection: 'column', marginBottom: 10, alignItems: 'center'}}>
+        <Text style={{color:'forestgreen', fontWeight: 'bold', fontSize: 32}}>
+            {time} min
+        </Text>
+        <Text style={{color: 'lightgray', fontSize: 16}}>
+            {distance} km
+>>>>>>> main
         </Text>
         <Text style={{color: 'lightgray', fontSize: 16}}>{distance} km</Text>
       </View>
+<<<<<<< HEAD
       <TouchableOpacity onPress={close}>
         <Ionicons
           name="chevron-down-circle-outline"
@@ -60,6 +73,13 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
         />
       </TouchableOpacity>
       <View></View>
+=======
+      <View>
+      <TouchableOpacity style={styles.button} onPress={close}>
+        <Ionicons name="close-circle-outline" size={40} color={textColor} />
+      </TouchableOpacity>
+      </View>
+>>>>>>> main
     </View>
   );
 };
@@ -78,9 +98,16 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColor,
     bottom: 0,
   },
+<<<<<<< HEAD
   icon: {
     marginLeft: '-2%',
   },
+=======
+  button: {
+    marginHorizontal: 10,
+  }
+
+>>>>>>> main
 });
 
 export default InstructionSheet;
