@@ -20,11 +20,11 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
     };
     speak();
 
-    // const timeoutId = setTimeout(() => {
-    //   speak();
-    // }, 50000);
+    const timeoutId = setTimeout(() => {
+      speak();
+    }, 4000);
 
-    // return () => clearTimeout(timeoutId);
+    return () => clearTimeout(timeoutId);
   }, [instruction])
 
   useEffect(() => {

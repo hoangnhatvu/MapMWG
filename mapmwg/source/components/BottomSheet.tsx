@@ -23,14 +23,14 @@ import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {createRouterLine} from '../services/createRoute';
 import {useDispatch, useSelector} from 'react-redux';
 import RootState from '../../redux';
-import { setIsInstructed } from '../redux/slices/isInstructedSlice';
-import { setIsDirected } from '../redux/slices/isDirectedSlide';
-import { setIsSearch } from '../redux/slices/isSearchSlice';
-import { callRoutingAPI } from '../services/fetchAPI';
-import { setInstructions } from '../redux/slices/instructionsSlice';
+import {setIsInstructed} from '../redux/slices/isInstructedSlice';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
+import {setIsSearch} from '../redux/slices/isSearchSlice';
+import {callRoutingAPI} from '../services/fetchAPI';
+import {setInstructions} from '../redux/slices/instructionsSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
-const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.05;
+const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
 const MAX_UPWARD_TRANSLATE_Y =
   BOTTOM_SHEET_MIN_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT;
 const MAX_DOWNWARD_TRANSLATE_Y = 0;
@@ -55,16 +55,11 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   const lastGestureDy = useRef(0);
   const [distance, setDistance] = useState<number | null>(null);
 
-
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
   );
-  const isDirected = useSelector(
-    (state: RootState) => state.isDirected.value,
-  );
-  const isSearch = useSelector(
-    (state: RootState) => state.isSearch.value,
-  );
+  const isDirected = useSelector((state: RootState) => state.isDirected.value);
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const destination = useSelector(
     (state: RootState) => state.destination.value,
   );
@@ -74,20 +69,16 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
   const dispatch = useDispatch();
 
-  const getData = async () => {
-    const data = await callRoutingAPI(currentLocation, destination);
-    dispatch(
-      setInstructions(
-        data.Data?.features[0]?.properties?.segments[0]?.steps,
-      ),
-    );
-    setDistance(data.Data.features[0].properties.summary.distance);
-  }
-
   useEffect(() => {
+    const getData = async () => {
+      const data = await callRoutingAPI(currentLocation, destination);
+      dispatch(
+        setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
+      );
+      setDistance(data.Data.features[0].properties.summary.distance);
+    };
     getData();
   }, []);
-
 
   const panResponder = useRef(
     PanResponder.create({
@@ -136,6 +127,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     }).start();
   };
 
+  useEffect(() =>{
+    springAnimation('up');
+  }, [])
+
   const bottomSheetAnimation = {
     transform: [
       {
@@ -166,13 +161,11 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
       dispatch(setIsSearch(false));
       dispatch(setIsInstructed(true));
-      
     } catch (error) {
       console.error("Can't make route: " + error);
       return null;
     }
   };
-  
 
   return (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>

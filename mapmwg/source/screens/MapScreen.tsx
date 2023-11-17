@@ -1,10 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, BackHandler} from 'react-native';
 import Mapbox, {
   CircleLayer,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
-  Camera
 } from '@rnmapbox/maps';
 import LocateButton from '../components/LocateButton';
 import {createRouterLine} from '../services/createRoute';
@@ -24,7 +23,9 @@ import InstructionSheet from '../components/InstructionSheet';
 import {setInstruction} from '../redux/slices/instructionSlice';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
-import { setIsInstructed } from '../redux/slices/isInstructedSlice';
+import {setIsInstructed} from '../redux/slices/isInstructedSlice';
+import {setIsSearch} from '../redux/slices/isSearchSlice';
+import {setSearchText} from '../redux/slices/searchTextSlice';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -182,7 +183,7 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
-    if(isDirected === true || isInstructed === true){
+    if (isDirected === true || isInstructed === true) {
       return null;
     }
 
@@ -207,21 +208,45 @@ const MapScreen: React.FC = () => {
   };
 
   const handleLocate = () => {
-    if(isInstructed) {
+    if (isInstructed) {
       setIsGuided(true);
       return null;
     }
     setIsLocated(!isLocated);
-  }
+  };
 
   useEffect(() => {
-    if(isInstructed){
+    if (isInstructed) {
       setIsGuided(true);
     } else {
       setIsGuided(false);
     }
-  }, [isInstructed])
+  }, [isInstructed]);
 
+  //Handle backbutton
+  useEffect(() => {
+    const handleBackButton = () => {
+      if (isInstructed) {
+        dispatch(setIsInstructed(false));
+        return true;
+      } else if (destination) {
+        dispatch(setDestination(false));
+        return true;
+      } else if (isSearch) {
+        dispatch(setIsSearch(false));
+        dispatch(setSearchText(''));
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+    };
+  }, [isInstructed, dispatch, isSearch, destination]);
 
   return (
     <View style={styles.page}>
@@ -300,10 +325,7 @@ const MapScreen: React.FC = () => {
       <DirectionScreen />
       {isSearch && <SearchScreen />}
       {isSearchBar && <SearchBar />}
-      <LocateButton
-        isLocated={isLocated}
-        onPress={handleLocate}
-      />
+      <LocateButton isLocated={isLocated} onPress={handleLocate} />
       {isInstructed && (
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
