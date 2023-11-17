@@ -10,6 +10,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/stack": "^6.3.20",
     "@reduxjs/toolkit": "^1.9.7",
     "@rnmapbox/maps": "^10.0.15",
     "axios": "^1.6.1",
@@ -17,7 +19,9 @@
     "npm": "^10.2.3",
     "react": "18.2.0",
     "react-native": "0.72.6",
+    "react-native-gesture-handler": "^2.13.4",
     "react-native-reanimated": "^3.5.4",
+    "react-native-screens": "^3.27.0",
     "react-native-tts": "^4.1.0",
     "react-native-vector-icons": "^10.0.1",
     "react-redux": "^8.1.3",

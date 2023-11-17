@@ -86,11 +86,11 @@ const SearchScreen = () => {
         <View style={styles.container}>
           <View style={styles.search__container}>
             <ScrollView>
-              {searchList?.map(location => (
+              {searchList?.map((location, index) => (
                 <View style={styles.menuWrapper}>
                   <Ionicons name="location-outline" size={24} />
                   <TouchableOpacity
-                    key={location.id}
+                    key={index} 
                     style={styles.search__location}
                     onPress={() => handleSearchLocation(location)}>
                     <View style={{flexDirection: 'row'}}>
