@@ -1,43 +1,43 @@
-  import axios, {AxiosRequestConfig} from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
-  export async function callRoutingAPI(currentLocation: [number,number], destination: [number, number] ): Promise<any> {
-    const url =
-      'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-hgv';
-    const body = {
-      coordinates: [
-        currentLocation,
-        destination,
-      ],
-      preference: 'fastest',
-      continue_straight: true,
-      elevation: false,
-      units: 'km',
-      language: 'vi-vn',
-      geometry: true,
-      instructions: true,
-      instructions_format: 'html',
-    };
+export async function callRoutingAPI(currentLocation: [number, number] | any, destination: [number, number] | any): Promise<any> {
+  const url =
+    'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-hgv';
+  const body = {
+    coordinates: [
+      currentLocation,
+      destination,
+    ],
+    preference: 'fastest',
+    continue_straight: true,
+    elevation: false,
+    units: 'km',
+    language: 'vi-vn',
+    geometry: true,
+    instructions: true,
+    instructions_format: 'html',
+  };
 
-    const headers = {
-      Authorization: 'Bearer 31f755be-5dcb-4c22-aa05-48e95e7bf370',
-      'Content-Type': 'application/json',
-    };
+  const headers = {
+    Authorization: 'Bearer 31f755be-5dcb-4c22-aa05-48e95e7bf370',
+    'Content-Type': 'application/json',
+  };
 
-    const config: AxiosRequestConfig = {
-      method: 'post',
-      url: url,
-      headers: headers,
-      data: body,
-    };
+  const config: AxiosRequestConfig = {
+    method: 'post',
+    url: url,
+    headers: headers,
+    data: body,
+  };
 
-    try {
-      const response = await axios(config);
-      return response.data;
-    } catch (error: any) {
-      console.error(error);
-      throw error;
-    }
+  try {
+    const response = await axios(config);
+    return response.data;
+  } catch (error: any) {
+    console.error(error);
+    throw error;
   }
+}
 
 
 
@@ -71,8 +71,8 @@ export async function searchAddressAPI(): Promise<any> {
   }
 }
 
-export async function getCoordinatesAPI(coordinates:[number,number]): Promise<any> {
-const [longitude, latitude] = coordinates;
+export async function getCoordinatesAPI(coordinates: [number, number]): Promise<any> {
+  const [longitude, latitude] = coordinates;
 
   const url = `https://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/els/nearest?lat=${latitude}&lon=${longitude}`;
   const headers = {
@@ -116,7 +116,7 @@ function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-export const createRouterLine2 = async(currentLocation: [number,number], destination: [number, number]) => {
+export const createRouterLine2 = async (currentLocation: [number, number], destination: [number, number]) => {
   const data = await callRoutingAPI(currentLocation, destination);
   console.log(JSON.stringify(data));
 
