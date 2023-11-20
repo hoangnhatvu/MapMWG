@@ -1,13 +1,13 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, {AxiosRequestConfig} from 'axios';
 
-export async function callRoutingAPI(currentLocation: [number, number] | any, destination: [number, number] | any): Promise<any> {
+export async function callRoutingAPI(
+  currentLocation: [number, number] | any,
+  destination: [number, number] | any,
+): Promise<any> {
   const url =
     'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-hgv';
   const body = {
-    coordinates: [
-      currentLocation,
-      destination,
-    ],
+    coordinates: [currentLocation, destination],
     preference: 'fastest',
     continue_straight: true,
     elevation: false,
@@ -19,7 +19,7 @@ export async function callRoutingAPI(currentLocation: [number, number] | any, de
   };
 
   const headers = {
-    Authorization: 'Bearer 31f755be-5dcb-4c22-aa05-48e95e7bf370',
+    Authorization: 'Bearer 241f0bc0-b8ba-4088-bb8c-2a35875c3783',
     'Content-Type': 'application/json',
   };
 
@@ -38,8 +38,6 @@ export async function callRoutingAPI(currentLocation: [number, number] | any, de
     throw error;
   }
 }
-
-
 
 export async function searchAddressAPI(): Promise<any> {
   const url =
@@ -71,7 +69,9 @@ export async function searchAddressAPI(): Promise<any> {
   }
 }
 
-export async function getCoordinatesAPI(coordinates: [number, number]): Promise<any> {
+export async function getCoordinatesAPI(
+  coordinates: [number, number],
+): Promise<any> {
   const [longitude, latitude] = coordinates;
 
   const url = `https://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/els/nearest?lat=${latitude}&lon=${longitude}`;
@@ -88,7 +88,7 @@ export async function getCoordinatesAPI(coordinates: [number, number]): Promise<
   try {
     const response = await fetch(url, requestOptions);
     const responseData = await response.json();
-    console.log("Response data: ", JSON.stringify(responseData));
+    console.log('Response data: ', JSON.stringify(responseData));
     return responseData;
   } catch (error: any) {
     console.error(error);
@@ -116,17 +116,20 @@ function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-export const createRouterLine2 = async (currentLocation: [number, number], destination: [number, number]) => {
+export const createRouterLine2 = async (
+  currentLocation: [number, number],
+  destination: [number, number],
+) => {
   const data = await callRoutingAPI(currentLocation, destination);
   console.log(JSON.stringify(data));
 
-  let coordinates = data.Data.features[0].geometry.coordinates
+  let coordinates = data.Data.features[0].geometry.coordinates;
 
   if (coordinates.length) {
     const routerFeature = makeRouterFeature([...coordinates]);
     return routerFeature;
   }
-}
+};
 
 export const createRouterLine = async (
   startCoords: [number, number],
