@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {primaryColor, textColor, ic_circleColor} from '../constants/color';
+import {primaryColor, textColor} from '../constants/color';
 import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
@@ -38,48 +38,25 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
 
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
-      <TouchableOpacity onPress={close}>
-        <Ionicons
-          name="close-circle-outline"
-          size={70}
-          color={ic_circleColor}
-        />
-      </TouchableOpacity>
-      <View style={{flexDirection: 'column', margin: 10}}>
-        <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
-          {time} min
-=======
       <TouchableOpacity style={styles.button} onPress={close}>
         <Ionicons name="close-circle-outline" size={40} color={textColor} />
       </TouchableOpacity>
-      <View style={{flexDirection: 'column', marginBottom: 10, alignItems: 'center'}}>
-        <Text style={{color:'forestgreen', fontWeight: 'bold', fontSize: 32}}>
-            {time} min
-        </Text>
-        <Text style={{color: 'lightgray', fontSize: 16}}>
-            {distance} km
->>>>>>> main
+      <View
+        style={{
+          flexDirection: 'column',
+          marginBottom: 10,
+          alignItems: 'center',
+        }}>
+        <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
+          {time} min
         </Text>
         <Text style={{color: 'lightgray', fontSize: 16}}>{distance} km</Text>
       </View>
-<<<<<<< HEAD
-      <TouchableOpacity onPress={close}>
-        <Ionicons
-          name="chevron-down-circle-outline"
-          size={70}
-          color={ic_circleColor}
-          style={styles.icon}
-        />
-      </TouchableOpacity>
-      <View></View>
-=======
       <View>
-      <TouchableOpacity style={styles.button} onPress={close}>
-        <Ionicons name="close-circle-outline" size={40} color={textColor} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={close}>
+          <Ionicons name="close-circle-outline" size={40} color={textColor} />
+        </TouchableOpacity>
       </View>
->>>>>>> main
     </View>
   );
 };
@@ -98,16 +75,9 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColor,
     bottom: 0,
   },
-<<<<<<< HEAD
-  icon: {
-    marginLeft: '-2%',
-  },
-=======
   button: {
     marginHorizontal: 10,
-  }
-
->>>>>>> main
+  },
 });
 
 export default InstructionSheet;

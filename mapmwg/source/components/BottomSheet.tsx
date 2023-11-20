@@ -127,9 +127,9 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     }).start();
   };
 
-  useEffect(() =>{
+  useEffect(() => {
     springAnimation('up');
-  }, [])
+  }, []);
 
   const bottomSheetAnimation = {
     transform: [
