@@ -268,7 +268,7 @@ const MapScreen: React.FC = () => {
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
-              animationDuration={2000}
+              animationDuration={initial ? 0 : 2000}
               zoomLevel={18}
               pitch={60}
               followUserMode={UserTrackingMode.FollowWithHeading}

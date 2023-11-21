@@ -20,7 +20,7 @@ import {
 } from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
-import {createRouterLine} from '../services/createRoute';
+import {createMultipleRouterLine, createRouterLine} from '../services/createRoute';
 import {useDispatch, useSelector} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
@@ -149,6 +149,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     const route = await createRouterLine(currentLocation, destination.coordinate);
     dispatch(setIsDirected(true));
     dispatch(setRouteDirection(route));
+
   };
 
   const instruct = async () => {

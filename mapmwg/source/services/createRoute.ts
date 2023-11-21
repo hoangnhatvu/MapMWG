@@ -29,3 +29,23 @@ export const createRouterLine = async(currentLocation: [number,number], destinat
     return routerFeature;
   }
 }
+
+export const createMultipleRouterLine = async(currentLocation: [number,number], destination: [number, number]) => {
+  const data = await callRoutingAPI(currentLocation, destination);
+  const routes = [];
+  
+  if (data && data.Data && data.Data.features && Array.isArray(data.Data.features)) {
+    for (let i = 0; i < data.Data.features.length; i++) {
+      if (data.Data.features[i].geometry && data.Data.features[i].geometry.coordinates) {
+        let coordinates = data.Data.features[i].geometry.coordinates;
+        routes.push(makeRouterFeature([...coordinates]));
+      } else {
+        console.error("Invalid data structure for feature " + i);
+      }
+    }
+  } else {
+    return null;
+  }
+  console.log("Routes: " + JSON.stringify(routes, null,2));
+  return routes;
+}
