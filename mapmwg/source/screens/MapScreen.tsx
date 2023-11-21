@@ -26,7 +26,7 @@ import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
 
 const APIKEY =
-  'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
+  'pk.eyJ1IjoieHVhbmtoYW5ndXllbiIsImEiOiJjbG82bHNjZHUwaXh1MmtuejE1Y242MnlwIn0.nY9LBFNfhj3Rr4eIdmHo1Q';
 
 Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
@@ -60,9 +60,7 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.instruction.value,
   );
   const current = useSelector((state: RootState) => state.current.value);
-  const destination = useSelector(
-    (state: RootState) => state.destination,
-  );
+  const destination = useSelector((state: RootState) => state.destination);
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
   );
@@ -244,11 +242,7 @@ const MapScreen: React.FC = () => {
           onTouchMove={handleTouchMove}>
           {(destination.value || current) && (
             <Mapbox.Camera
-              centerCoordinate={
-                current
-                  ? current
-                  : destination.coordinate
-              }
+              centerCoordinate={current ? current : destination.coordinate}
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={15}
@@ -285,9 +279,7 @@ const MapScreen: React.FC = () => {
           {destination.value && (
             <Mapbox.PointAnnotation
               id="destination"
-              coordinate={
-                destination.coordinate
-              }>
+              coordinate={destination.coordinate}>
               <View></View>
             </Mapbox.PointAnnotation>
           )}
