@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, BackHandler} from 'react-native';
 import Mapbox, {
   CircleLayer,
@@ -13,15 +13,13 @@ import BottomSheet from '../components/BottomSheet';
 import {useSelector, useDispatch} from 'react-redux';
 import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
-import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
+import {getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
-import {setInstructions} from '../redux/slices/instructionsSlice';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import InstructionModal from '../components/InstructionModal';
 import InstructionSheet from '../components/InstructionSheet';
 import {setInstruction} from '../redux/slices/instructionSlice';
-import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
@@ -37,10 +35,6 @@ const MapScreen: React.FC = () => {
   // State
   const [initial, setInitial] = useState<boolean>(true);
   const [isLocated, setIsLocated] = useState<boolean>(false);
-  const [address, setAddress] = useState<any>(null);
-  const [distance, setDistance] = useState<number | null>(null);
-  const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] =
-    useState(true);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
@@ -55,17 +49,9 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.isSearchBar.value,
   );
   const isDirected = useSelector((state: RootState) => state.isSearch.value);
-  const currentInfo = useSelector(
-    (state: RootState) => state.currentInfo.value,
-  );
-  const destinationInfo = useSelector(
-    (state: RootState) => state.destinationInfo.value,
-  );
+
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
-  );
-  const isHandleDirect = useSelector(
-    (state: RootState) => state.isHandleDirect.value,
   );
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
@@ -73,18 +59,12 @@ const MapScreen: React.FC = () => {
   const instruction = useSelector(
     (state: RootState) => state.instruction.value,
   );
-  const current = useSelector((state: RootState) => state.destination.value);
+  const current = useSelector((state: RootState) => state.current.value);
   const destination = useSelector(
-    (state: RootState) => state.destination.value,
+    (state: RootState) => state.destination,
   );
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
-  );
-  const isSearchCurrent = useSelector(
-    (state: RootState) => state.isSearchCurrent.value,
-  );
-  const isSearchDestination = useSelector(
-    (state: RootState) => state.isSearchDestination.value,
   );
   const dispatch = useDispatch();
 
@@ -107,9 +87,12 @@ const MapScreen: React.FC = () => {
   }, [isDirected, isInstructed]);
 
   useEffect(() => {
-    if (routeDirection && destination) {
+    if (routeDirection && destination.value && !current) {
       const fetchData = async () => {
-        const route = await createRouterLine(currentLocation, destination);
+        const route = await createRouterLine(
+          currentLocation,
+          destination.coordinate,
+        );
         dispatch(setRouteDirection(route));
       };
 
@@ -121,7 +104,7 @@ const MapScreen: React.FC = () => {
         clearInterval(interval);
       };
     }
-  }, [currentLocation, destination]);
+  }, [currentLocation, destination.value]);
 
   const haversine = (
     lat1: number,
@@ -193,10 +176,8 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[0],
         event.geometry.coordinates[1],
       ];
-      dispatch(setDestination(newDestination));
-
       const coords = await getCoordinatesAPI(newDestination);
-      setAddress(coords);
+      dispatch(setDestination(coords));
       dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
@@ -229,8 +210,8 @@ const MapScreen: React.FC = () => {
       if (isInstructed) {
         dispatch(setIsInstructed(false));
         return true;
-      } else if (destination) {
-        dispatch(setDestination(false));
+      } else if (destination.value) {
+        dispatch(setDestination(null));
         return true;
       } else if (isSearch) {
         dispatch(setIsSearch(false));
@@ -246,7 +227,7 @@ const MapScreen: React.FC = () => {
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
-  }, [isInstructed, dispatch, isSearch, destination]);
+  }, [isInstructed, dispatch, isSearch, destination.value]);
 
   return (
     <View style={styles.page}>
@@ -261,9 +242,13 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
-          {destination && (
+          {(destination.value || current) && (
             <Mapbox.Camera
-              centerCoordinate={destination}
+              centerCoordinate={
+                current
+                  ? current
+                  : destination.coordinate
+              }
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={15}
@@ -291,8 +276,18 @@ const MapScreen: React.FC = () => {
             />
           )}
 
-          {destination && (
-            <Mapbox.PointAnnotation id="marker" coordinate={destination}>
+          {current && (
+            <Mapbox.PointAnnotation id="current" coordinate={current}>
+              <View></View>
+            </Mapbox.PointAnnotation>
+          )}
+
+          {destination.value && (
+            <Mapbox.PointAnnotation
+              id="destination"
+              coordinate={
+                destination.coordinate
+              }>
               <View></View>
             </Mapbox.PointAnnotation>
           )}
@@ -335,21 +330,19 @@ const MapScreen: React.FC = () => {
           />
         </>
       )}
-      {destination && !isInstructed && (
+      {destination.value && currentLocation && !isInstructed && (
         <BottomSheet
           name={
-            destinationInfo
-              ? destinationInfo?.properties?.searchName
-              : address?.object?.searchName || 'Chưa có dữ liệu trên hệ thống'
+            destination?.value?.properties?.searchName ||
+            destination?.value?.object?.searchName ||
+            'Chưa có dữ liệu trên hệ thống'
           }
           address={
-            destinationInfo
-              ? destinationInfo?.properties?.searchAddress
-              : address?.object?.searchAddress ||
-                'Chưa có dữ liệu trên hệ thống'
+            destination?.value?.properties?.searchAddress ||
+            destination?.value?.object?.searchAddress ||
+            'Chưa có dữ liệu trên hệ thống'
           }
-          // distance={destinationInfo ? getDistance() : distance || 0}
-          currentLocation={currentInfo ? current : currentLocation}
+          currentLocation={currentLocation}
         />
       )}
     </View>

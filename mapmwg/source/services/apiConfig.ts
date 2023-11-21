@@ -21,6 +21,7 @@ export default function requestApi({
     'Access-Control-Allow-Origin': '*',
   };
 
+<<<<<<< HEAD
   headers['Content-Type'] = 'application/json';
   const instance = axios.create({headers});
   const accessToken = '241f0bc0-b8ba-4088-bb8c-2a35875c3783';
@@ -35,6 +36,22 @@ export default function requestApi({
       return Promise.reject(error);
     },
   );
+=======
+    headers["Content-Type"] = "application/json";
+    const instance = axios.create({ headers });
+    const accessToken = '241f0bc0-b8ba-4088-bb8c-2a35875c3783';
+    instance.interceptors.request.use(
+        (config) => {
+            if (!config.headers?.Authorization) {
+                config.headers["Authorization"] = `Bearer ${accessToken}`;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
+        }
+    );
+>>>>>>> main
 
   return instance.request({
     method: method,

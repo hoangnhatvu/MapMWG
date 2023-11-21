@@ -14,6 +14,7 @@ import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
 import {searchApi} from '../services/search';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+<<<<<<< HEAD
 import {setIsSearchCurrent} from '../redux/slices/isSearchCurrentSlice';
 import {setCurrent} from '../redux/slices/currentSlice';
 import {setIsSearchDestination} from '../redux/slices/isSearchDestinationSlice';
@@ -22,17 +23,26 @@ import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {setDestinationInfo} from '../redux/slices/destinationInfoSlice';
 import {setCurrentInfo} from '../redux/slices/currentInfoSlice';
+=======
+import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
+import {setCurrent} from '../redux/slices/currentSlice';
+import SearchBar from '../components/SearchBar';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
+import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+>>>>>>> main
 
-const SearchScreen = () => {
+interface SearchScreenProps {
+  id?: number;
+}
+
+const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchList, setSearchList] = useState<any[] | []>([]);
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
-  const isSearchCurrent = useSelector(
-    (state: RootState) => state.isSearchCurrent.value,
+  const isSearchDirect = useSelector(
+    (state: RootState) => state.isSearchDirect.value,
   );
-  const isSearchDestination = useSelector(
-    (state: RootState) => state.isSearchDestination.value,
-  );
+
   const dispatch = useDispatch();
 
   const getSearchList = async () => {
@@ -50,7 +60,11 @@ const SearchScreen = () => {
   }, [searchText]);
 
   const handleSearchLocation = (location: any) => {
+<<<<<<< HEAD
     if (isSearchCurrent || isSearchDestination) {
+=======
+    if (isSearchDirect) {
+>>>>>>> main
       dispatch(setIsDirected(true));
       dispatch(setIsSearchBar(false));
     }
@@ -60,6 +74,7 @@ const SearchScreen = () => {
   const handleSearchResult = (location: any) => {
     if (isSearch) {
       dispatch(setIsSearch(false));
+<<<<<<< HEAD
       dispatch(setSearchText(location.properties.searchAddress));
       dispatch(setDestination(location.geometry.coordinates));
       dispatch(setDestinationInfo(location));
@@ -74,6 +89,16 @@ const SearchScreen = () => {
       dispatch(setDestination(location.geometry.coordinates));
       dispatch(setSearchText(''));
     }
+=======
+      dispatch(setDestination(location));
+    }
+    // } else {
+    //   dispatch(setIsSearchCurrent(false));
+    //   dispatch(set(location));
+    //   dispatch(setCurrent(location.geometry.coordinates));
+    //   dispatch(setSearchText(''));
+    // }
+>>>>>>> main
   };
 
   return (
@@ -104,7 +129,11 @@ const SearchScreen = () => {
           </ScrollView>
         </View>
       </View>
+<<<<<<< HEAD
       {isSearchCurrent || isSearchDestination ? <SearchBar /> : <></>}
+=======
+      {isSearchDirect ? <SearchBar /> : <></>}
+>>>>>>> main
     </>
   );
 };

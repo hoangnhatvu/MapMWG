@@ -54,14 +54,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
   const [distance, setDistance] = useState<number | null>(null);
-
-  const isInstructed = useSelector(
-    (state: RootState) => state.isInstructed.value,
-  );
-  const isDirected = useSelector((state: RootState) => state.isDirected.value);
-  const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const destination = useSelector(
-    (state: RootState) => state.destination.value,
+    (state: RootState) => state.destination,
   );
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
@@ -71,7 +65,11 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
   useEffect(() => {
     const getData = async () => {
-      const data = await callRoutingAPI(currentLocation, destination);
+      const data = await callRoutingAPI(
+        currentLocation,
+        destination.coordinate,
+      );
+
       dispatch(
         setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
       );
@@ -148,7 +146,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       return null;
     }
 
-    const route = await createRouterLine(currentLocation, destination);
+    const route = await createRouterLine(currentLocation, destination.coordinate);
     dispatch(setIsDirected(true));
     dispatch(setRouteDirection(route));
   };

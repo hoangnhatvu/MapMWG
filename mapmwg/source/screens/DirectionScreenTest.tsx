@@ -1,30 +1,34 @@
-import {
-  StyleSheet,
-  TextInput,
-  View,
-  Animated,
-  Easing,
-  ScrollView,
-} from 'react-native';
+import {StyleSheet, TextInput, View, Animated, Easing} from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import React, {useEffect} from 'react';
 import {primaryColor, tertiaryColor} from '../constants/color';
 import RootState from '../../redux';
 import {useSelector, useDispatch} from 'react-redux';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
-import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
+import {setIsSearchCurrent} from '../redux/slices/isSearchDirectSlice';
+import {setIsSearchDestination} from '../redux/slices/isSearchDestinationSlice';
 import SearchScreen from './SearchScreen';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
-import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
+import { setDestinationInfo } from '../redux/slices/destinationInfoSlice';
+import { setCurrentInfo } from '../redux/slices/currentInfoSlice';
 
 const DirectionScreen = () => {
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
-  const isSearchDirect = useSelector(
-    (state: RootState) => state.isSearchDirect.value,
+  const currentInfo = useSelector(
+    (state: RootState) => state.currentInfo.value,
   );
   const searchDirections = useSelector(
     (state: RootState) => state.searchDirections.value,
+  );
+  const destinationInfo = useSelector(
+    (state: RootState) => state.destinationInfo.value,
+  );
+  const isSearchCurrent = useSelector(
+    (state: RootState) => state.isSearchCurrent.value,
+  );
+  const isSearchDestination = useSelector(
+    (state: RootState) => state.isSearchDestination.value,
   );
   const slideAnimation = new Animated.Value(0);
   const dispatch = useDispatch();
@@ -49,9 +53,11 @@ const DirectionScreen = () => {
   });
   const handleBack = () => {
     dispatch(setIsDirected(false));
-    dispatch(setIsSearchDirect(false));
+    dispatch(setIsSearchCurrent(false));
+    dispatch(setIsSearchDestination(false));
     dispatch(setIsSearchBar(true));
-    dispatch(initDirectionState());
+    dispatch(setDestinationInfo(null));
+    dispatch(setCurrentInfo(null));
   };
 
   const handleOnPress = () => {
@@ -82,50 +88,52 @@ const DirectionScreen = () => {
             <View
               style={{
                 flexDirection: 'row',
-                alignItems: 'flex-start',
+                alignItems: 'center',
                 marginTop: 10,
-                marginLeft: 14,
+                marginLeft: 10,
               }}>
               <FontAwesome6
                 name="arrow-left"
                 size={25}
-                style={{marginRight: 10, top: 10}}
+                style={{marginRight: 10}}
                 onPress={handleBack}
               />
-              <View style={{flexDirection: 'column'}}>
-                <ScrollView>
-                  {searchDirections?.map(value => (
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginLeft: 10,
-                      }}
-                      key={value.id}>
-                      <FontAwesome6
-                        name={value.id === 1 ? 'circle-dot' : 'location-dot'}
-                        style={{
-                          marginLeft: 10,
-                          width: 15,
-                          color: value.id === 1 ? 'blue' : 'red',
-                        }}
-                        size={15}
-                      />
-                      <TextInput
-                        style={styles.input_text}
-                        placeholder={value.placeHolder}
-                        value={value.data?.properties?.searchAddress || ''}
-                        onPressIn={() => {
-                          dispatch(setIsSearchDirect(true));
-                          dispatch(setIsDirected(false));
-                        }}
-                      />
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
+              <FontAwesome6
+                name="circle-dot"
+                style={{marginLeft: 10, color: 'blue'}}
+              />
+              <TextInput
+                style={styles.input_text}
+                placeholder="Vị trí của bạn"
+                value={currentInfo?.properties?.searchAddress}
+                focusable={false}
+                onPressIn={() => {
+                  dispatch(setIsSearchCurrent(true));
+                  dispatch(setIsDirected(false));
+                }}
+              />
             </View>
-
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginLeft: 10,
+              }}>
+              <FontAwesome6
+                name="location-dot"
+                size={20}
+                style={{marginLeft: 40, color: 'red'}}
+              />
+              <TextInput
+                style={[styles.input_text, {marginLeft: 12}]}
+                placeholder="Chọn điểm đến"
+                value={destinationInfo?.properties?.searchAddress}
+                onPressIn={() => {
+                  dispatch(setIsSearchDestination(true));
+                  dispatch(setIsDirected(false));
+                }}
+              />
+            </View>
             <View
               style={{
                 marginTop: 10,
@@ -154,7 +162,7 @@ const DirectionScreen = () => {
         </Animated.View>
       )}
 
-      {isSearchDirect ? <SearchScreen /> : null}
+      {isSearchCurrent || isSearchDestination ? <SearchScreen /> : <></>}
     </>
   );
 };
@@ -164,7 +172,7 @@ export default DirectionScreen;
 const styles = StyleSheet.create({
   input_text: {
     height: 40,
-    width: '75%',
+    width: '65%',
     borderColor: tertiaryColor,
     borderWidth: 1,
     borderRadius: 8,

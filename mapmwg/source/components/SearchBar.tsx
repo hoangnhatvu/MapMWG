@@ -10,7 +10,6 @@ import {useState} from 'react';
 
 const SearchBar = () => {
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
-  const isDirected = useSelector((state: RootState) => state.isDirected.value);
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchKey, setSearchKey] = useState<string>('');
   const dispatch = useDispatch();
