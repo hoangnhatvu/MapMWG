@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface CurrentState {
-  value: [number, number] | any;
+  value: any | null;
 }
 
 const initialState: CurrentState = {
@@ -12,7 +12,7 @@ const currentSlice = createSlice({
   name: 'current',
   initialState,
   reducers: {
-    setCurrent: (state, action: PayloadAction<[number, number]>) => {
+    setCurrent: (state, action: PayloadAction<any | null>) => {
       state.value = action.payload;
     },
   },
