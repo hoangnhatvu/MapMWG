@@ -1,11 +1,15 @@
 import axios, {AxiosRequestConfig} from 'axios';
 
+<<<<<<< HEAD
 export async function callRoutingAPI(
   currentLocation: [number, number] | any,
   destination: [number, number] | any,
 ): Promise<any> {
+=======
+export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number]): Promise<any> {
+>>>>>>> main
   const url =
-    'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-hgv';
+    'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-motorcycle';
   const body = {
     coordinates: [currentLocation, destination],
     preference: 'fastest',
@@ -16,6 +20,11 @@ export async function callRoutingAPI(
     geometry: true,
     instructions: true,
     instructions_format: 'html',
+    alternative_routes: {
+      target_count: 3,
+      weight_factor: 1.5,
+      share_factor: 0.6,
+    }
   };
 
   const headers = {
@@ -96,9 +105,8 @@ export async function getCoordinatesAPI(
   }
 }
 
-const APIKEY =
-  'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
 
+<<<<<<< HEAD
 function makeRouterFeature(coordinates: [number, number][]): any {
   let routerFeature = {
     type: 'FeatureCollection',
@@ -158,3 +166,5 @@ export const createRouterLine = async (
     return null;
   }
 };
+=======
+>>>>>>> main
