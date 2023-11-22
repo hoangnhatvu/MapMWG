@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SearchDirectionsType {
-  id?: number;
+  id?: number | any;
   placeHolder?: string;
   data: any;
 }
@@ -35,20 +35,21 @@ const searchDirectionsSlice = createSlice({
     setSearchDirections: (state, action: PayloadAction<SearchDirectionsType[]>) => {
       state.value = action.payload;
     },
-    addSearchDirection: (state, action: PayloadAction<{ data: any }>) => {
-      const newDirection = {
-        ...action.payload,
+    addSearchDirection: (state) => {
+      const newDirection = {        
         id: state.value.length + 1,
         placeHolder: "Chọn điểm đến",
+        data: null
       };
       state.value = [...state.value, newDirection];
     },
-    updateSearchDirectionData: (state, action: PayloadAction<{ id: number; data: any }>) => {
+    updateSearchDirection: (state, action: PayloadAction<{ id: number | any; data: any }>) => {
       const { id, data } = action.payload;
       const index = state.value.findIndex((direction) => direction.id === id);
+      console.log(index)
 
       if (index !== -1) {
-        state.value[index] = { ...state.value[index], data };
+        state.value[index].data = data;
       }
     },
     removeSearchDirection: (state, action: PayloadAction<number>) => {
@@ -62,7 +63,7 @@ export const {
   initDirectionState,
   setSearchDirections,
   addSearchDirection,
-  updateSearchDirectionData,
+  updateSearchDirection,
   removeSearchDirection,
 } = searchDirectionsSlice.actions;
 

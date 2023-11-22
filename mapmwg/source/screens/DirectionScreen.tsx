@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {primaryColor, tertiaryColor} from '../constants/color';
 import RootState from '../../redux';
 import {useSelector, useDispatch} from 'react-redux';
@@ -16,7 +16,12 @@ import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 import SearchScreen from './SearchScreen';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
-import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
+import {
+  addSearchDirection,
+  initDirectionState,
+  removeSearchDirection,
+} from '../redux/slices/searchDirectionsSlice';
+import {WINDOW_HEIGHT} from '../utils/window_height';
 
 const DirectionScreen = () => {
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
@@ -27,6 +32,8 @@ const DirectionScreen = () => {
     (state: RootState) => state.searchDirections.value,
   );
   const slideAnimation = new Animated.Value(0);
+  const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 5);
+  const [idSearchDirect, setIdSearchDirect] = useState<number>(0);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -52,6 +59,7 @@ const DirectionScreen = () => {
     dispatch(setIsSearchDirect(false));
     dispatch(setIsSearchBar(true));
     dispatch(initDirectionState());
+    setViewHeight(WINDOW_HEIGHT / 5);
   };
 
   const handleOnPress = () => {
@@ -69,7 +77,7 @@ const DirectionScreen = () => {
               ? [{translateY: slideDown}]
               : [{translateY: slideUp}],
             width: '100%',
-            height: '20%',
+            height: viewHeight,
             backgroundColor: primaryColor,
             position: 'absolute',
             elevation: 5,
@@ -78,6 +86,7 @@ const DirectionScreen = () => {
           <View
             style={{
               flexDirection: 'column',
+              position: 'relative',
             }}>
             <View
               style={{
@@ -118,12 +127,39 @@ const DirectionScreen = () => {
                         onPressIn={() => {
                           dispatch(setIsSearchDirect(true));
                           dispatch(setIsDirected(false));
+                          setIdSearchDirect(value.id);
                         }}
                       />
+                      {value.id > 2 ? (
+                        <FontAwesome6
+                          name="trash"
+                          size={20}
+                          style={{
+                            position: 'absolute',
+                            right: 48,
+                            paddingHorizontal: 10,
+                            backgroundColor: 'white',
+                          }}
+                          onPress={() => {
+                            dispatch(removeSearchDirection(value.id));
+                            setViewHeight(viewHeight - 50);
+                          }}
+                          color="gray"
+                        />
+                      ) : null}
                     </View>
                   ))}
                 </ScrollView>
               </View>
+              <FontAwesome6
+                name="circle-plus"
+                size={25}
+                style={{right: 20, position: 'absolute', bottom: 10}}
+                onPress={() => {
+                  dispatch(addSearchDirection());
+                  setViewHeight(viewHeight + 50);
+                }}
+              />
             </View>
 
             <View
@@ -154,7 +190,7 @@ const DirectionScreen = () => {
         </Animated.View>
       )}
 
-      {isSearchDirect ? <SearchScreen /> : null}
+      {isSearchDirect ? <SearchScreen id={idSearchDirect} /> : null}
     </>
   );
 };
