@@ -39,7 +39,7 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={close}>
-        <Ionicons name="close-circle-outline" size={40} color={textColor} />
+        <Ionicons name="close-circle-outline" size={55} color={textColor} />
       </TouchableOpacity>
       <View
         style={{
@@ -50,11 +50,15 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
         <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
           {time} min
         </Text>
-        <Text style={{color: 'lightgray', fontSize: 16}}>{distance} km</Text>
+        <Text style={{color: 'lightgray', fontSize: 18}}>{distance} km</Text>
       </View>
       <View>
         <TouchableOpacity style={styles.button} onPress={close}>
-          <Ionicons name="close-circle-outline" size={40} color={textColor} />
+          <Ionicons
+            name="chevron-up-circle-outline"
+            size={55}
+            color={textColor}
+          />
         </TouchableOpacity>
       </View>
     </View>
