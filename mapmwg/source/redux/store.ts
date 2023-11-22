@@ -1,6 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit';
-import destinationReducer from './slices/destinationSlice';
-import currentReducer from './slices/currentSlice';
 import searchTextReducer from './slices/searchTextSlice';
 import isSearchReducer from './slices/isSearchSlice';
 import isSearchBarReducer from './slices/isSearchBarSlice';
@@ -15,8 +13,6 @@ import searchDirectionsReducer from './slices/searchDirectionsSlice'
 
 const store = configureStore({
   reducer: {
-    destination: destinationReducer,
-    current: currentReducer,
     searchText: searchTextReducer,
     isSearch: isSearchReducer,
     isSearchBar: isSearchBarReducer,

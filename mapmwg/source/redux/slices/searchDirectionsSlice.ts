@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SearchDirectionsType {
   id?: number | any;
-  placeHolder?: string;
+  coordinates: [number, number] | any;
   data: any;
 }
 
@@ -13,13 +13,13 @@ interface SearchDirectionsState {
 const initialState: SearchDirectionsState = {
   value: [
     {
-      id: 1,
-      placeHolder: 'Vị trí của bạn',
+      id: 0,
+      coordinates: null,
       data: null,
     },
     {
-      id: 2,
-      placeHolder: 'Chọn điểm đến',
+      id: 1,
+      coordinates: null,
       data: null,
     },
   ],
@@ -35,10 +35,10 @@ const searchDirectionsSlice = createSlice({
     setSearchDirections: (state, action: PayloadAction<SearchDirectionsType[]>) => {
       state.value = action.payload;
     },
-    addSearchDirection: (state) => {
+    addSearchDirection: (state) => { // chi dung khi tim kiem nhieu dia diem
       const newDirection = {        
         id: state.value.length + 1,
-        placeHolder: "Chọn điểm đến",
+        coordinates: null,
         data: null
       };
       state.value = [...state.value, newDirection];
@@ -46,10 +46,18 @@ const searchDirectionsSlice = createSlice({
     updateSearchDirection: (state, action: PayloadAction<{ id: number | any; data: any }>) => {
       const { id, data } = action.payload;
       const index = state.value.findIndex((direction) => direction.id === id);
-      console.log(index)
 
       if (index !== -1) {
-        state.value[index].data = data;
+        const newValue = {        
+          id: id,
+          coordinates: data?.geometry?.coordinates || [
+            data?.object?.location?.lon,
+            data?.object?.location?.lat,
+          ] || null,
+          data: data
+        };
+
+        state.value[index] = newValue;
       }
     },
     removeSearchDirection: (state, action: PayloadAction<number>) => {

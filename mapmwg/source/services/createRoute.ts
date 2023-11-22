@@ -46,6 +46,5 @@ export const createMultipleRouterLine = async(currentLocation: [number,number], 
   } else {
     return null;
   }
-  console.log("Routes: " + JSON.stringify(routes, null,2));
   return routes;
 }

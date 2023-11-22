@@ -20,7 +20,10 @@ import {
 } from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
-import {createMultipleRouterLine, createRouterLine} from '../services/createRoute';
+import {
+  createMultipleRouterLine,
+  createRouterLine,
+} from '../services/createRoute';
 import {useDispatch, useSelector} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
@@ -37,16 +40,12 @@ const MAX_DOWNWARD_TRANSLATE_Y = 0;
 const DRAG_THRESHOLD = 0;
 
 interface BottomSheetProps {
-  name?: string;
-  address?: string;
   getRoute?: () => void;
   start?: () => void;
   currentLocation: [number, number] | any;
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
-  name,
-  address,
   getRoute,
   start,
   currentLocation,
@@ -54,11 +53,14 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
   const [distance, setDistance] = useState<number | null>(null);
-  const destination = useSelector(
-    (state: RootState) => state.destination,
-  );
+  const [name, setName] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
+  );
+  const searchDirections = useSelector(
+    (state: RootState) => state.searchDirections.value,
   );
 
   const dispatch = useDispatch();
@@ -67,8 +69,20 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     const getData = async () => {
       const data = await callRoutingAPI(
         currentLocation,
-        destination.coordinate,
+        searchDirections[1].coordinates,
       );
+
+      // name={
+      //   searchDirections[1]?.data?.properties?.searchName ||
+      //   searchDirections[1]?.data?.properties?.searchName ||
+      //   .object?.searchName ||
+      //   'Chưa có dữ liệu trên hệ thống'
+      // }
+      // address={
+      //   destination?.value?.properties?.searchAddress ||
+      //   destination?.value?.object?.searchAddress ||
+      //   'Chưa có dữ liệu trên hệ thống'
+      // }
 
       dispatch(
         setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
@@ -76,6 +90,16 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       setDistance(data.Data.features[0].properties.summary.distance);
     };
     getData();
+    setName(
+      searchDirections[1]?.data?.properties?.searchName ||
+        searchDirections[1]?.data?.object?.searchName ||
+        'Chưa có dữ liệu trên hệ thống',
+    );
+    setAddress(
+      searchDirections[1]?.data?.properties?.searchAddress ||
+        searchDirections[1]?.data?.object?.searchAddress ||
+        'Chưa có dữ liệu trên hệ thống',
+    );
   }, []);
 
   const panResponder = useRef(
@@ -142,14 +166,18 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   };
 
   const makeRoute = async () => {
-    if (!destination) {
+    if (!searchDirections[1].coordinates) {
       return null;
     }
 
-    const route = await createRouterLine(currentLocation, destination.coordinate);
+    const route = await createRouterLine(
+      currentLocation,
+      searchDirections[1].coordinates,
+    );
+    console.log('Route: ' + route);
+
     dispatch(setIsDirected(true));
     dispatch(setRouteDirection(route));
-
   };
 
   const instruct = async () => {
@@ -204,8 +232,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           </ScrollView>
         </View>
         <View style={{marginHorizontal: 8}}>
-          <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name || null}</Text>
-          <Text style={{fontSize: 16}}>{address || null}</Text>
+          <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
+          <Text style={{fontSize: 16}}>{address}</Text>
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <FontAwesome6 name="car" size={16} />
             <Text style={{fontSize: 16, marginLeft: 8}}>{distance} km</Text>

@@ -122,7 +122,7 @@ const DirectionScreen = () => {
                       />
                       <TextInput
                         style={styles.input_text}
-                        placeholder={value.placeHolder}
+                        placeholder={value.id === 1 ? "Vị trí của bạn" : "Chọn điểm đến"}
                         value={value.data?.properties?.searchAddress || ''}
                         onPressIn={() => {
                           dispatch(setIsSearchDirect(true));

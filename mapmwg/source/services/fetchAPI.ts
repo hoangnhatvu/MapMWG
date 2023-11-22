@@ -68,7 +68,6 @@ export async function searchAddressAPI(): Promise<any> {
 
   try {
     const response = await axios(config);
-    console.log(JSON.stringify(response.data));
     return response.data;
   } catch (error: any) {
     console.error(error);
@@ -93,7 +92,6 @@ export async function getCoordinatesAPI(coordinates: [number, number]): Promise<
   try {
     const response = await fetch(url, requestOptions);
     const responseData = await response.json();
-    console.log("Response data: ", JSON.stringify(responseData));
     return responseData;
   } catch (error: any) {
     console.error(error);

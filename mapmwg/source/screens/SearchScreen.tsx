@@ -8,14 +8,12 @@ import {
 import {lightGray, primaryColor} from '../constants/color';
 import {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {setDestination} from '../redux/slices/destinationSlice';
 import RootState from '../../redux';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
 import {searchApi} from '../services/search';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
-import {setCurrent} from '../redux/slices/currentSlice';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
@@ -63,7 +61,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
   const handleSearchResult = (data: any) => {
     if (isSearch) {
       dispatch(setIsSearch(false));
-      dispatch(setDestination(data));
+      dispatch(updateSearchDirection({id: 1, data: data}));
     } else {
       dispatch(updateSearchDirection({id, data}));
       dispatch(setIsSearchDirect(false));

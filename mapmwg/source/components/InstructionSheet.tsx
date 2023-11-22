@@ -6,8 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import RootState from '../../redux';
 import { setIsInstructed } from '../redux/slices/isInstructedSlice';
 import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
-import { setDestination } from '../redux/slices/destinationSlice';
 import { setIsDirected } from '../redux/slices/isDirectedSlide';
+import { initDirectionState, updateSearchDirection } from '../redux/slices/searchDirectionsSlice';
 
 interface InstructionProps {
   distance: number | null;
@@ -24,8 +24,8 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
       const isSearch = useSelector(
         (state: RootState) => state.isSearch.value,
       );
-      const destination = useSelector(
-        (state: RootState) => state.destination.value,
+      const searchDirections = useSelector(
+        (state: RootState) => state.searchDirections.value,
       );
       const routeDirection = useSelector(
         (state: RootState) => state.routeDirection.value,
@@ -36,8 +36,8 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
   const close = () => {
     dispatch(setIsInstructed(false));
     dispatch(setRouteDirection(null));
-    dispatch(setDestination(null));
     dispatch(setIsDirected(false));
+    dispatch(initDirectionState());
   }  
 
   return (
