@@ -29,7 +29,7 @@ import {setSearchText} from '../redux/slices/searchTextSlice';
 import { initDirectionState, setSearchDirections, updateSearchDirection } from '../redux/slices/searchDirectionsSlice';
 
 const APIKEY =
-  'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
+  'pk.eyJ1IjoieHVhbmtoYW5ndXllbiIsImEiOiJjbG82bHNjZHUwaXh1MmtuejE1Y242MnlwIn0.nY9LBFNfhj3Rr4eIdmHo1Q';
 
 Mapbox.setAccessToken(APIKEY);
 Mapbox.setWellKnownTileServer('Mapbox');
@@ -269,7 +269,7 @@ const MapScreen: React.FC = () => {
           onTouchMove={handleTouchMove}>
           {(searchDirections[1].coordinates) && (
             <Mapbox.Camera
-              centerCoordinate={searchDirections[1].coordinates || [0,0]}
+              centerCoordinate={searchDirections[1].coordinates}
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={15}

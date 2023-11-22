@@ -1,8 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-import {primaryColor, secondaryColor, tertiaryColor, textColor} from '../constants/color';
+import {
+  primaryColor,
+  secondaryColor,
+  tertiaryColor,
+  textColor,
+} from '../constants/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Tts from "react-native-tts";
+import Tts from 'react-native-tts';
 
 interface InstructionProps {
   instruction: string;
@@ -25,7 +30,7 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
     }, 4000);
 
     return () => clearTimeout(timeoutId);
-  }, [instruction])
+  }, [instruction]);
 
   useEffect(() => {
     if (instruction.toLowerCase().includes('trái')) {
@@ -37,12 +42,10 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
     }
   }, [instruction]);
 
-  
-
   return (
     <View style={styles.container}>
       <View style={styles.instructionContainer}>
-        <View style={{alignSelf:'center', marginHorizontal: 32}}>
+        <View style={{alignSelf: 'center', marginHorizontal: 32}}>
           <Ionicons name={instructIcon} size={32} color={'white'} />
         </View>
         <View style={{alignSelf: 'center', marginRight: 16}}>
@@ -63,7 +66,7 @@ const styles = StyleSheet.create({
     marginTop: '15%',
   },
   instructionContainer: {
-    backgroundColor: "forestgreen",
+    backgroundColor: 'forestgreen',
     height: '70%',
     borderRadius: 16,
     flexDirection: 'row',

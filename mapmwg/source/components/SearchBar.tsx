@@ -49,6 +49,11 @@ const SearchBar = () => {
       <TextInput
         style={styles.search__input}
         placeholder="Search here"
+        onPressIn={() => {
+          dispatch(setSearchText(''));
+          setSearchKey('');
+          dispatch(setIsSearch(true));
+        }}
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);

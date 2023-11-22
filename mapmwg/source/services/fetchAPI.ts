@@ -1,13 +1,10 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, {AxiosRequestConfig} from 'axios';
 
 export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number]): Promise<any> {
   const url =
     'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-motorcycle';
   const body = {
-    coordinates: [
-      currentLocation,
-      destination,
-    ],
+    coordinates: [currentLocation, destination],
     preference: 'fastest',
     continue_straight: true,
     elevation: false,
@@ -44,8 +41,6 @@ export async function callRoutingAPI(currentLocation: [number, number], destinat
   }
 }
 
-
-
 export async function searchAddressAPI(): Promise<any> {
   const url =
     'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/address/search';
@@ -75,7 +70,9 @@ export async function searchAddressAPI(): Promise<any> {
   }
 }
 
-export async function getCoordinatesAPI(coordinates: [number, number]): Promise<any> {
+export async function getCoordinatesAPI(
+  coordinates: [number, number],
+): Promise<any> {
   const [longitude, latitude] = coordinates;
 
   const url = `https://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/els/nearest?lat=${latitude}&lon=${longitude}`;
