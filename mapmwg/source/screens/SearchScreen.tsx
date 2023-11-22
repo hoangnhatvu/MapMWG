@@ -19,9 +19,10 @@ import {setCurrent} from '../redux/slices/currentSlice';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+import {updateSearchDirection} from '../redux/slices/searchDirectionsSlice';
 
 interface SearchScreenProps {
-  id?: number;
+  id?: number | any;
 }
 
 const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
@@ -30,6 +31,9 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const isSearchDirect = useSelector(
     (state: RootState) => state.isSearchDirect.value,
+  );
+  const searchDirections = useSelector(
+    (state: RootState) => state.searchDirections.value,
   );
 
   const dispatch = useDispatch();
@@ -56,17 +60,15 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
     handleSearchResult(location);
   };
 
-  const handleSearchResult = (location: any) => {
+  const handleSearchResult = (data: any) => {
     if (isSearch) {
       dispatch(setIsSearch(false));
-      dispatch(setDestination(location));
+      dispatch(setDestination(data));
+    } else {
+      dispatch(updateSearchDirection({id, data}));
+      dispatch(setIsSearchDirect(false));
+      dispatch(setSearchText(''));
     }
-    // } else {
-    //   dispatch(setIsSearchCurrent(false));
-    //   dispatch(set(location));
-    //   dispatch(setCurrent(location.geometry.coordinates));
-    //   dispatch(setSearchText(''));
-    // }
   };
 
   return (
