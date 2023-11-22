@@ -20,12 +20,6 @@ const SearchBar = () => {
     dispatch(setSearchText(''));
   };
 
-  const onFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
-    setSearchText('');
-    setSearchKey('');
-    setIsSearch(true);
-  };
-
   useEffect(() => {
     if (searchKey !== '') {
       dispatch(setIsSearch(true));
@@ -56,7 +50,11 @@ const SearchBar = () => {
       <TextInput
         style={styles.search__input}
         placeholder="Search here"
-        onFocus={onFocus}
+        onPressIn={() => {
+          dispatch(setSearchText(''));
+          setSearchKey('');
+          dispatch(setIsSearch(true));
+        }}
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
