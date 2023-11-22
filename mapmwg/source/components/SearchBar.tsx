@@ -7,7 +7,6 @@ import Feather from 'react-native-vector-icons/Feather';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
 import {useState} from 'react';
-import {NativeSyntheticEvent, TextInputFocusEventData} from 'react-native';
 
 const SearchBar = () => {
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
