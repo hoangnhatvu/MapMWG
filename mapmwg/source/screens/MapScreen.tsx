@@ -260,7 +260,7 @@ const MapScreen: React.FC = () => {
         <Mapbox.MapView
           logoEnabled={false}
           style={styles.map}
-          styleURL="mapbox://styles/mapbox/outdoors-v12"
+          styleURL="https://wsmap.tgdd.vn/vector_style/mwg-map-style/osm_liberty.json"
           rotateEnabled={true}
           zoomEnabled={true}
           compassEnabled={true}
