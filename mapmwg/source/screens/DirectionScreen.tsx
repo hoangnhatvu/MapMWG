@@ -112,17 +112,19 @@ const DirectionScreen = () => {
                       }}
                       key={value.id}>
                       <FontAwesome6
-                        name={value.id === 1 ? 'circle-dot' : 'location-dot'}
+                        name={value.id === 0 ? 'circle-dot' : 'location-dot'}
                         style={{
                           marginLeft: 10,
                           width: 15,
-                          color: value.id === 1 ? 'blue' : 'red',
+                          color: value.id === 0 ? 'blue' : 'red',
                         }}
                         size={15}
                       />
                       <TextInput
                         style={styles.input_text}
-                        placeholder={value.id === 1 ? "Vị trí của bạn" : "Chọn điểm đến"}
+                        placeholder={
+                          value.id === 0 ? 'Vị trí của bạn' : 'Chọn điểm đến'
+                        }
                         value={value.data?.properties?.searchAddress || ''}
                         onPressIn={() => {
                           dispatch(setIsSearchDirect(true));
