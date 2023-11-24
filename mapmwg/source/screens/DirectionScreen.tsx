@@ -54,6 +54,9 @@ const DirectionScreen = () => {
     inputRange: [0, 1],
     outputRange: [0, -200],
   });
+  // const onBackPress() =>{
+  // }
+
   const handleBack = () => {
     dispatch(setIsDirected(false));
     dispatch(setIsSearchDirect(false));
@@ -111,7 +114,7 @@ const DirectionScreen = () => {
                         marginLeft: 10,
                       }}
                       key={value.id}>
-                      <FontAwesome6 
+                      <FontAwesome6
                         name={value.id === 0 ? 'circle-dot' : 'location-dot'}
                         style={{
                           marginLeft: 10,

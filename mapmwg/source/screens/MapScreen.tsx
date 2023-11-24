@@ -26,7 +26,11 @@ import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
-import { initDirectionState, setSearchDirections, updateSearchDirection } from '../redux/slices/searchDirectionsSlice';
+import {
+  initDirectionState,
+  setSearchDirections,
+  updateSearchDirection,
+} from '../redux/slices/searchDirectionsSlice';
 
 const APIKEY =
   'pk.eyJ1IjoieHVhbmtoYW5ndXllbiIsImEiOiJjbG82bHNjZHUwaXh1MmtuejE1Y242MnlwIn0.nY9LBFNfhj3Rr4eIdmHo1Q';
@@ -65,10 +69,10 @@ const MapScreen: React.FC = () => {
   );
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
-  ); 
+  );
   const searchDirections = useSelector(
     (state: RootState) => state.searchDirections.value,
-  )
+  );
   const dispatch = useDispatch();
 
   // useEffect(() => {
@@ -115,7 +119,7 @@ const MapScreen: React.FC = () => {
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));
-        console.log("Route: " + route);
+        console.log('Route: ' + route);
       };
 
       fetchData();
@@ -156,7 +160,7 @@ const MapScreen: React.FC = () => {
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
-    
+
     let minDistance = 1;
     let newInstruction = '';
     if (instructions) {
@@ -201,7 +205,7 @@ const MapScreen: React.FC = () => {
       ];
       const coords = await getCoordinatesAPI(newDestination);
       dispatch(updateSearchDirection({id: 1, data: coords}));
-      
+
       dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
@@ -241,6 +245,12 @@ const MapScreen: React.FC = () => {
         dispatch(setIsSearch(false));
         dispatch(setSearchText(''));
         return true;
+      }
+      //back direction
+      else if (!isDirected) {
+        dispatch(setIsDirected(false));
+        dispatch(setIsSearchBar(true));
+        return true;
       } else {
         return false;
       }
@@ -252,7 +262,6 @@ const MapScreen: React.FC = () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
   }, [isInstructed, dispatch, isSearch, searchDirections[1].coordinates]);
-
 
   return (
     <View style={styles.page}>
@@ -267,7 +276,7 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
-          {(searchDirections[1].coordinates) && (
+          {searchDirections[1].coordinates && (
             <Mapbox.Camera
               centerCoordinate={searchDirections[1].coordinates}
               animationMode={'flyTo'}
@@ -352,9 +361,7 @@ const MapScreen: React.FC = () => {
         </>
       )}
       {searchDirections[1].coordinates && currentLocation && !isInstructed && (
-        <BottomSheet          
-          currentLocation={currentLocation}
-        />
+        <BottomSheet currentLocation={currentLocation} />
       )}
     </View>
   );
