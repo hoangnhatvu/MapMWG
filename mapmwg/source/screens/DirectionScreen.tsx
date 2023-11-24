@@ -111,7 +111,7 @@ const DirectionScreen = () => {
                         marginLeft: 10,
                       }}
                       key={value.id}>
-                      <FontAwesome6
+                      <FontAwesome6 
                         name={value.id === 0 ? 'circle-dot' : 'location-dot'}
                         style={{
                           marginLeft: 10,
