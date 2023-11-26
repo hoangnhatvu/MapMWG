@@ -1,5 +1,6 @@
 import {WINDOW_HEIGHT} from '../utils/window_height';
 import React, {useRef, useState, useEffect} from 'react';
+import Toast from 'react-native-toast-message';
 import {
   StyleSheet,
   View,
@@ -31,6 +32,8 @@ import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {callRoutingAPI} from '../services/fetchAPI';
 import {setInstructions} from '../redux/slices/instructionsSlice';
+import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
+import {showErrorToast} from '../services/toast';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -71,7 +74,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         currentLocation,
         searchDirections[1].coordinates,
       );
-
       // name={
       //   searchDirections[1]?.data?.properties?.searchName ||
       //   searchDirections[1]?.data?.properties?.searchName ||
@@ -100,7 +102,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         searchDirections[1]?.data?.object?.searchAddress ||
         'Chưa có dữ liệu trên hệ thống',
     );
-  }, []);
+  }, [searchDirections[1].coordinates]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -166,31 +168,39 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   };
 
   const makeRoute = async () => {
-    if (!searchDirections[1].coordinates) {
-      return null;
+    try {
+      if (searchDirections[1].coordinates) {
+        const route = await createRouterLine(
+          currentLocation,
+          searchDirections[1].coordinates,
+        );
+
+        if (route) {
+          dispatch(setIsDirected(true));
+          dispatch(setRouteDirection(route));
+        } else {
+          throw new Error('Failed to create route');
+        }
+      } else {
+        throw new Error('Failed to create route');
+      }
+    } catch (error: any) {
+      dispatch(initDirectionState());
+      throw error;
     }
-
-    const route = await createRouterLine(
-      currentLocation,
-      searchDirections[1].coordinates,
-    );
-    console.log('Route: ' + route);
-
-    dispatch(setIsDirected(true));
-    dispatch(setRouteDirection(route));
   };
 
   const instruct = async () => {
     try {
       if (!routeDirection) {
         await makeRoute();
+        dispatch(setIsSearch(false));
+        dispatch(setIsInstructed(true));
+      } else {
+        throw new Error('Can not make the route!');
       }
-
-      dispatch(setIsSearch(false));
-      dispatch(setIsInstructed(true));
-    } catch (error) {
-      console.error("Can't make route: " + error);
-      return null;
+    } catch (error: any) {
+      dispatch(initDirectionState());
     }
   };
 

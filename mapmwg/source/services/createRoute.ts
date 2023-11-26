@@ -20,15 +20,27 @@ function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-export const createRouterLine = async(currentLocation: [number,number], destination: [number, number]) => {
-  const data = await callRoutingAPI(currentLocation, destination);
-  let coordinates = data.Data.features[0].geometry.coordinates
+export const createRouterLine = async (currentLocation: [number, number], destination: [number, number]) => {
+  try {
+    const data = await callRoutingAPI(currentLocation, destination);
 
-  if (coordinates.length) {
-    const routerFeature = makeRouterFeature([...coordinates]);
-    return routerFeature;
+    if (data && data.Data && data.Data.features && data.Data.features.length > 0) {
+      const coordinates = data.Data.features[0].geometry.coordinates;
+      
+      if (coordinates && coordinates.length) {
+        const routerFeature = makeRouterFeature([...coordinates]);
+        return routerFeature;
+      }
+    }
+
+    // If any of the expected properties are missing or empty, return null
+    return null;
+  } catch (error) {
+    console.error('Error in createRouterLine:', error);
+    // Handle the error, you might want to return null or throw it depending on your use case
+    return null;
   }
-}
+};
 
 export const createMultipleRouterLine = async(currentLocation: [number,number], destination: [number, number]) => {
   const data = await callRoutingAPI(currentLocation, destination);

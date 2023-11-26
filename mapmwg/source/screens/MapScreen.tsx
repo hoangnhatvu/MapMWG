@@ -1,21 +1,23 @@
 import React, {useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View, BackHandler} from 'react-native';
 import Mapbox, {
   CircleLayer,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import LocateButton from '../components/LocateButton';
 import {
   createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
+import Toast from 'react-native-toast-message';
+
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
-import {useSelector, useDispatch} from 'react-redux';
+import LocateButton from '../components/LocateButton';
 import RootState from '../../redux';
-import {getCoordinatesAPI} from '../services/fetchAPI';
+import {callMultipleRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
@@ -32,6 +34,7 @@ import {
   updateSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
 
+// Init Project
 const APIKEY =
   'pk.eyJ1IjoieHVhbmtoYW5ndXllbiIsImEiOiJjbG82bHNjZHUwaXh1MmtuejE1Y242MnlwIn0.nY9LBFNfhj3Rr4eIdmHo1Q';
 
@@ -49,7 +52,6 @@ const MapScreen: React.FC = () => {
   const [isGuided, setIsGuided] = useState<boolean>(false);
 
   const thresholdDistance = 0.02;
-  const [routes, setRoutes] = useState<any[] | null>([]);
 
   // Redux
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
@@ -74,6 +76,31 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.searchDirections.value,
   );
   const dispatch = useDispatch();
+
+  const routes: [number, number][] = [
+    [106.79766, 10.85188],
+    [106.7908, 10.84901],
+    [106.76621, 10.87232],
+    [106.76153, 10.84368],
+    [106.8136, 10.85696],
+    [106.79171, 10.89673],
+    [106.61035, 10.71954],
+    [106.76734, 10.85014],
+    [106.73533, 10.85335],
+    [107.0085, 10.95681],
+    [106.73345, 10.86763],
+  ];
+
+  // useEffect(() => {
+  //   const fetchData = async() => {
+  //     const data = await callMultipleRoutingAPI(routes);
+  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
+
+  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
+  //   }
+
+  //   fetchData();
+  // }, [])
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -204,9 +231,13 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       const coords = await getCoordinatesAPI(newDestination);
+
       dispatch(updateSearchDirection({id: 1, data: coords}));
 
+<<<<<<< HEAD
       dispatch(setIsDirected(true));
+=======
+>>>>>>> 94c029ce1488fe05a30aeb5a7fb1a8e3a4a8cbb8
       dispatch(setRouteDirection(null));
     }
   };
@@ -245,12 +276,17 @@ const MapScreen: React.FC = () => {
         dispatch(setIsSearch(false));
         dispatch(setSearchText(''));
         return true;
+<<<<<<< HEAD
       }
       //back direction
       else if (!isDirected) {
         dispatch(setIsDirected(false));
         dispatch(setIsSearchBar(true));
         return true;
+=======
+      } else if (isDirected) {
+        dispatch(setIsDirected(false));
+>>>>>>> 94c029ce1488fe05a30aeb5a7fb1a8e3a4a8cbb8
       } else {
         return false;
       }
@@ -276,7 +312,11 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
+<<<<<<< HEAD
           {searchDirections[1].coordinates && (
+=======
+          {searchDirections[1]?.coordinates && (
+>>>>>>> 94c029ce1488fe05a30aeb5a7fb1a8e3a4a8cbb8
             <Mapbox.Camera
               centerCoordinate={searchDirections[1].coordinates}
               animationMode={'flyTo'}
@@ -355,8 +395,8 @@ const MapScreen: React.FC = () => {
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
           <InstructionSheet
-            distance={instructions[0].distance}
-            time={instructions[0].duration}
+            distance={instructions ? instructions[0].distance : null}
+            time={instructions ? instructions[0].duration : null}
           />
         </>
       )}

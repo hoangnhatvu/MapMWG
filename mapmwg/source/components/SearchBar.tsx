@@ -19,6 +19,14 @@ const SearchBar = () => {
     dispatch(setSearchText(''));
   };
 
+  const pressSearchInput = () => {
+    if(!isSearch){
+      dispatch(setSearchText(''));
+      setSearchKey('');
+      dispatch(setIsSearch(true));
+    }
+  }
+
   useEffect(() => {
     if (searchKey !== '') {
       dispatch(setIsSearch(true));
@@ -49,11 +57,7 @@ const SearchBar = () => {
       <TextInput
         style={styles.search__input}
         placeholder="Search here"
-        onPressIn={() => {
-          dispatch(setSearchText(''));
-          setSearchKey('');
-          dispatch(setIsSearch(true));
-        }}
+        onPressIn={() => pressSearchInput()}
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
