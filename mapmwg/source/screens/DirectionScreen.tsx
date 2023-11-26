@@ -16,6 +16,9 @@ import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 import SearchScreen from './SearchScreen';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+
+import {setIsSearch} from '../redux/slices/isSearchSlice';
+import {setSearchText} from '../redux/slices/searchTextSlice';
 import {
   addSearchDirection,
   initDirectionState,
