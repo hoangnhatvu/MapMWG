@@ -39,10 +39,9 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
   const getSearchList = async () => {
     try {
       const data = await searchApi(searchText);
-      console.log(data);
       setSearchList(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -80,7 +79,10 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
                 <TouchableOpacity
                   key={index}
                   style={styles.search__location}
-                  onPress={() => handleSearchLocation(location)}>
+                  onPress={() => {
+                      dispatch(setSearchText(location.properties.searchAddress))
+                      handleSearchLocation(location)
+                    }}>
                   <View style={{flexDirection: 'row'}}>
                     <View>
                       <Text

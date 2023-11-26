@@ -1,19 +1,21 @@
 import React, {useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View, BackHandler} from 'react-native';
 import Mapbox, {
   CircleLayer,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import LocateButton from '../components/LocateButton';
 import {
   createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
+import Toast from 'react-native-toast-message';
+
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
-import {useSelector, useDispatch} from 'react-redux';
+import LocateButton from '../components/LocateButton';
 import RootState from '../../redux';
 import {callMultipleRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
@@ -32,6 +34,7 @@ import {
   updateSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
 
+// Init Project
 const APIKEY =
   'pk.eyJ1IjoieHVhbmtoYW5ndXllbiIsImEiOiJjbG82bHNjZHUwaXh1MmtuejE1Y242MnlwIn0.nY9LBFNfhj3Rr4eIdmHo1Q';
 
@@ -74,7 +77,7 @@ const MapScreen: React.FC = () => {
   );
   const dispatch = useDispatch();
 
-  const routes: [number,number] [] = [
+  const routes: [number, number][] = [
     [106.79766, 10.85188],
     [106.7908, 10.84901],
     [106.76621, 10.87232],
@@ -88,16 +91,16 @@ const MapScreen: React.FC = () => {
     [106.73345, 10.86763],
   ];
 
-  useEffect(() => {
-    const fetchData = async() => {
-      const data = await callMultipleRoutingAPI(routes);
-      console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
-      
-      dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
-    }
+  // useEffect(() => {
+  //   const fetchData = async() => {
+  //     const data = await callMultipleRoutingAPI(routes);
+  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
 
-    fetchData();
-  }, [])
+  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
+  //   }
+
+  //   fetchData();
+  // }, [])
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -228,9 +231,9 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       const coords = await getCoordinatesAPI(newDestination);
+
       dispatch(updateSearchDirection({id: 1, data: coords}));
 
-      dispatch(setIsDirected(true));
       dispatch(setRouteDirection(null));
     }
   };
@@ -269,6 +272,8 @@ const MapScreen: React.FC = () => {
         dispatch(setIsSearch(false));
         dispatch(setSearchText(''));
         return true;
+      } else if (isDirected) {
+        dispatch(setIsDirected(false));
       } else {
         return false;
       }
@@ -294,7 +299,7 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
-          {searchDirections[1].coordinates && (
+          {searchDirections[1]?.coordinates && (
             <Mapbox.Camera
               centerCoordinate={searchDirections[1].coordinates}
               animationMode={'flyTo'}
@@ -373,8 +378,8 @@ const MapScreen: React.FC = () => {
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
           <InstructionSheet
-            distance={instructions[0].distance}
-            time={instructions[0].duration}
+            distance={instructions ? instructions[0].distance : null}
+            time={instructions ? instructions[0].duration : null}
           />
         </>
       )}
