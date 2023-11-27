@@ -135,10 +135,10 @@ const DirectionScreen = () => {
                         onPressIn={() => {
                           dispatch(setIsSearchDirect(true));
                           dispatch(setIsDirected(false));
-                          setIdSearchDirect(value.id);
+                          {value.id && setIdSearchDirect(value.id);}
                         }}
                       />
-                      {value.id > 2 ? (
+                      {value.id && value.id > 2 ? (
                         <FontAwesome6
                           name="trash"
                           size={20}
@@ -149,7 +149,7 @@ const DirectionScreen = () => {
                             backgroundColor: 'white',
                           }}
                           onPress={() => {
-                            dispatch(removeSearchDirection(value.id));
+                            {value.id && dispatch(removeSearchDirection(value.id))};
                             setViewHeight(viewHeight - 50);
                           }}
                           color="gray"

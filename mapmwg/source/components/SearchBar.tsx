@@ -1,5 +1,5 @@
 import {StyleSheet, TextInput, View} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
@@ -7,38 +7,50 @@ import Feather from 'react-native-vector-icons/Feather';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
 import {useState} from 'react';
+import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
 
 const SearchBar = () => {
+  const [isFocus, setIsFocus] = useState<boolean>(false);
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const isSearchDirect = useSelector(
+    (state: RootState) => state.isSearchDirect.value,
+  );
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchKey, setSearchKey] = useState<string>('');
+  const textInputRef = useRef<any>(null);
   const dispatch = useDispatch();
 
   const exitSearch = () => {
     dispatch(setIsSearch(false));
+    {isSearchDirect && dispatch(setIsDirected(true))};
+    dispatch(setIsSearchDirect(false));
     dispatch(setSearchText(''));
+    textInputRef.current.blur();
   };
 
   const pressSearchInput = () => {
-    if(!isSearch){
+    if (!isSearch) {
       dispatch(setSearchText(''));
       setSearchKey('');
       dispatch(setIsSearch(true));
     }
-  }
+  };
 
   useEffect(() => {
-    if (searchKey !== '') {
-      dispatch(setIsSearch(true));
-      dispatch(setSearchText(searchKey));
-    } else {
-      dispatch(setIsSearch(false));
-    }
+    dispatch(setSearchText(searchKey));
   }, [searchKey]);
+
+  useEffect(() => {
+    if (isSearchDirect && !isFocus) {
+      textInputRef.current.focus();
+      setIsFocus(true);
+    }
+  }, []);
 
   return (
     <View style={styles.search__bar}>
-      {isSearch ? (
+      {isSearch || isSearchDirect ? (
         <Feather
           name="arrow-left"
           style={styles.search__bar_icon}
@@ -57,13 +69,17 @@ const SearchBar = () => {
       <TextInput
         style={styles.search__input}
         placeholder="Search here"
-        onPressIn={() => pressSearchInput()}
+        ref={textInputRef}
+        onPressIn={() => {
+          dispatch(setSearchText(''));
+          setSearchKey('');
+          dispatch(setIsSearch(true));
+        }}
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
-          dispatch(setIsSearch(!!value)); // Set isSearch to true if there is a value, otherwise false
         }}
-        value={isSearch ? searchKey : searchText}
+        value={isSearch || isSearchDirect ? searchKey : searchText}
       />
     </View>
   );

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SearchDirectionsType {
-  id?: number | any;
+  id?: number;
   coordinates: [number, number] | any;
   data: any;
 }
