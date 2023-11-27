@@ -195,7 +195,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         await makeRoute();
       }
       dispatch(setIsSearch(false));
-      dispatch(setIsInstructed(true));        
+      dispatch(setIsInstructed(true));
     } catch (error: any) {
       dispatch(initDirectionState());
     }
