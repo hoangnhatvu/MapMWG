@@ -119,7 +119,7 @@ const MapScreen: React.FC = () => {
   // }, [currentLocation, destination.value]);
 
   useEffect(() => {
-    const delay = 4000;
+    const delay = 8000;
 
     const timeoutId = setTimeout(() => {
       setInitial(false);
@@ -316,6 +316,7 @@ const MapScreen: React.FC = () => {
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
               followUserMode={UserTrackingMode.FollowWithHeading}
+              
             />
           )}
           {isGuided && (
