@@ -194,11 +194,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     try {
       if (!routeDirection) {
         await makeRoute();
-        dispatch(setIsSearch(false));
-        dispatch(setIsInstructed(true));
-      } else {
-        throw new Error('Can not make the route!');
+
       }
+      dispatch(setIsSearch(false));
+      dispatch(setIsInstructed(true));
     } catch (error: any) {
       dispatch(initDirectionState());
     }
