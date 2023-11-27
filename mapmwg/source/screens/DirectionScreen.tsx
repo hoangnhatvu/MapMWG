@@ -16,6 +16,9 @@ import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 import SearchScreen from './SearchScreen';
 import DirectionButton from '../components/DirectionButton';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
+
+import {setIsSearch} from '../redux/slices/isSearchSlice';
+import {setSearchText} from '../redux/slices/searchTextSlice';
 import {
   addSearchDirection,
   initDirectionState,
@@ -54,6 +57,9 @@ const DirectionScreen = () => {
     inputRange: [0, 1],
     outputRange: [0, -200],
   });
+  // const onBackPress() =>{
+  // }
+
   const handleBack = () => {
     dispatch(setIsDirected(false));
     dispatch(setIsSearchDirect(false));
@@ -112,17 +118,19 @@ const DirectionScreen = () => {
                       }}
                       key={value.id}>
                       <FontAwesome6
-                        name={value.id === 1 ? 'circle-dot' : 'location-dot'}
+                        name={value.id === 0 ? 'circle-dot' : 'location-dot'}
                         style={{
                           marginLeft: 10,
                           width: 15,
-                          color: value.id === 1 ? 'blue' : 'red',
+                          color: value.id === 0 ? 'blue' : 'red',
                         }}
                         size={15}
                       />
                       <TextInput
                         style={styles.input_text}
-                        placeholder={value.id === 1 ? "Vị trí của bạn" : "Chọn điểm đến"}
+                        placeholder={
+                          value.id === 0 ? 'Vị trí của bạn' : 'Chọn điểm đến'
+                        }
                         value={value.data?.properties?.searchAddress || ''}
                         onPressIn={() => {
                           dispatch(setIsSearchDirect(true));
