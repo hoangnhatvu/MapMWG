@@ -262,9 +262,11 @@ const MapScreen: React.FC = () => {
     const handleBackButton = () => {
       if (isInstructed) {
         dispatch(setIsInstructed(false));
+        dispatch(setRouteDirection(null));
         return true;
       } else if (searchDirections[1].coordinates) {
         dispatch(initDirectionState());
+        dispatch(setRouteDirection(null));
         return true;
       } else if (isSearch) {
         dispatch(setIsSearch(false));
@@ -272,6 +274,7 @@ const MapScreen: React.FC = () => {
         return true;
       } else if (isDirected) {
         dispatch(setIsDirected(false));
+        dispatch(setRouteDirection(null));
       } else {
         return false;
       }
