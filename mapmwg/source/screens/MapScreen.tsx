@@ -10,8 +10,6 @@ import {
   createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
-import Toast from 'react-native-toast-message';
-
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
@@ -234,10 +232,6 @@ const MapScreen: React.FC = () => {
 
       dispatch(updateSearchDirection({id: 1, data: coords}));
 
-<<<<<<< HEAD
-      dispatch(setIsDirected(true));
-=======
->>>>>>> 94c029ce1488fe05a30aeb5a7fb1a8e3a4a8cbb8
       dispatch(setRouteDirection(null));
     }
   };
@@ -276,17 +270,8 @@ const MapScreen: React.FC = () => {
         dispatch(setIsSearch(false));
         dispatch(setSearchText(''));
         return true;
-<<<<<<< HEAD
-      }
-      //back direction
-      else if (!isDirected) {
-        dispatch(setIsDirected(false));
-        dispatch(setIsSearchBar(true));
-        return true;
-=======
       } else if (isDirected) {
         dispatch(setIsDirected(false));
->>>>>>> 94c029ce1488fe05a30aeb5a7fb1a8e3a4a8cbb8
       } else {
         return false;
       }
@@ -312,11 +297,7 @@ const MapScreen: React.FC = () => {
           compassFadeWhenNorth={true}
           onPress={handleMapPress}
           onTouchMove={handleTouchMove}>
-<<<<<<< HEAD
-          {searchDirections[1].coordinates && (
-=======
           {searchDirections[1]?.coordinates && (
->>>>>>> 94c029ce1488fe05a30aeb5a7fb1a8e3a4a8cbb8
             <Mapbox.Camera
               centerCoordinate={searchDirections[1].coordinates}
               animationMode={'flyTo'}
