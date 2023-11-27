@@ -4,10 +4,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {primaryColor, textColor} from '../constants/color';
 import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
-import { setIsInstructed } from '../redux/slices/isInstructedSlice';
-import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
-import { setIsDirected } from '../redux/slices/isDirectedSlide';
-import { initDirectionState, updateSearchDirection } from '../redux/slices/searchDirectionsSlice';
+import {setIsInstructed} from '../redux/slices/isInstructedSlice';
+import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
+import {
+  initDirectionState,
+  updateSearchDirection,
+} from '../redux/slices/searchDirectionsSlice';
+import {setIsLocated} from '../redux/slices/isLocatedSlice';
 
 interface InstructionProps {
   distance: number | null;
@@ -15,30 +19,26 @@ interface InstructionProps {
 }
 
 const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
-    const isInstructed = useSelector(
-        (state: RootState) => state.isInstructed.value,
-      );
-      const isDirected = useSelector(
-        (state: RootState) => state.isDirected.value,
-      );
-      const isSearch = useSelector(
-        (state: RootState) => state.isSearch.value,
-      );
-      const searchDirections = useSelector(
-        (state: RootState) => state.searchDirections.value,
-      );
-      const routeDirection = useSelector(
-        (state: RootState) => state.routeDirection.value,
-      );
-    
-      const dispatch = useDispatch();
+  const isInstructed = useSelector(
+    (state: RootState) => state.isInstructed.value,
+  );
+  const isDirected = useSelector((state: RootState) => state.isDirected.value);
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const searchDirections = useSelector(
+    (state: RootState) => state.searchDirections.value,
+  );
+  const routeDirection = useSelector(
+    (state: RootState) => state.routeDirection.value,
+  );
+  const isLocated = useSelector((state: RootState) => state.isLocated.value);
+
+  const dispatch = useDispatch();
 
   const close = () => {
+    dispatch(setIsLocated(true));
     dispatch(setIsInstructed(false));
-    dispatch(setRouteDirection(null));
     dispatch(setIsDirected(false));
-    dispatch(initDirectionState());
-  }  
+  };
 
   return (
     <View style={styles.container}>
