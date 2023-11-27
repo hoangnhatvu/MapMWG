@@ -1,6 +1,5 @@
 import {WINDOW_HEIGHT} from '../utils/window_height';
 import React, {useRef, useState, useEffect} from 'react';
-import Toast from 'react-native-toast-message';
 import {
   StyleSheet,
   View,
