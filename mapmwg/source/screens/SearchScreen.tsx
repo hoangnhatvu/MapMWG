@@ -20,7 +20,7 @@ import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {updateSearchDirection} from '../redux/slices/searchDirectionsSlice';
 
 interface SearchScreenProps {
-  id?: number | any;
+  id?: number;
 }
 
 const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
