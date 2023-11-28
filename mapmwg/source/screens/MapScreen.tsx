@@ -7,7 +7,6 @@ import Mapbox, {
   UserTrackingMode,
 } from '@rnmapbox/maps';
 import {
-  createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
 import SearchScreen from './SearchScreen';
@@ -15,7 +14,7 @@ import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
 import LocateButton from '../components/LocateButton';
 import RootState from '../../redux';
-import {callMultipleRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
+import {getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
@@ -74,35 +73,6 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.searchDirections.value,
   );
   const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   const fetchData = async() => {
-  //     const data = await callMultipleRoutingAPI(routes);
-  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
-
-  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
-  //   }
-
-  //   fetchData();
-  // }, [])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (destination.value) {
-  //       const multiRoutes = await createMultipleRouterLine(
-  //         currentLocation,
-  //         destination.coordinate,
-  //       );
-  //       if (multiRoutes !== null) {
-  //         setRoutes(multiRoutes);
-  //         console.log(routes!.length);
-  //         dispatch(setRouteDirection(routes![0]));
-  //       }
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [currentLocation, destination.value]);
 
   useEffect(() => {
     const delay = 8000;
@@ -265,7 +235,6 @@ const MapScreen: React.FC = () => {
         return false;
       }
     };
-
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
     return () => {
@@ -297,7 +266,7 @@ const MapScreen: React.FC = () => {
           )}
           {(initial || isLocated) && (
             <Mapbox.Camera
-              centerCoordinate={searchDirections[0].coordinates || currentLocation}
+              centerCoordinate={currentLocation}
               animationMode={'flyTo'}
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
