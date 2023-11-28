@@ -40,7 +40,7 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
   };
 
   useEffect(() => {
-    if (distance && distance < 1) {
+    if (distance && distance < 0.002) {
       close();
       Tts.speak('Đã đến nơi');
     }
