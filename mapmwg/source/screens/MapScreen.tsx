@@ -7,7 +7,6 @@ import Mapbox, {
   UserTrackingMode,
 } from '@rnmapbox/maps';
 import {
-  createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
 import SearchScreen from './SearchScreen';
@@ -15,7 +14,7 @@ import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
 import LocateButton from '../components/LocateButton';
 import RootState from '../../redux';
-import {callMultipleRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
+import {getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
@@ -33,6 +32,7 @@ import {
 } from '../redux/slices/searchDirectionsSlice';
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import speakText from '../services/textToSpeechService.ts';
+import { haversine } from '../utils/haversine';
 
 // Init Project
 const APIKEY =
@@ -47,7 +47,6 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-
   const thresholdDistance = 0.02;
 
   // Redux
@@ -74,38 +73,6 @@ const MapScreen: React.FC = () => {
   );
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   const fetchData = async() => {
-  //     const data = await callMultipleRoutingAPI(routes);
-  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
-
-  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
-  //   }
-
-  //   fetchData();
-  // }, [])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (destination.value) {
-  //       const multiRoutes = await createMultipleRouterLine(
-  //         currentLocation,
-  //         destination.coordinate,
-  //       );
-  //       if (multiRoutes !== null) {
-  //         setRoutes(multiRoutes);
-  //         console.log(routes!.length);
-  //         dispatch(setRouteDirection(routes![0]));
-  //       }
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [currentLocation, destination.value]);
-
-  const [mapRotation, setMapRotation] = useState(0);
-
   useEffect(() => {
     const delay = 8000;
 
@@ -143,31 +110,6 @@ const MapScreen: React.FC = () => {
       };
     }
   }, [currentLocation, searchDirections[1]]);
-
-  const haversine = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
-  ) => {
-    const R = 6371; // Bán kính trái đất tính theo km
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Khoảng cách giữa hai điểm
-
-    return distance;
-  };
-
-  const toRadians = (degrees: number) => {
-    return (degrees * Math.PI) / 180;
-  };
 
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
@@ -354,14 +296,6 @@ const MapScreen: React.FC = () => {
               />
             </Mapbox.ShapeSource>
           )}
-          {/* {routes && routes.slice(1).map((route, index) => (
-              <Mapbox.ShapeSource id={`line${index}`} shape={route}>
-                <Mapbox.LineLayer
-                  id={`routerLine${index}`}
-                  style={{lineColor: 'red', lineWidth: 5, lineBlur: 0}}
-                />
-              </Mapbox.ShapeSource>
-            ))} */}
         </Mapbox.MapView>
       </View>
 
