@@ -1,13 +1,14 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {primaryColor, textColor} from '../constants/color';
 import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
-import { setIsInstructed } from '../redux/slices/isInstructedSlice';
-import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
-import { setIsDirected } from '../redux/slices/isDirectedSlide';
-import { initDirectionState, updateSearchDirection } from '../redux/slices/searchDirectionsSlice';
+import {setIsInstructed} from '../redux/slices/isInstructedSlice';
+import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
+import {setIsDirected} from '../redux/slices/isDirectedSlide';
+import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
+import Tts from 'react-native-tts';
 
 interface InstructionProps {
   distance: number | null;
@@ -15,30 +16,35 @@ interface InstructionProps {
 }
 
 const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
-    const isInstructed = useSelector(
-        (state: RootState) => state.isInstructed.value,
-      );
-      const isDirected = useSelector(
-        (state: RootState) => state.isDirected.value,
-      );
-      const isSearch = useSelector(
-        (state: RootState) => state.isSearch.value,
-      );
-      const searchDirections = useSelector(
-        (state: RootState) => state.searchDirections.value,
-      );
-      const routeDirection = useSelector(
-        (state: RootState) => state.routeDirection.value,
-      );
-    
-      const dispatch = useDispatch();
+  Tts.setDefaultLanguage('vi-VN');
+
+  const isInstructed = useSelector(
+    (state: RootState) => state.isInstructed.value,
+  );
+  const isDirected = useSelector((state: RootState) => state.isDirected.value);
+  const isSearch = useSelector((state: RootState) => state.isSearch.value);
+  const searchDirections = useSelector(
+    (state: RootState) => state.searchDirections.value,
+  );
+  const routeDirection = useSelector(
+    (state: RootState) => state.routeDirection.value,
+  );
+
+  const dispatch = useDispatch();
 
   const close = () => {
     dispatch(setIsInstructed(false));
     dispatch(setRouteDirection(null));
     dispatch(setIsDirected(false));
     dispatch(initDirectionState());
-  }  
+  };
+
+  useEffect(() => {
+    if (distance && distance < 1) {
+      close();
+      Tts.speak('Đã đến nơi');
+    }
+  }, [distance]);
 
   return (
     <View style={styles.container}>

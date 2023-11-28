@@ -130,14 +130,6 @@ const MapScreen: React.FC = () => {
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));
-        
-        const distance = haversine(
-          currentLocation[1], currentLocation[0], searchDirections[1].coordinates[1],searchDirections[1].coordinates[0]
-        );
-
-        if (isInstructed && distance < thresholdDistance) {
-          console.log("Đã đến");
-        }
       };
 
       fetchData();
