@@ -5,6 +5,8 @@ import {
   Animated,
   Easing,
   ScrollView,
+  TouchableOpacity,
+  Text,
 } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import React, {useEffect, useState} from 'react';
@@ -25,6 +27,9 @@ import {
   removeSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
+import {getRouteMutilDestination} from '../services/getRouteMutilDestination';
+import {makeRouterFeature} from '../services/createRoute';
+import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
 
 const DirectionScreen = () => {
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
@@ -35,7 +40,7 @@ const DirectionScreen = () => {
     (state: RootState) => state.searchDirections.value,
   );
   const slideAnimation = new Animated.Value(0);
-  const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 5);
+  const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 4.5);
   const [idSearchDirect, setIdSearchDirect] = useState<number>(0);
   const dispatch = useDispatch();
 
@@ -65,12 +70,23 @@ const DirectionScreen = () => {
     dispatch(setIsSearchDirect(false));
     dispatch(setIsSearchBar(true));
     dispatch(initDirectionState());
-    setViewHeight(WINDOW_HEIGHT / 5);
+    setViewHeight(WINDOW_HEIGHT / 4.5);
   };
 
   const handleOnPress = () => {
     dispatch(setIsDirected(true));
     dispatch(setIsSearchBar(false));
+  };
+  const handleFindRoute = async () => {
+    const data = searchDirections.map(values => values.coordinates);
+    const response = await getRouteMutilDestination(data);
+    console.log(response)
+    if (!response?.emptyResult) {
+      console.log(response?.features[0]?.geometry?.coordinates)
+      const route = makeRouterFeature([...response?.features[0]?.geometry?.coordinates]);
+      dispatch(setRouteDirection(route))
+    }
+    
   };
 
   return (
@@ -135,7 +151,9 @@ const DirectionScreen = () => {
                         onPressIn={() => {
                           dispatch(setIsSearchDirect(true));
                           dispatch(setIsDirected(false));
-                          {value.id && setIdSearchDirect(value.id);}
+                          {
+                            value.id && setIdSearchDirect(value.id);
+                          }
                         }}
                       />
                       {value.id && value.id > 2 ? (
@@ -144,12 +162,15 @@ const DirectionScreen = () => {
                           size={20}
                           style={{
                             position: 'absolute',
-                            right: 48,
+                            right: 47,
                             paddingHorizontal: 10,
                             backgroundColor: 'white',
                           }}
                           onPress={() => {
-                            {value.id && dispatch(removeSearchDirection(value.id))};
+                            {
+                              value.id &&
+                                dispatch(removeSearchDirection(value.id));
+                            }
                             setViewHeight(viewHeight - 50);
                           }}
                           color="gray"
@@ -158,40 +179,23 @@ const DirectionScreen = () => {
                     </View>
                   ))}
                 </ScrollView>
+                <TouchableOpacity
+                  style={styles.find_route}
+                  onPress={handleFindRoute}>
+                  <Text
+                    style={{color: 'white', fontSize: 18, fontWeight: '500'}}>
+                    Tìm tuyến đường
+                  </Text>
+                </TouchableOpacity>
               </View>
               <FontAwesome6
                 name="circle-plus"
                 size={25}
-                style={{right: 20, position: 'absolute', bottom: 10}}
+                style={{right: 20, position: 'absolute', bottom: 75}}
                 onPress={() => {
                   dispatch(addSearchDirection());
                   setViewHeight(viewHeight + 50);
                 }}
-              />
-            </View>
-
-            <View
-              style={{
-                marginTop: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-evenly',
-              }}>
-              <FontAwesome6 name="car" size={20} style={{marginRight: 10}} />
-              <FontAwesome6
-                name="motorcycle"
-                size={20}
-                style={{marginRight: 10}}
-              />
-              <FontAwesome6
-                name="truck-fast"
-                size={20}
-                style={{marginRight: 10}}
-              />
-              <FontAwesome6
-                name="person-walking"
-                size={25}
-                style={{marginRight: 10}}
               />
             </View>
           </View>
@@ -206,6 +210,16 @@ const DirectionScreen = () => {
 export default DirectionScreen;
 
 const styles = StyleSheet.create({
+  find_route: {
+    width: '50%',
+    height: 40,
+    marginLeft: '25%',
+    backgroundColor: '#1A73E8',
+    marginVertical: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15,
+  },
   input_text: {
     height: 40,
     width: '75%',
