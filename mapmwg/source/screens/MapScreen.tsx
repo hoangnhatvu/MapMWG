@@ -243,7 +243,7 @@ const MapScreen: React.FC = () => {
           )}
           {(initial || isLocated) && (
             <Mapbox.Camera
-              centerCoordinate={searchDirections[0].coordinates || currentLocation}
+              centerCoordinate={currentLocation}
               animationMode={'flyTo'}
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
