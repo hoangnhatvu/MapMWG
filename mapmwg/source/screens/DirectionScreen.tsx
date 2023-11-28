@@ -70,6 +70,7 @@ const DirectionScreen = () => {
     dispatch(setIsSearchDirect(false));
     dispatch(setIsSearchBar(true));
     dispatch(initDirectionState());
+    dispatch(setRouteDirection(null));
     setViewHeight(WINDOW_HEIGHT / 4.5);
   };
 
