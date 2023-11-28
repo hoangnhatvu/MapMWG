@@ -75,20 +75,6 @@ const MapScreen: React.FC = () => {
   );
   const dispatch = useDispatch();
 
-  const routes: [number, number][] = [
-    [106.79766, 10.85188],
-    [106.7908, 10.84901],
-    [106.76621, 10.87232],
-    [106.76153, 10.84368],
-    [106.8136, 10.85696],
-    [106.79171, 10.89673],
-    [106.61035, 10.71954],
-    [106.76734, 10.85014],
-    [106.73533, 10.85335],
-    [107.0085, 10.95681],
-    [106.73345, 10.86763],
-  ];
-
   // useEffect(() => {
   //   const fetchData = async() => {
   //     const data = await callMultipleRoutingAPI(routes);
@@ -144,7 +130,14 @@ const MapScreen: React.FC = () => {
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));
-        console.log('Route: ' + route);
+        
+        const distance = haversine(
+          currentLocation[1], currentLocation[0], searchDirections[1].coordinates[1],searchDirections[1].coordinates[0]
+        );
+
+        if (isInstructed && distance < thresholdDistance) {
+          console.log("Đã đến");
+        }
       };
 
       fetchData();
