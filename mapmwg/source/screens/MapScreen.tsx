@@ -31,7 +31,8 @@ import {
   initDirectionState,
   updateSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
-import { setIsLocated } from '../redux/slices/isLocatedSlice';
+import {setIsLocated} from '../redux/slices/isLocatedSlice';
+import speakText from '../services/textToSpeechService.ts';
 
 // Init Project
 const APIKEY =
@@ -71,9 +72,7 @@ const MapScreen: React.FC = () => {
   const searchDirections = useSelector(
     (state: RootState) => state.searchDirections.value,
   );
-  const isLocated = useSelector(
-    (state: RootState) => state.isLocated.value,
-  );
+  const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
 
   // useEffect(() => {
@@ -199,6 +198,21 @@ const MapScreen: React.FC = () => {
         }
       }
     }
+    if (routeDirection) {
+      const routes = routeDirection?.features[0]?.geometry?.coordinates;
+      const destination = routes[routes.length - 1];
+      if (
+        haversine(latitude, longitude, destination[1], destination[0]) < 0.015
+      ) {
+        newInstruction = 'Đã đến';
+        speakText(newInstruction);
+        dispatch(setIsLocated(true));
+        dispatch(setIsInstructed(false));
+        dispatch(setIsDirected(false));
+        dispatch(initDirectionState());
+      }
+    }
+
     if (newInstruction) {
       dispatch(setInstruction(newInstruction));
     } else {
@@ -313,10 +327,9 @@ const MapScreen: React.FC = () => {
                 <Mapbox.PointAnnotation
                   id={`destination_${index}`}
                   coordinate={direction.coordinates}>
-                  <View>
-                  </View>
+                  <View></View>
                 </Mapbox.PointAnnotation>
-              )
+              ),
           )}
           <Mapbox.UserLocation
             minDisplacement={10}

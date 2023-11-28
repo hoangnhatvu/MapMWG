@@ -44,13 +44,6 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
     dispatch(initDirectionState());
   };
 
-  useEffect(() => {
-    if (distance && distance < 0.002) {
-      close();
-      Tts.speak('Đã đến nơi');
-    }
-  }, [distance]);
-
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={close}>
