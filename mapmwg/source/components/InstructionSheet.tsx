@@ -7,7 +7,11 @@ import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
-import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
+import {
+  initDirectionState,
+  updateSearchDirection,
+} from '../redux/slices/searchDirectionsSlice';
+import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import Tts from 'react-native-tts';
 
 interface InstructionProps {
@@ -29,12 +33,13 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
+  const isLocated = useSelector((state: RootState) => state.isLocated.value);
 
   const dispatch = useDispatch();
 
   const close = () => {
+    dispatch(setIsLocated(true));
     dispatch(setIsInstructed(false));
-    dispatch(setRouteDirection(null));
     dispatch(setIsDirected(false));
     dispatch(initDirectionState());
   };

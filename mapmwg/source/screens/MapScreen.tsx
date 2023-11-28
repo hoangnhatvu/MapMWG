@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View, BackHandler} from 'react-native';
 import Mapbox, {
@@ -26,11 +26,12 @@ import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
+
 import {
   initDirectionState,
-  setSearchDirections,
   updateSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
+import { setIsLocated } from '../redux/slices/isLocatedSlice';
 
 // Init Project
 const APIKEY =
@@ -42,12 +43,9 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const MapScreen: React.FC = () => {
   // State
   const [initial, setInitial] = useState<boolean>(true);
-  const [isLocated, setIsLocated] = useState<boolean>(false);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-
-  const [isGuided, setIsGuided] = useState<boolean>(false);
 
   const thresholdDistance = 0.02;
 
@@ -72,6 +70,9 @@ const MapScreen: React.FC = () => {
   );
   const searchDirections = useSelector(
     (state: RootState) => state.searchDirections.value,
+  );
+  const isLocated = useSelector(
+    (state: RootState) => state.isLocated.value,
   );
   const dispatch = useDispatch();
 
@@ -103,6 +104,8 @@ const MapScreen: React.FC = () => {
 
   //   fetchData();
   // }, [currentLocation, destination.value]);
+
+  const [mapRotation, setMapRotation] = useState(0);
 
   useEffect(() => {
     const delay = 8000;
@@ -222,25 +225,12 @@ const MapScreen: React.FC = () => {
   };
 
   const handleTouchMove = () => {
-    setIsLocated(false);
-    setIsGuided(false);
+    dispatch(setIsLocated(false));
   };
 
   const handleLocate = () => {
-    if (isInstructed) {
-      setIsGuided(true);
-      return null;
-    }
-    setIsLocated(!isLocated);
+    dispatch(setIsLocated(!isLocated));
   };
-
-  useEffect(() => {
-    if (isInstructed) {
-      setIsGuided(true);
-    } else {
-      setIsGuided(false);
-    }
-  }, [isInstructed]);
 
   // Handle backbutton
   useEffect(() => {
@@ -300,11 +290,12 @@ const MapScreen: React.FC = () => {
               animationMode={'flyTo'}
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
+              pitch={0}
               followUserMode={UserTrackingMode.FollowWithHeading}
               
             />
           )}
-          {isGuided && (
+          {isInstructed && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
               animationMode={'flyTo'}
