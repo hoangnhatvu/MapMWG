@@ -133,6 +133,7 @@ const MapScreen: React.FC = () => {
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));
+
       };
 
       fetchData();

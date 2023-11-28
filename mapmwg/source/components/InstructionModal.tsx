@@ -8,6 +8,7 @@ import {
 } from '../constants/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Tts from 'react-native-tts';
+import HTML from 'react-native-render-html';
 
 interface InstructionProps {
   instruction: string;
@@ -27,7 +28,7 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
 
     const timeoutId = setTimeout(() => {
       speak();
-    }, 4000);
+    }, 40000);
 
     return () => clearTimeout(timeoutId);
   }, [instruction]);
@@ -45,11 +46,21 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
   return (
     <View style={styles.container}>
       <View style={styles.instructionContainer}>
-        <View style={{alignSelf: 'center', marginHorizontal: 32}}>
+        <View style={{alignSelf: 'center', marginHorizontal: 32, flex: 1}}>
           <Ionicons name={instructIcon} size={32} color={'white'} />
         </View>
-        <View style={{alignSelf: 'center', marginRight: 16}}>
-          <Text style={styles.instructionText}>{instruction}</Text>
+        <View style={{alignSelf: 'center', marginRight: 16, flex: 3}}>
+          <HTML
+            source={{html: instruction}}
+            tagsStyles={{
+              b: {
+                color: 'white', 
+                fontWeight: 'bold', 
+                fontSize: '24',
+              },
+            }}
+            baseStyle={styles.instructionText}
+          />
         </View>
       </View>
     </View>
@@ -67,22 +78,18 @@ const styles = StyleSheet.create({
   },
   instructionContainer: {
     backgroundColor: 'forestgreen',
-    height: '70%',
+    flex: 1,
     borderRadius: 16,
     flexDirection: 'row',
     borderColor: tertiaryColor,
     borderWidth: 1,
   },
-  nextInstructContainer: {
-    height: '30%',
-    width: '40%',
-    backgroundColor: secondaryColor,
-  },
   instructionText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     overflow: 'hidden',
+    margin: 10,
   },
 });
 
