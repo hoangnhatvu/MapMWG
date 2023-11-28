@@ -44,13 +44,11 @@ const DRAG_THRESHOLD = 0;
 interface BottomSheetProps {
   getRoute?: () => void;
   start?: () => void;
-  currentLocation: [number, number] | any;
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
   getRoute,
   start,
-  currentLocation,
 }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
@@ -70,7 +68,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   useEffect(() => {
     const getData = async () => {
       const data = await callRoutingAPI(
-        currentLocation,
+        searchDirections[0].coordinates,
         searchDirections[1].coordinates,
       );
       // name={
@@ -101,7 +99,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         searchDirections[1]?.data?.object?.searchAddress ||
         'Chưa có dữ liệu trên hệ thống',
     );
-  }, [searchDirections[1].coordinates]);
+  }, [searchDirections[0].coordinates, searchDirections[1].coordinates]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -114,13 +112,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       },
       onPanResponderRelease: (e, gesture) => {
         animatedValue.flattenOffset();
-
-        // lastGestureDy.current += gesture.dy;
-        // if (lastGestureDy.current < MAX_UPWARD_TRANSLATE_Y) {
-        //   lastGestureDy.current = MAX_UPWARD_TRANSLATE_Y;
-        // } else if (lastGestureDy.current > MAX_DOWNWARD_TRANSLATE_Y) {
-        //   lastGestureDy.current = MAX_DOWNWARD_TRANSLATE_Y;
-        // }
 
         if (gesture.dy > 0) {
           // draging down
@@ -170,7 +161,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     try {
       if (searchDirections[1].coordinates) {
         const route = await createRouterLine(
-          currentLocation,
+          searchDirections[0].coordinates,
           searchDirections[1].coordinates,
         );
 

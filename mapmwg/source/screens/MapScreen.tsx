@@ -126,7 +126,7 @@ const MapScreen: React.FC = () => {
     if (routeDirection && searchDirections[1].coordinates !== null) {
       const fetchData = async () => {
         const route = await createRouterLine(
-          currentLocation,
+          searchDirections[0].coordinates,
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));
@@ -140,7 +140,7 @@ const MapScreen: React.FC = () => {
         clearInterval(interval);
       };
     }
-  }, [currentLocation, searchDirections[1]]);
+  }, [searchDirections[0], searchDirections[1]]);
 
   const haversine = (
     lat1: number,
@@ -297,7 +297,7 @@ const MapScreen: React.FC = () => {
           )}
           {(initial || isLocated) && (
             <Mapbox.Camera
-              centerCoordinate={currentLocation}
+              centerCoordinate={searchDirections[0].coordinates || currentLocation}
               animationMode={'flyTo'}
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
@@ -306,7 +306,7 @@ const MapScreen: React.FC = () => {
           )}
           {isGuided && (
             <Mapbox.Camera
-              centerCoordinate={currentLocation}
+              centerCoordinate={searchDirections[0].coordinates}
               animationMode={'flyTo'}
               animationDuration={2000}
               zoomLevel={18}
@@ -375,7 +375,7 @@ const MapScreen: React.FC = () => {
         </>
       )}
       {searchDirections[1].coordinates && currentLocation && !isInstructed && (
-        <BottomSheet currentLocation={currentLocation} />
+        <BottomSheet/>
       )}
     </View>
   );
