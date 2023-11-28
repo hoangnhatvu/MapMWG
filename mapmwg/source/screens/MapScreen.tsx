@@ -130,7 +130,6 @@ const MapScreen: React.FC = () => {
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));
-
       };
 
       fetchData();
@@ -171,6 +170,7 @@ const MapScreen: React.FC = () => {
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
+    dispatch(updateSearchDirection({id: 0, data: [longitude, latitude]}));
 
     let minDistance = 1;
     let newInstruction = '';
@@ -302,7 +302,6 @@ const MapScreen: React.FC = () => {
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
               followUserMode={UserTrackingMode.FollowWithHeading}
-              
             />
           )}
           {isGuided && (
@@ -317,12 +316,16 @@ const MapScreen: React.FC = () => {
             />
           )}
 
-          {searchDirections[1].coordinates !== null && (
-            <Mapbox.PointAnnotation
-              id="destination"
-              coordinate={searchDirections[1].coordinates}>
-              <View></View>
-            </Mapbox.PointAnnotation>
+          {searchDirections.slice(1).map(
+            (direction, index) =>
+              direction.coordinates !== null && (
+                <Mapbox.PointAnnotation
+                  id={`destination_${index}`}
+                  coordinate={direction.coordinates}>
+                  <View>
+                  </View>
+                </Mapbox.PointAnnotation>
+              )
           )}
           <Mapbox.UserLocation
             minDisplacement={10}
