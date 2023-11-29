@@ -207,8 +207,12 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       const coords = await getCoordinatesAPI(newDestination);
+      console.log(coords);
 
       dispatch(updateSearchDirection({id: 1, data: coords}));
+
+      console.log(searchDirections[1].coordinates);
+
 
       dispatch(setRouteDirection(null));
     }
