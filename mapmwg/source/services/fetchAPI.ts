@@ -2,11 +2,7 @@ import axios, {AxiosRequestConfig} from 'axios';
 import {useSelector} from 'react-redux';
 import RootState from '../../redux';
 
-const transportation = useSelector(
-  (state: RootState) => state.transportation.value,
-);
-
-export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number]): Promise<any> {
+export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number], transportation: string): Promise<any> {
   const url =
     `http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-${transportation}`;
   const body = {
@@ -47,7 +43,7 @@ export async function callRoutingAPI(currentLocation: [number, number], destinat
   }
 }
 
-export async function callMultipleRoutingAPI(coordinates: [number,number] []): Promise<any> {
+export async function callMultipleRoutingAPI(coordinates: [number,number] [], transportation: string): Promise<any> {
   const url = `'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing_genetic?profile=driving-${transportation}'`;
   const body = {
     coordinates: coordinates,

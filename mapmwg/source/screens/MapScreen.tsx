@@ -110,6 +110,7 @@ const MapScreen: React.FC = () => {
         const route = await createRouterLine(
           searchDirections[0].coordinates,
           searchDirections[1].coordinates,
+          transportation
         );
         dispatch(setRouteDirection(route));
       };

@@ -20,9 +20,9 @@ export function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-export const createRouterLine = async (currentLocation: [number, number], destination: [number, number]) => {
+export const createRouterLine = async (currentLocation: [number, number], destination: [number, number], transportation: string) => {
   try {
-    const data = await callRoutingAPI(currentLocation, destination);
+    const data = await callRoutingAPI(currentLocation, destination, transportation);
 
     if (data && data.Data && data.Data.features && data.Data.features.length > 0) {
       const coordinates = data.Data.features[0].geometry.coordinates;
@@ -42,8 +42,8 @@ export const createRouterLine = async (currentLocation: [number, number], destin
   }
 };
 
-export const createMultipleRouterLine = async(currentLocation: [number,number], destination: [number, number]) => {
-  const data = await callRoutingAPI(currentLocation, destination);
+export const createMultipleRouterLine = async(currentLocation: [number,number], destination: [number, number], transportation: string) => {
+  const data = await callRoutingAPI(currentLocation, destination, transportation);
   const routes = [];
   
   if (data && data.Data && data.Data.features && Array.isArray(data.Data.features)) {
