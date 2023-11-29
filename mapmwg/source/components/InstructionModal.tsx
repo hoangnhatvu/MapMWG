@@ -54,8 +54,8 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
             source={{html: instruction}}
             tagsStyles={{
               b: {
-                color: 'white', 
-                fontWeight: 'bold', 
+                color: 'white',
+                fontWeight: 'bold',
                 fontSize: '24',
               },
             }}
