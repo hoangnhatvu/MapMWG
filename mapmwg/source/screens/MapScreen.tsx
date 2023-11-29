@@ -73,6 +73,36 @@ const MapScreen: React.FC = () => {
   );
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   const fetchData = async() => {
+  //     const data = await callMultipleRoutingAPI(routes);
+  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
+
+  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
+  //   }
+
+  //   fetchData();
+  // }, [])
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (destination.value) {
+  //       const multiRoutes = await createMultipleRouterLine(
+  //         currentLocation,
+  //         destination.coordinate,
+  //       );
+  //       if (multiRoutes !== null) {
+  //         setRoutes(multiRoutes);
+  //         console.log(routes!.length);
+  //         dispatch(setRouteDirection(routes![0]));
+  //       }
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [currentLocation, destination.value]);
+
   useEffect(() => {
     const delay = 8000;
 
