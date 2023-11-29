@@ -72,18 +72,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
       );
-      // name={
-      //   searchDirections[1]?.data?.properties?.searchName ||
-      //   searchDirections[1]?.data?.properties?.searchName ||
-      //   .object?.searchName ||
-      //   'Chưa có dữ liệu trên hệ thống'
-      // }
-      // address={
-      //   destination?.value?.properties?.searchAddress ||
-      //   destination?.value?.object?.searchAddress ||
-      //   'Chưa có dữ liệu trên hệ thống'
-      // }
-
       dispatch(
         setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
       );

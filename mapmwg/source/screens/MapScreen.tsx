@@ -127,7 +127,10 @@ const MapScreen: React.FC = () => {
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
+    
     dispatch(updateSearchDirection({id: 0, data: [longitude, latitude]}));
+
+    console.log(searchDirections[0])
 
     let minDistance = 1;
     let newInstruction = '';
