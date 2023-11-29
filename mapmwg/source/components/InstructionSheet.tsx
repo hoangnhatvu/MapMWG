@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {primaryColor, textColor} from '../constants/color';
@@ -12,6 +12,7 @@ import {
   updateSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
+import Tts from 'react-native-tts';
 
 interface InstructionProps {
   distance: number | null;
@@ -19,6 +20,8 @@ interface InstructionProps {
 }
 
 const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
+  Tts.setDefaultLanguage('vi-VN');
+
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
   );
@@ -38,6 +41,7 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
     dispatch(setIsLocated(true));
     dispatch(setIsInstructed(false));
     dispatch(setIsDirected(false));
+    dispatch(initDirectionState());
   };
 
   return (
