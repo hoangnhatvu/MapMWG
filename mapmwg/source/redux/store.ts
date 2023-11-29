@@ -10,7 +10,8 @@ import isLocatedReducer from './slices/isLocatedSlice';
 import isInstructedReducer from './slices/isInstructedSlice';
 import instructionReducer from './slices/instructionSlice';
 import isHandleDirectReducer from './slices/isHandleDirectSlice';
-import searchDirectionsReducer from './slices/searchDirectionsSlice'
+import searchDirectionsReducer from './slices/searchDirectionsSlice';
+import transportationReducer from './slices/transportationSlice';
 
 const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ const store = configureStore({
     instruction: instructionReducer,
     isHandleDirect: isHandleDirectReducer,
     searchDirections: searchDirectionsReducer,
+    transportation: transportationReducer,
   },
 });
 
