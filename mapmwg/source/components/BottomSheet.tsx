@@ -33,6 +33,7 @@ import {callRoutingAPI} from '../services/fetchAPI';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
 import {showErrorToast} from '../services/toast';
+import { setIsLocated } from '../redux/slices/isLocatedSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -187,6 +188,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       }
       dispatch(setIsSearch(false));
       dispatch(setIsInstructed(true));
+      dispatch(setIsLocated(false));
     } catch (error: any) {
       dispatch(initDirectionState());
     }

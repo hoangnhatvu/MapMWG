@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View, BackHandler} from 'react-native';
 import Mapbox, {
@@ -25,11 +25,14 @@ import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {setSearchText} from '../redux/slices/searchTextSlice';
+
 import {
   initDirectionState,
-  setSearchDirections,
   updateSearchDirection,
 } from '../redux/slices/searchDirectionsSlice';
+import {setIsLocated} from '../redux/slices/isLocatedSlice';
+import speakText from '../services/textToSpeechService.ts';
+import { haversine } from '../utils/haversine';
 
 // Init Project
 const APIKEY =
@@ -41,13 +44,9 @@ Mapbox.setWellKnownTileServer('Mapbox');
 const MapScreen: React.FC = () => {
   // State
   const [initial, setInitial] = useState<boolean>(true);
-  const [isLocated, setIsLocated] = useState<boolean>(false);
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-
-  const [isGuided, setIsGuided] = useState<boolean>(false);
-
   const thresholdDistance = 0.02;
 
   // Redux
@@ -72,7 +71,37 @@ const MapScreen: React.FC = () => {
   const searchDirections = useSelector(
     (state: RootState) => state.searchDirections.value,
   );
+  const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   const fetchData = async() => {
+  //     const data = await callMultipleRoutingAPI(routes);
+  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
+
+  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
+  //   }
+
+  //   fetchData();
+  // }, [])
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (destination.value) {
+  //       const multiRoutes = await createMultipleRouterLine(
+  //         currentLocation,
+  //         destination.coordinate,
+  //       );
+  //       if (multiRoutes !== null) {
+  //         setRoutes(multiRoutes);
+  //         console.log(routes!.length);
+  //         dispatch(setRouteDirection(routes![0]));
+  //       }
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [currentLocation, destination.value]);
 
   useEffect(() => {
     const delay = 8000;
@@ -112,31 +141,6 @@ const MapScreen: React.FC = () => {
     }
   }, [searchDirections[0], searchDirections[1]]);
 
-  const haversine = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
-  ) => {
-    const R = 6371; // Bán kính trái đất tính theo km
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Khoảng cách giữa hai điểm
-
-    return distance;
-  };
-
-  const toRadians = (degrees: number) => {
-    return (degrees * Math.PI) / 180;
-  };
-
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
@@ -166,6 +170,21 @@ const MapScreen: React.FC = () => {
         }
       }
     }
+    if (routeDirection) {
+      const routes = routeDirection?.features[0]?.geometry?.coordinates;
+      const destination = routes[routes.length - 1];
+      if (
+        haversine(latitude, longitude, destination[1], destination[0]) < 0.015
+      ) {
+        newInstruction = 'Đã đến';
+        speakText(newInstruction);
+        dispatch(setIsLocated(true));
+        dispatch(setIsInstructed(false));
+        dispatch(setIsDirected(false));
+        dispatch(initDirectionState());
+      }
+    }
+
     if (newInstruction) {
       dispatch(setInstruction(newInstruction));
     } else {
@@ -193,25 +212,12 @@ const MapScreen: React.FC = () => {
   };
 
   const handleTouchMove = () => {
-    setIsLocated(false);
-    setIsGuided(false);
+    dispatch(setIsLocated(false));
   };
 
   const handleLocate = () => {
-    if (isInstructed) {
-      setIsGuided(true);
-      return null;
-    }
-    setIsLocated(!isLocated);
+    dispatch(setIsLocated(!isLocated));
   };
-
-  useEffect(() => {
-    if (isInstructed) {
-      setIsGuided(true);
-    } else {
-      setIsGuided(false);
-    }
-  }, [isInstructed]);
 
   // Handle backbutton
   useEffect(() => {
@@ -270,10 +276,11 @@ const MapScreen: React.FC = () => {
               animationMode={'flyTo'}
               animationDuration={initial ? 0 : 2000}
               zoomLevel={15}
+              pitch={0}
               followUserMode={UserTrackingMode.FollowWithHeading}
             />
           )}
-          {isGuided && (
+          {isInstructed && (
             <Mapbox.Camera
               centerCoordinate={searchDirections[0].coordinates}
               animationMode={'flyTo'}
@@ -291,10 +298,9 @@ const MapScreen: React.FC = () => {
                 <Mapbox.PointAnnotation
                   id={`destination_${index}`}
                   coordinate={direction.coordinates}>
-                  <View>
-                  </View>
+                  <View></View>
                 </Mapbox.PointAnnotation>
-              )
+              ),
           )}
           <Mapbox.UserLocation
             minDisplacement={10}
@@ -319,14 +325,6 @@ const MapScreen: React.FC = () => {
               />
             </Mapbox.ShapeSource>
           )}
-          {/* {routes && routes.slice(1).map((route, index) => (
-              <Mapbox.ShapeSource id={`line${index}`} shape={route}>
-                <Mapbox.LineLayer
-                  id={`routerLine${index}`}
-                  style={{lineColor: 'red', lineWidth: 5, lineBlur: 0}}
-                />
-              </Mapbox.ShapeSource>
-            ))} */}
         </Mapbox.MapView>
       </View>
 
