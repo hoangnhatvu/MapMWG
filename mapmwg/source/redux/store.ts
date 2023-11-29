@@ -6,6 +6,7 @@ import isSearchDirectReducer from './slices/isSearchDirectSlice';
 import routeDirectionReducer from './slices/routeDirectionSlide';
 import instructionsReducer from './slices/instructionsSlice';
 import isDirectedReducer from './slices/isDirectedSlide';
+import isLoadingReducer from './slices/isLoadingSlice';
 import isLocatedReducer from './slices/isLocatedSlice';
 import isInstructedReducer from './slices/isInstructedSlice';
 import instructionReducer from './slices/instructionSlice';
@@ -20,6 +21,7 @@ const store = configureStore({
     isSearchBar: isSearchBarReducer,
     isSearchDirect: isSearchDirectReducer,
     isDirected: isDirectedReducer,
+    isLoading: isLoadingReducer,
     isLocated: isLocatedReducer,
     isInstructed: isInstructedReducer,
     routeDirection: routeDirectionReducer,
