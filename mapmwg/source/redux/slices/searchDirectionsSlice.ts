@@ -36,7 +36,7 @@ const searchDirectionsSlice = createSlice({
       state.value = action.payload;
     },
     addSearchDirection: (state) => { // chi dung khi tim kiem nhieu dia diem
-      const newDirection = {        
+      const newDirection = {
         id: state.value.length + 1,
         coordinates: null,
         data: null
@@ -48,9 +48,9 @@ const searchDirectionsSlice = createSlice({
       const index = state.value.findIndex((direction) => direction.id === id);
 
       if (index !== -1) {
-        const newValue = {        
+        const newValue = {
           id: id,
-          coordinates: data?.geometry?.coordinates || [
+          coordinates: id === 0 ? data : data?.geometry?.coordinates || [
             data?.object?.location?.lon,
             data?.object?.location?.lat,
           ] || null,
