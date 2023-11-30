@@ -24,13 +24,11 @@ const LocateButton: React.FC<LocateButtonProps> = ({isLocated, onPress}) => {
       }}
       onTouchEnd={() => {
         setIsPressed(false);
-      }}
-      >
-
+      }}>
       {isLocated ? (
         <FontAwesome6 name="location-crosshairs" size={30} color="#1A73E8" />
       ) : (
-        <Ionicons name="locate" size={30} color="gray"/>
+        <Ionicons name="locate" size={30} color="gray" />
       )}
     </View>
   );
@@ -48,7 +46,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 50,
     backgroundColor: primaryColor,
-    bottom: '12%',
+    bottom: '13.5%',
     right: '5%',
     zIndex: 1,
     elevation: 1.5,

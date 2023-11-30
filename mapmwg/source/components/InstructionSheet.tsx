@@ -54,21 +54,12 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
           flexDirection: 'column',
           marginBottom: 10,
           alignItems: 'center',
+          marginLeft: '20%',
         }}>
         <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
           {time} min
         </Text>
-
         <Text style={{color: 'lightgray', fontSize: 18}}>{distance} km</Text>
-      </View>
-      <View>
-        <TouchableOpacity style={styles.button} onPress={close}>
-          <Ionicons
-            name="chevron-up-circle-outline"
-            size={55}
-            color={textColor}
-          />
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -83,7 +74,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     overflow: 'hidden',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: primaryColor,
     bottom: 0,
