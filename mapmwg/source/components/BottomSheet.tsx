@@ -32,8 +32,8 @@ import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {callRoutingAPI} from '../services/fetchAPI';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
-import { setIsLocated } from '../redux/slices/isLocatedSlice';
-import { showErrorToast } from '../services/toast';
+import {setIsLocated} from '../redux/slices/isLocatedSlice';
+import {showErrorToast} from '../services/toast';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -47,13 +47,11 @@ interface BottomSheetProps {
   start?: () => void;
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({
-  getRoute,
-  start,
-}) => {
+const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
   const [distance, setDistance] = useState<number | null>(null);
+
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
 
@@ -74,7 +72,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       const data = await callRoutingAPI(
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
-        transportation
+        transportation,
       );
       dispatch(
         setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
@@ -156,7 +154,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         const route = await createRouterLine(
           searchDirections[0].coordinates,
           searchDirections[1].coordinates,
-          transportation
+          transportation,
         );
 
         if (route) {
@@ -230,8 +228,17 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
           <Text style={{fontSize: 16}}>{address}</Text>
           <View style={{flexDirection: 'row', marginTop: 8}}>
-            <FontAwesome6 name="car" size={16} />
-            <Text style={{fontSize: 16, marginLeft: 8}}>{distance} km</Text>
+            <FontAwesome6 name="car" size={17} />
+            <Text
+              style={{
+                marginLeft: 8,
+                color: 'forestgreen',
+                fontWeight: 'bold',
+                fontSize: 16,
+              }}>
+              {distance} Min
+            </Text>
+            <Text style={{fontSize: 16, marginLeft: 8}}>({distance} km)</Text>
           </View>
         </View>
       </View>
