@@ -110,7 +110,7 @@ const MapScreen: React.FC = () => {
         const route = await createRouterLine(
           searchDirections[0].coordinates,
           searchDirections[1].coordinates,
-          transportation
+          transportation,
         );
         dispatch(setRouteDirection(route));
       };
@@ -128,54 +128,54 @@ const MapScreen: React.FC = () => {
   const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
-    
+
     dispatch(updateSearchDirection({id: 0, data: [longitude, latitude]}));
 
-    console.log(searchDirections[0])
-
-    let minDistance = 1;
-    let newInstruction = '';
     if (instructions) {
-      for (const step of instructions) {
-        if (step?.maneuver?.location) {
-          const stepLatitude = step?.maneuver?.location[1];
-          const stepLongitude = step?.maneuver?.location[0];
+      let minDistance = 1;
+      let newInstruction = '';
+      if (instructions) {
+        for (const step of instructions) {
+          if (step?.maneuver?.location) {
+            const stepLatitude = step?.maneuver?.location[1];
+            const stepLongitude = step?.maneuver?.location[0];
 
-          const distance = haversine(
-            latitude,
-            longitude,
-            stepLatitude,
-            stepLongitude,
-          );
+            const distance = haversine(
+              latitude,
+              longitude,
+              stepLatitude,
+              stepLongitude,
+            );
 
-          if (distance < thresholdDistance) {
-            if (distance < minDistance) {
-              minDistance = distance;
-              newInstruction = step.instruction;
+            if (distance < thresholdDistance) {
+              if (distance < minDistance) {
+                minDistance = distance;
+                newInstruction = step.instruction;
+              }
             }
           }
         }
       }
-    }
-    if (routeDirection) {
-      const routes = routeDirection?.features[0]?.geometry?.coordinates;
-      const destination = routes[routes.length - 1];
-      if (
-        haversine(latitude, longitude, destination[1], destination[0]) < 0.015
-      ) {
-        newInstruction = 'Đã đến';
-        speakText(newInstruction);
-        dispatch(setIsLocated(true));
-        dispatch(setIsInstructed(false));
-        dispatch(setIsDirected(false));
-        dispatch(initDirectionState());
+      if (routeDirection) {
+        const routes = routeDirection?.features[0]?.geometry?.coordinates;
+        const destination = routes[routes.length - 1];
+        if (
+          haversine(latitude, longitude, destination[1], destination[0]) < 0.015
+        ) {
+          newInstruction = 'Đã đến';
+          speakText(newInstruction);
+          dispatch(setIsLocated(true));
+          dispatch(setIsInstructed(false));
+          dispatch(setIsDirected(false));
+          dispatch(initDirectionState());
+        }
       }
-    }
 
-    if (newInstruction) {
-      dispatch(setInstruction(newInstruction));
-    } else {
-      dispatch(setInstruction('Đi thẳng'));
+      if (newInstruction) {
+        dispatch(setInstruction(newInstruction));
+      } else {
+        dispatch(setInstruction('Đi thẳng'));
+      }
     }
   };
 
@@ -196,7 +196,7 @@ const MapScreen: React.FC = () => {
       dispatch(updateSearchDirection({id: 1, data: coords}));
 
       console.log(searchDirections[1].coordinates);
-
+      console.log(searchDirections[0].coordinates);
 
       dispatch(setRouteDirection(null));
     }
@@ -219,6 +219,7 @@ const MapScreen: React.FC = () => {
         return true;
       } else if (searchDirections[1].coordinates) {
         dispatch(initDirectionState());
+        dispatch(updateSearchDirection({id: 0, data: currentLocation}));
         dispatch(setRouteDirection(null));
         return true;
       } else if (isSearch) {
@@ -345,8 +346,7 @@ const MapScreen: React.FC = () => {
               style={[
                 styles.transportationIcon,
                 {
-                  color:
-                    transportation === item.id ? 'white' : 'black',
+                  color: transportation === item.id ? 'white' : 'black',
                 },
               ]}
               name={item.icon}
@@ -368,9 +368,9 @@ const MapScreen: React.FC = () => {
           />
         </>
       )}
-      {searchDirections[1].coordinates && currentLocation && !isInstructed && (
-        <BottomSheet />
-      )}
+      {searchDirections[1].coordinates &&
+        searchDirections[0].coordinates &&
+        !isInstructed && !isDirected && <BottomSheet />}
     </View>
   );
 };

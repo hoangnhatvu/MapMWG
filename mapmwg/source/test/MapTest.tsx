@@ -114,7 +114,7 @@ const MapTest: React.FC = () => {
     if (routeDirection && searchDirections[1].coordinates !== null) {
       const fetchData = async () => {
         const route = await createRouterLine(
-          currentLocation,
+          searchDirections[0].coordinates,
           searchDirections[1].coordinates,
         );
         dispatch(setRouteDirection(route));

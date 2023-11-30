@@ -158,7 +158,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         );
 
         if (route) {
-          dispatch(setIsDirected(true));
           dispatch(setRouteDirection(route));
         } else {
           throw new Error('Failed to create route');
@@ -256,8 +255,8 @@ const styles = StyleSheet.create({
     bottom: BOTTOM_SHEET_MIN_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT,
     backgroundColor: primaryColor,
     elevation: 3,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
   },
   dragable__area: {
     width: 100,

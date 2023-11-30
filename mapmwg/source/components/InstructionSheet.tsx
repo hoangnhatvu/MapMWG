@@ -38,11 +38,10 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
   const dispatch = useDispatch();
 
   const close = () => {
-    dispatch(setIsLocated(true));
     dispatch(setIsInstructed(false));
-    dispatch(setIsDirected(false));
-    dispatch(initDirectionState());
-  };
+    dispatch(setIsLocated(true));
+    dispatch(setRouteDirection(null));
+  }
 
   return (
     <View style={styles.container}>
