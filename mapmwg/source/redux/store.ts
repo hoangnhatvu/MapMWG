@@ -6,11 +6,13 @@ import isSearchDirectReducer from './slices/isSearchDirectSlice';
 import routeDirectionReducer from './slices/routeDirectionSlide';
 import instructionsReducer from './slices/instructionsSlice';
 import isDirectedReducer from './slices/isDirectedSlide';
+import isLoadingReducer from './slices/isLoadingSlice';
 import isLocatedReducer from './slices/isLocatedSlice';
 import isInstructedReducer from './slices/isInstructedSlice';
 import instructionReducer from './slices/instructionSlice';
 import isHandleDirectReducer from './slices/isHandleDirectSlice';
-import searchDirectionsReducer from './slices/searchDirectionsSlice'
+import searchDirectionsReducer from './slices/searchDirectionsSlice';
+import transportationReducer from './slices/transportationSlice';
 
 const store = configureStore({
   reducer: {
@@ -19,6 +21,7 @@ const store = configureStore({
     isSearchBar: isSearchBarReducer,
     isSearchDirect: isSearchDirectReducer,
     isDirected: isDirectedReducer,
+    isLoading: isLoadingReducer,
     isLocated: isLocatedReducer,
     isInstructed: isInstructedReducer,
     routeDirection: routeDirectionReducer,
@@ -26,6 +29,7 @@ const store = configureStore({
     instruction: instructionReducer,
     isHandleDirect: isHandleDirectReducer,
     searchDirections: searchDirectionsReducer,
+    transportation: transportationReducer,
   },
 });
 

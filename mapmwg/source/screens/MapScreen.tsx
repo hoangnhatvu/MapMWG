@@ -1,14 +1,20 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {StyleSheet, View, BackHandler} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  BackHandler,
+  Button,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import Mapbox, {
   CircleLayer,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import {
-  createRouterLine,
-} from '../services/createRoute';
+import {createRouterLine} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
@@ -32,7 +38,9 @@ import {
 } from '../redux/slices/searchDirectionsSlice';
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import speakText from '../services/textToSpeechService.ts';
-import { haversine } from '../utils/haversine';
+import {haversine} from '../utils/haversine';
+import {setTransportation} from '../redux/slices/transportationSlice';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Init Project
 const APIKEY =
@@ -71,37 +79,12 @@ const MapScreen: React.FC = () => {
   const searchDirections = useSelector(
     (state: RootState) => state.searchDirections.value,
   );
+  const transportation = useSelector(
+    (state: RootState) => state.transportation.value,
+  );
+
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   const fetchData = async() => {
-  //     const data = await callMultipleRoutingAPI(routes);
-  //     console.log("Res: " + JSON.stringify(data.Data.features[0].geometry.coordinates));
-
-  //     dispatch(setRouteDirection(data.Data.features[0].geometry.coordinates));
-  //   }
-
-  //   fetchData();
-  // }, [])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (destination.value) {
-  //       const multiRoutes = await createMultipleRouterLine(
-  //         currentLocation,
-  //         destination.coordinate,
-  //       );
-  //       if (multiRoutes !== null) {
-  //         setRoutes(multiRoutes);
-  //         console.log(routes!.length);
-  //         dispatch(setRouteDirection(routes![0]));
-  //       }
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [currentLocation, destination.value]);
 
   useEffect(() => {
     const delay = 8000;
@@ -127,6 +110,7 @@ const MapScreen: React.FC = () => {
         const route = await createRouterLine(
           searchDirections[0].coordinates,
           searchDirections[1].coordinates,
+          transportation
         );
         dispatch(setRouteDirection(route));
       };
@@ -207,8 +191,12 @@ const MapScreen: React.FC = () => {
         event.geometry.coordinates[1],
       ];
       const coords = await getCoordinatesAPI(newDestination);
+      console.log(coords);
 
       dispatch(updateSearchDirection({id: 1, data: coords}));
+
+      console.log(searchDirections[1].coordinates);
+
 
       dispatch(setRouteDirection(null));
     }
@@ -250,6 +238,13 @@ const MapScreen: React.FC = () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
   }, [isInstructed, dispatch, isSearch, searchDirections[1].coordinates]);
+
+  const transportations = [
+    {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
+    {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
+    {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
+    {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
+  ];
 
   return (
     <View style={styles.page}>
@@ -332,9 +327,38 @@ const MapScreen: React.FC = () => {
       </View>
 
       <DirectionScreen />
+      <FlatList
+        style={styles.flatList}
+        contentContainerStyle={{
+          justifyContent: 'space-evenly',
+          flexDirection: 'row',
+        }}
+        data={transportations}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            style={[
+              styles.transportationButton,
+              {backgroundColor: transportation === item.id ? 'black' : 'white'},
+            ]}
+            onPress={() => dispatch(setTransportation(item.id))}>
+            <Ionicons
+              style={[
+                styles.transportationIcon,
+                {
+                  color:
+                    transportation === item.id ? 'white' : 'black',
+                },
+              ]}
+              name={item.icon}
+              size={25}
+            />
+          </TouchableOpacity>
+        )}
+        keyExtractor={item => item.label}
+      />
+      <LocateButton isLocated={isLocated} onPress={handleLocate} />
       {isSearch && <SearchScreen />}
       {isSearchBar && <SearchBar />}
-      <LocateButton isLocated={isLocated} onPress={handleLocate} />
       {isInstructed && (
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
@@ -345,7 +369,7 @@ const MapScreen: React.FC = () => {
         </>
       )}
       {searchDirections[1].coordinates && currentLocation && !isInstructed && (
-        <BottomSheet/>
+        <BottomSheet />
       )}
     </View>
   );
@@ -373,5 +397,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+  },
+  flatList: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '13%',
+    height: 40,
+    width: '80%',
+    flex: 1,
+  },
+  transportationButton: {
+    borderRadius: 100,
+    borderColor: 'black',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'gray',
+  },
+  transportationIcon: {
+    color: 'black',
   },
 });

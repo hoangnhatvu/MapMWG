@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import {lightGray, primaryColor} from '../constants/color';
 import {useEffect, useState} from 'react';
@@ -18,12 +19,14 @@ import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import {setIsSearchBar} from '../redux/slices/isSearchBarSlice';
 import {updateSearchDirection} from '../redux/slices/searchDirectionsSlice';
+import { setIsLoading } from '../redux/slices/isLoadingSlice';
 
 interface SearchScreenProps {
   id?: number;
 }
 
 const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
+  const isLoading = useSelector((state: RootState) => state.isLoading.value);
   const searchText = useSelector((state: RootState) => state.searchText.value);
   const [searchList, setSearchList] = useState<any[] | []>([]);
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
@@ -39,7 +42,10 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
   const getSearchList = async () => {
     try {
       const data = await searchApi(searchText);
-      setSearchList(data);
+      if (data) {
+        setSearchList(data);
+        dispatch(setIsLoading(false));
+      }
     } catch (error) {
       console.error(error);
     }
@@ -72,31 +78,39 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
     <>
       <View style={styles.container}>
         <View style={styles.search__container}>
-          <ScrollView>
-            {searchList?.map((location, index) => (
-              <View style={styles.menuWrapper}>
-                <Ionicons name="location-outline" size={24} />
-                <TouchableOpacity
-                  key={index}
-                  style={styles.search__location}
-                  onPress={() => {
-                      dispatch(setSearchText(location.properties.searchAddress))
-                      handleSearchLocation(location)
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size={34} color="gray" />
+            </View>
+          ) : (
+            <ScrollView>
+              {searchList?.map((location, index) => (
+                <View style={styles.menuWrapper}>
+                  <Ionicons name="location-outline" size={24} />
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.search__location}
+                    onPress={() => {
+                      dispatch(
+                        setSearchText(location.properties.searchAddress),
+                      );
+                      handleSearchLocation(location);
                     }}>
-                  <View style={{flexDirection: 'row'}}>
-                    <View>
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={styles.addressText}>
-                        {location.properties.searchAddress}
-                      </Text>
+                    <View style={{flexDirection: 'row'}}>
+                      <View>
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={styles.addressText}>
+                          {location.properties.searchAddress}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </View>
       </View>
       {isSearchDirect ? <SearchBar /> : <></>}
@@ -131,6 +145,11 @@ const styles = StyleSheet.create({
   addressText: {
     fontSize: 14,
     color: '#888',
+  },
+
+  loadingContainer: {
+    flex: 1,
+    paddingTop: 18,
   },
 });
 

@@ -1,9 +1,11 @@
 import Toast from 'react-native-toast-message';
 
-export const showErrorToast = (errorMessage: any) => {
+export const showErrorToast = (error: string) => {
   Toast.show({
     type: 'error',
-    text1: 'Error',
-    text2: errorMessage || 'An unexpected error occurred',
+    text1: 'Lỗi',
+    text2: error,
+    position: 'top',
+    topOffset: 20,
   });
-};
+}
