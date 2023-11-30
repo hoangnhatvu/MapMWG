@@ -51,7 +51,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
   const [distance, setDistance] = useState<number | null>(null);
-
+  const [duration, setDuration] = useState<number | null>(null);
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
 
@@ -78,6 +78,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
       );
       setDistance(data.Data.features[0].properties.summary.distance);
+      setDuration(data.Data.features[0].properties.summary.duration);
     };
     getData();
     setName(
@@ -236,7 +237,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
                 fontWeight: 'bold',
                 fontSize: 16,
               }}>
-              {distance} Min
+              {duration} s
             </Text>
             <Text style={{fontSize: 16, marginLeft: 8}}>({distance} km)</Text>
           </View>
@@ -285,10 +286,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     borderRadius: 16,
     borderColor: tertiaryColor,
-    borderWidth: 2,
+    borderWidth: 2.5,
     elevation: 3,
     backgroundColor: primaryColor,
-    height: 40,
+    height: 45,
     width: 128,
     flexDirection: 'row',
   },
