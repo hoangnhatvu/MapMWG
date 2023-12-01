@@ -44,7 +44,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
       const data = await searchApi(searchText);
       if (data) {
         setSearchList(data);
-        dispatch(setIsLoading(false));
+        dispatch(setIsLoading({key: "search", value: false}));
       }
     } catch (error) {
       console.error(error);
@@ -78,7 +78,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({id}) => {
     <>
       <View style={styles.container}>
         <View style={styles.search__container}>
-          {isLoading ? (
+          {isLoading.search ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size={34} color="gray" />
             </View>

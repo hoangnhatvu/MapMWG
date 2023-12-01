@@ -79,7 +79,7 @@ const SearchBar = () => {
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
-          dispatch(setIsLoading(true))
+          dispatch(setIsLoading({key: "search", value: true}));
         }}
         value={isSearch || isSearchDirect ? searchKey : searchText}
       />

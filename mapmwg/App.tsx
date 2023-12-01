@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import store from './source/redux/store';
-import Toast from 'react-native-toast-message';
-
 import MapScreen from './source/screens/MapScreen';
 import {Platform} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
+import {ToastProvider} from 'react-native-toast-notifications';
 
 const App: React.FC = () => {
   const [isAndroidPermissionGranted, setIsAndroidPermissionGranted] =
@@ -35,9 +34,10 @@ const App: React.FC = () => {
   return (
     <>
       <Provider store={store}>
-        <MapScreen />
+        <ToastProvider>
+          <MapScreen />
+        </ToastProvider>
       </Provider>
-      <Toast />
     </>
   );
 };
