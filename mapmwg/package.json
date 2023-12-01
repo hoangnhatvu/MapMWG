@@ -25,6 +25,7 @@
     "react-native-render-html": "^6.3.4",
     "react-native-screens": "^3.27.0",
     "react-native-toast-message": "^2.1.7",
+    "react-native-toast-notifications": "^3.4.0",
     "react-native-tts": "^4.1.0",
     "react-native-vector-icons": "^10.0.1",
     "react-redux": "^8.1.3",
