@@ -82,12 +82,15 @@ const MapScreen: React.FC = () => {
   const transportation = useSelector(
     (state: RootState) => state.transportation.value,
   );
+  const chosenRoute = useSelector(
+    (state: RootState) => state.chosenRoute.value,
+  );
 
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const delay = 8000;
+    const delay = 16000;
 
     const timeoutId = setTimeout(() => {
       setInitial(false);
@@ -157,7 +160,7 @@ const MapScreen: React.FC = () => {
         }
       }
       if (routeDirection) {
-        const routes = routeDirection?.features[0]?.geometry?.coordinates;
+        const routes = routeDirection[0]?.features[0]?.geometry?.coordinates;
         const destination = routes[routes.length - 1];
         if (
           haversine(latitude, longitude, destination[1], destination[0]) < 0.015
@@ -240,13 +243,6 @@ const MapScreen: React.FC = () => {
     };
   }, [isInstructed, dispatch, isSearch, searchDirections[1].coordinates]);
 
-  const transportations = [
-    {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
-    {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
-    {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
-    {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
-  ];
-
   return (
     <View style={styles.page}>
       <View style={styles.container}>
@@ -316,46 +312,28 @@ const MapScreen: React.FC = () => {
               style={{circleColor: 'red', circleRadius: 8}}
             />
           </Mapbox.UserLocation>
-          {routeDirection && (
-            <Mapbox.ShapeSource id="line" shape={routeDirection}>
-              <Mapbox.LineLayer
-                id="routerLine"
-                style={{lineColor: 'forestgreen', lineWidth: 7, lineBlur: 3}}
-              />
-            </Mapbox.ShapeSource>
-          )}
+          {routeDirection &&
+            routeDirection.map((route, index) => (
+              <Mapbox.ShapeSource
+                key={index.toString()}
+                id={`line-${index}`}
+                shape={route}>
+                <Mapbox.LineLayer
+                  id={`routerLine-${index}`}
+                  aboveLayerID={`line-${chosenRoute}`}
+                  style={{
+                    lineColor:
+                      index === chosenRoute ? 'forestgreen' : 'lightgray',
+                    lineWidth: 4,
+                  }}
+                />
+              </Mapbox.ShapeSource>
+            ))}
         </Mapbox.MapView>
       </View>
 
       <DirectionScreen />
-      <FlatList
-        style={styles.flatList}
-        contentContainerStyle={{
-          justifyContent: 'space-evenly',
-          flexDirection: 'row',
-        }}
-        data={transportations}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={[
-              styles.transportationButton,
-              {backgroundColor: transportation === item.id ? 'black' : 'white'},
-            ]}
-            onPress={() => dispatch(setTransportation(item.id))}>
-            <Ionicons
-              style={[
-                styles.transportationIcon,
-                {
-                  color: transportation === item.id ? 'white' : 'black',
-                },
-              ]}
-              name={item.icon}
-              size={25}
-            />
-          </TouchableOpacity>
-        )}
-        keyExtractor={item => item.label}
-      />
+
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
       {isSearch && <SearchScreen />}
       {isSearchBar && <SearchBar />}
@@ -370,7 +348,8 @@ const MapScreen: React.FC = () => {
       )}
       {searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
-        !isInstructed && !isDirected && <BottomSheet />}
+        !isInstructed &&
+        !isDirected && <BottomSheet />}
     </View>
   );
 };
@@ -397,25 +376,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-  },
-  flatList: {
-    position: 'absolute',
-    alignSelf: 'center',
-    top: '13%',
-    height: 40,
-    width: '80%',
-    flex: 1,
-  },
-  transportationButton: {
-    borderRadius: 100,
-    borderColor: 'black',
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'gray',
-  },
-  transportationIcon: {
-    color: 'black',
   },
 });

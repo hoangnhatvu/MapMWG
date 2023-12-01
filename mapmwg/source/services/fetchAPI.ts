@@ -1,10 +1,12 @@
 import axios, {AxiosRequestConfig} from 'axios';
 import {useSelector} from 'react-redux';
 import RootState from '../../redux';
+import { showErrorToast } from './toast';
 
 export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number], transportation: string): Promise<any> {
   const url =
     `http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-${transportation}`;
+
   const body = {
     coordinates: [currentLocation, destination],
     preference: 'fastest',
@@ -38,7 +40,7 @@ export async function callRoutingAPI(currentLocation: [number, number], destinat
     const response = await axios(config);
     return response.data;
   } catch (error: any) {
-    console.error(error);
+    showErrorToast(error);
     throw error;
   }
 }
@@ -78,34 +80,6 @@ export async function callMultipleRoutingAPI(coordinates: [number,number] [], tr
   }
 }
 
-export async function searchAddressAPI(): Promise<any> {
-  const url =
-    'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/address/search';
-  const body = {
-    searchAddress: '640 đường 2/9',
-    debug: true,
-  };
-
-  const headers = {
-    Authorization: 'Bearer 241f0bc0-b8ba-4088-bb8c-2a35875c3783',
-    'Content-Type': 'application/json',
-  };
-
-  const config: AxiosRequestConfig = {
-    method: 'post',
-    url: url,
-    headers: headers,
-    data: body,
-  };
-
-  try {
-    const response = await axios(config);
-    return response.data;
-  } catch (error: any) {
-    console.error(error);
-    throw error;
-  }
-}
 
 export async function getCoordinatesAPI(
   coordinates: [number, number],

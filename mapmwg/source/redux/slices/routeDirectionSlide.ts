@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface RouteDirectionState {
-  value: any | null;
+  value: any[] | null;
 }
 
 const initialState: RouteDirectionState = {
@@ -12,7 +12,7 @@ const routeDirectionSlice = createSlice({
   name: 'routeDirection',
   initialState,
   reducers: {
-    setRouteDirection: (state, action: PayloadAction<[number, number] | null>) => {
+    setRouteDirection: (state, action: PayloadAction<any[] | null>) => {
       state.value = action.payload;
     },
   },

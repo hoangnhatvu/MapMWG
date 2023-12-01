@@ -3,21 +3,14 @@ import React, {useRef, useState, useEffect} from 'react';
 import {
   StyleSheet,
   View,
-  Platform,
   Animated,
   PanResponder,
   FlatList,
   Text,
   ScrollView,
-  Button,
   TouchableOpacity,
 } from 'react-native';
-import {
-  primaryColor,
-  secondaryColor,
-  tertiaryColor,
-  textColor,
-} from '../constants/color';
+import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {
@@ -27,13 +20,15 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
-import {setIsDirected} from '../redux/slices/isDirectedSlide';
 import {setIsSearch} from '../redux/slices/isSearchSlice';
 import {callRoutingAPI} from '../services/fetchAPI';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import {showErrorToast} from '../services/toast';
+import {setTransportation} from '../redux/slices/transportationSlice';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { setChosenRoute } from '../redux/slices/chosenRouteSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -54,6 +49,15 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const [duration, setDuration] = useState<number | null>(null);
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
+  
+  const [routeNumbers, setRouteNumbers] = useState<number>(0);
+
+  const transportations = [
+    {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
+    {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
+    {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
+    {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
+  ];
 
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
@@ -63,6 +67,9 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   );
   const transportation = useSelector(
     (state: RootState) => state.transportation.value,
+  );
+  const chosenRoute = useSelector(
+    (state: RootState) => state.chosenRoute.value,
   );
 
   const dispatch = useDispatch();
@@ -152,13 +159,14 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const makeRoute = async () => {
     try {
       if (searchDirections[1].coordinates) {
-        const route = await createRouterLine(
+        const route = await createMultipleRouterLine(
           searchDirections[0].coordinates,
           searchDirections[1].coordinates,
           transportation,
         );
 
         if (route) {
+          setRouteNumbers(route.length);
           dispatch(setRouteDirection(route));
         } else {
           throw new Error('Failed to create route');
@@ -184,6 +192,23 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
     } catch (error: any) {
       dispatch(initDirectionState());
       showErrorToast(error.message);
+      return null;
+    }
+  };                     
+
+  const changeRoute = async () => {
+    console.log(routeNumbers);
+    try {
+      if (routeNumbers <= 0) {
+        return null;
+      }
+      const updatedChosenRoute = (chosenRoute + 1) % routeNumbers;
+      
+      dispatch(setChosenRoute(updatedChosenRoute));
+
+    } catch (error: any) {
+      showErrorToast(error.message);
+      return null;
     }
   };
 
@@ -206,9 +231,9 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
               <FontAwesome6 name="location-arrow" size={16} />
               <Text style={styles.text}>Bắt đầu</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={changeRoute} >
               <FontAwesome6 name="bookmark" size={16} />
-              <Text style={styles.text}>Lưu</Text>
+              <Text style={styles.text}>Đổi tuyến đường</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
               <FontAwesome6 name="share" size={16} />
@@ -224,7 +249,40 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
             </TouchableOpacity>
           </ScrollView>
         </View>
-        <View style={{marginHorizontal: 8}}>
+        <View style={styles.transportContainer}>
+          <FlatList
+            style={styles.flatList}
+            contentContainerStyle={{
+              justifyContent: 'space-evenly',
+              flexDirection: 'row',
+            }}
+            data={transportations}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={[
+                  styles.transportationButton,
+                  {
+                    backgroundColor:
+                      transportation === item.id ? 'black' : 'white',
+                  },
+                ]}
+                onPress={() => dispatch(setTransportation(item.id))}>
+                <Ionicons
+                  style={[
+                    styles.transportationIcon,
+                    {
+                      color: transportation === item.id ? 'white' : 'black',
+                    },
+                  ]}
+                  name={item.icon}
+                  size={25}
+                />
+              </TouchableOpacity>
+            )}
+            keyExtractor={item => item.label}
+          />
+        </View>
+        <View style={{margin: 8, marginLeft: 16 ,alignSelf:'flex-start'}}>
           <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
           <Text style={{fontSize: 16}}>{address}</Text>
           <View style={{flexDirection: 'row', marginTop: 8}}>
@@ -281,7 +339,7 @@ const styles = StyleSheet.create({
   },
   button: {
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-around',
     marginHorizontal: 8,
     borderRadius: 16,
     borderColor: tertiaryColor,
@@ -289,8 +347,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     backgroundColor: primaryColor,
     height: 45,
-    width: 128,
     flexDirection: 'row',
+    paddingHorizontal: 16,
   },
   text: {
     fontSize: 16,
@@ -298,9 +356,34 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: textColor,
+    marginLeft: 8,
   },
   item: {
     fontSize: 40,
+  },
+  transportContainer: {
+    flex: 0.5,
+    marginTop: -16,
+  },
+  flatList: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '13%',
+    height: 40,
+    width: '80%',
+    flex: 1,
+  },
+  transportationButton: {
+    borderRadius: 100,
+    borderColor: 'black',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'gray',
+  },
+  transportationIcon: {
+    color: 'black',
   },
 });
 
