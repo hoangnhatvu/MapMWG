@@ -28,7 +28,7 @@ import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import {showErrorToast} from '../services/toast';
 import {setTransportation} from '../redux/slices/transportationSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { setChosenRoute } from '../redux/slices/chosenRouteSlice';
+import { setChosenRouteIndex } from '../redux/slices/chosenRouteSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -68,8 +68,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const transportation = useSelector(
     (state: RootState) => state.transportation.value,
   );
-  const chosenRoute = useSelector(
-    (state: RootState) => state.chosenRoute.value,
+  const chosenRouteIndex = useSelector(
+    (state: RootState) => state.chosenRouteIndex.value,
   );
 
   const dispatch = useDispatch();
@@ -189,6 +189,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       dispatch(setIsSearch(false));
       dispatch(setIsInstructed(true));
       dispatch(setIsLocated(false));
+      dispatch(setChosenRouteIndex(0));
+
     } catch (error: any) {
       dispatch(initDirectionState());
       showErrorToast(error.message);
@@ -202,9 +204,9 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       if (routeNumbers <= 0) {
         return null;
       }
-      const updatedChosenRoute = (chosenRoute + 1) % routeNumbers;
+      const updatedChosenRoute = (chosenRouteIndex + 1) % routeNumbers;
       
-      dispatch(setChosenRoute(updatedChosenRoute));
+      dispatch(setChosenRouteIndex(updatedChosenRoute));
 
     } catch (error: any) {
       showErrorToast(error.message);
