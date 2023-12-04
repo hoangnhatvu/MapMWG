@@ -1,21 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {
-  StyleSheet,
-  View,
-  BackHandler,
-  Button,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import {StyleSheet, View, BackHandler, ActivityIndicator} from 'react-native';
 import Mapbox, {
-  CircleLayer,
+  UserLocation,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import {createRouterLine} from '../services/createRoute';
+import {createRouterLine, makeRouterFeature} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
@@ -40,8 +31,11 @@ import {
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import speakText from '../services/textToSpeechService.ts';
 import {haversine} from '../utils/haversine';
-import {setTransportation} from '../redux/slices/transportationSlice';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useToast} from 'react-native-toast-notifications';
+import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
+import {setIsLoading} from '../redux/slices/isLoadingSlice';
+import {WINDOW_HEIGHT} from '../utils/window_height';
+import { findNearestCoordinate } from '../utils/findNearest';
 
 // Init Project
 const APIKEY =
@@ -56,7 +50,6 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [chosenRoute, setChosenRoute] = useState<[number,number][] | null>(null);
 
   const thresholdDistance = 0.02;
   const toast = useToast();
@@ -91,12 +84,16 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.chosenRouteIndex.value,
   );
 
+  const [chosenRoute, setChosenRoute] = useState<any>(
+    routeDirection?.[chosenRouteIndex],
+  );
+
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
 
   // Locate when first open app
   useEffect(() => {
-    const delay = 16000;
+    const delay = 8000;
 
     const timeoutId = setTimeout(() => {
       setInitial(false);
@@ -114,27 +111,20 @@ const MapScreen: React.FC = () => {
   }, [isDirected, isInstructed]);
 
   useEffect(() => {
-    if (routeDirection && searchDirections[1].coordinates !== null) {
-      const fetchData = async () => {
-        const route = await createRouterLine(
-          searchDirections[0].coordinates,
-          searchDirections[1].coordinates,
-          transportation,
-        );
-        dispatch(setRouteDirection(route));
-      };
+    const nearestCoordinate = findNearestCoordinate(
+      currentLocation,
+      chosenRoute,
+    );
 
-      fetchData();
+    const coordinates = chosenRoute.features.geometry.coordinates;
 
-      const interval = setInterval(fetchData, 40000);
+    const index = coordinates.findIndex((coord: [number,number]) => coord === nearestCoordinate);
+    const newCoordinates = coordinates.slice(index);
+    setChosenRoute(makeRouterFeature(newCoordinates));    
 
-      return () => {
-        clearInterval(interval);
-      };
-    }
   }, [searchDirections[0], searchDirections[1]]);
 
-  const handleUserLocationUpdate = (location: any) => {
+  const handleUserLocationUpdate = async (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
 
@@ -149,7 +139,6 @@ const MapScreen: React.FC = () => {
       if (route.length - 1 < chosenRouteIndex) {
         dispatch(setChosenRouteIndex(route.length - 1));
       }
-      
     }
     if (instructions) {
       let minDistance = 1;
@@ -328,17 +317,19 @@ const MapScreen: React.FC = () => {
               ),
           )}
           <Mapbox.UserLocation
-            minDisplacement={40}
+            minDisplacement={50}
             visible={true}
             onUpdate={handleUserLocationUpdate}
             showsUserHeadingIndicator={true}
             animated={true}
             androidRenderMode="gps"
             requestsAlwaysUse={true}
-            renderMode={UserLocationRenderModeType.Native}>
-              
-          </Mapbox.UserLocation>
-          {routeDirection &&
+            renderMode={
+              UserLocationRenderModeType.Native
+            }></Mapbox.UserLocation>
+          {!isInstructed &&
+            routeDirection &&
+            routeDirection.length > 0 &&
             routeDirection.map((route, index) => (
               <Mapbox.ShapeSource
                 key={index.toString()}
@@ -349,11 +340,24 @@ const MapScreen: React.FC = () => {
                   style={{
                     lineColor:
                       index === chosenRouteIndex ? 'forestgreen' : 'gray',
-                    lineWidth: 4,
+                    lineWidth: index === chosenRouteIndex ? 4 : 2,
                   }}
                 />
               </Mapbox.ShapeSource>
             ))}
+          {isInstructed && chosenRoute && (
+            <Mapbox.ShapeSource
+              id={`shape-${chosenRouteIndex}`}
+              shape={chosenRoute}>
+              <Mapbox.LineLayer
+                id={`lin-${chosenRouteIndex}`}
+                style={{
+                  lineColor: 'forestgreen',
+                  lineWidth: 4,
+                }}
+              />
+            </Mapbox.ShapeSource>
+          )}
         </Mapbox.MapView>
       </View>
 

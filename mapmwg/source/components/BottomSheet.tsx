@@ -190,7 +190,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       dispatch(setIsInstructed(true));
       dispatch(setIsLocated(false));
       dispatch(setChosenRouteIndex(0));
-
+      dispatch(setRouteDirection(routeDirection?.[chosenRouteIndex]));
     } catch (error: any) {
       dispatch(initDirectionState());
       showErrorToast(error.message);
@@ -199,7 +199,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   };                     
 
   const changeRoute = async () => {
-    console.log(routeNumbers);
     try {
       if (routeNumbers <= 0) {
         return null;
