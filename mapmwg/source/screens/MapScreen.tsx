@@ -8,6 +8,7 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import Mapbox, {
   CircleLayer,
@@ -41,7 +42,6 @@ import speakText from '../services/textToSpeechService.ts';
 import {haversine} from '../utils/haversine';
 import {setTransportation} from '../redux/slices/transportationSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 
 // Init Project
 const APIKEY =
@@ -59,8 +59,10 @@ const MapScreen: React.FC = () => {
   const [chosenRoute, setChosenRoute] = useState<[number,number][] | null>(null);
 
   const thresholdDistance = 0.02;
+  const toast = useToast();
 
   // Redux
+  const isLoading = useSelector((state: RootState) => state.isLoading.value);
   const isSearch = useSelector((state: RootState) => state.isSearch.value);
   const isSearchBar = useSelector(
     (state: RootState) => state.isSearchBar.value,
@@ -111,7 +113,28 @@ const MapScreen: React.FC = () => {
     }
   }, [isDirected, isInstructed]);
 
-  const handleUserLocationUpdate = async (location: any) => {
+  useEffect(() => {
+    if (routeDirection && searchDirections[1].coordinates !== null) {
+      const fetchData = async () => {
+        const route = await createRouterLine(
+          searchDirections[0].coordinates,
+          searchDirections[1].coordinates,
+          transportation,
+        );
+        dispatch(setRouteDirection(route));
+      };
+
+      fetchData();
+
+      const interval = setInterval(fetchData, 40000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [searchDirections[0], searchDirections[1]]);
+
+  const handleUserLocationUpdate = (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
 
@@ -177,23 +200,36 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
+    dispatch(updateSearchDirection({id: 1, data: null}));
     if (isDirected === true || isInstructed === true) {
       return null;
     }
 
     if (event.geometry) {
-      // Get location by click
       const newDestination: [number, number] = [
         event.geometry.coordinates[0],
         event.geometry.coordinates[1],
       ];
-      const coords = await getCoordinatesAPI(newDestination);
-      console.log(coords);
-
-      dispatch(updateSearchDirection({id: 1, data: coords}));
-
-      console.log(searchDirections[1].coordinates);
-      console.log(searchDirections[0].coordinates);
+      try {
+        dispatch(setIsLoading({key: 'common', value: true}));
+        const coords = await getCoordinatesAPI(newDestination);
+        if (coords.object) {
+          dispatch(updateSearchDirection({id: 1, data: coords}));
+          dispatch(setIsLoading({key: 'common', value: false}));
+        } else {
+          throw new Error('Chưa có dữ liệu khu vực này !');
+        }
+      } catch (error) {
+        console.log(error);
+        toast.show(`${error}`, {
+          type: 'danger',
+          placement: 'bottom',
+          duration: 3000,
+          animationType: 'zoom-in',
+          style: {borderRadius: 50},
+        });
+        dispatch(setIsLoading({key: 'common', value: false}));
+      }
 
       dispatch(setRouteDirection(null));
     }
@@ -335,10 +371,15 @@ const MapScreen: React.FC = () => {
           />
         </>
       )}
-      {searchDirections[1].coordinates &&
+      {isLoading.common ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={54} color="gray" />
+        </View>
+      ) : (
+        searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
-        !isInstructed &&
-        !isDirected && <BottomSheet />}
+        !isInstructed && <BottomSheet />
+      )}
     </View>
   );
 };
@@ -365,5 +406,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+  },
+  flatList: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '13%',
+    height: 40,
+    width: '80%',
+    flex: 1,
+  },
+  transportationButton: {
+    borderRadius: 100,
+    borderColor: 'black',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'gray',
+  },
+  transportationIcon: {
+    color: 'black',
+  },
+  loadingContainer: {
+    flex: 1,
+    position: 'absolute',
+    alignSelf: 'center',
+    top: WINDOW_HEIGHT / 2,
   },
 });

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 interface SearchDirectionsType {
   id?: number;
@@ -29,32 +29,45 @@ const searchDirectionsSlice = createSlice({
   name: 'searchDirections',
   initialState,
   reducers: {
-    initDirectionState: (state) => {
+    initDirectionState: state => {
       state.value = initialState.value;
     },
-    setSearchDirections: (state, action: PayloadAction<SearchDirectionsType[]>) => {
+    setSearchDirections: (
+      state,
+      action: PayloadAction<SearchDirectionsType[]>,
+    ) => {
       state.value = action.payload;
     },
-    addSearchDirection: (state) => { // chi dung khi tim kiem nhieu dia diem
+    addSearchDirection: state => {
+      // chi dung khi tim kiem nhieu dia diem
       const newDirection = {
         id: state.value.length + 1,
         coordinates: null,
-        data: null
+        data: null,
       };
       state.value = [...state.value, newDirection];
     },
-    updateSearchDirection: (state, action: PayloadAction<{ id: number | any; data: any }>) => {
-      const { id, data } = action.payload;
-      const index = state.value.findIndex((direction) => direction.id === id);
+    updateSearchDirection: (
+      state,
+      action: PayloadAction<{id: number | any; data: any}>,
+    ) => {
+      const {id, data} = action.payload;
+      const index = state.value.findIndex(direction => direction.id === id);
 
       if (index !== -1) {
         const newValue = {
           id: id,
-          coordinates: id === 0 ? data : data?.geometry?.coordinates || [
-            data?.object?.location?.lon,
-            data?.object?.location?.lat,
-          ] || null,
-          data: data
+          coordinates:
+            id === 0
+              ? data
+              : data
+              ? data?.geometry?.coordinates || [
+                  data?.object?.location?.lon,
+                  data?.object?.location?.lat,
+                ] ||
+                null
+              : null,
+          data: data,
         };
 
         state.value[index] = newValue;
@@ -62,7 +75,9 @@ const searchDirectionsSlice = createSlice({
     },
     removeSearchDirection: (state, action: PayloadAction<number>) => {
       const idToRemove = action.payload;
-      state.value = state.value.filter((direction) => direction.id !== idToRemove);
+      state.value = state.value.filter(
+        direction => direction.id !== idToRemove,
+      );
     },
   },
 });
