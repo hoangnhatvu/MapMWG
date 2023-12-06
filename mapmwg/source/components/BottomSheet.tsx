@@ -1,4 +1,4 @@
-import {WINDOW_HEIGHT} from '../utils/window_height';
+import {WINDOW_HEIGHT, WINDOW_WIDTH} from '../utils/window_height';
 import React, {useRef, useState, useEffect} from 'react';
 import {
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
@@ -25,10 +26,11 @@ import {callRoutingAPI} from '../services/fetchAPI';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import {initDirectionState} from '../redux/slices/searchDirectionsSlice';
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
-import {showErrorToast} from '../services/toast';
 import {setTransportation} from '../redux/slices/transportationSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { setChosenRouteIndex } from '../redux/slices/chosenRouteSlice';
+import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
+import {useToastMessage} from '../services/toast';
+import {setIsLoading} from '../redux/slices/isLoadingSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -49,8 +51,9 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const [duration, setDuration] = useState<number | null>(null);
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
-  
   const [routeNumbers, setRouteNumbers] = useState<number>(0);
+  const [selectedButton, setSelectedButton] = useState<string>('');
+  const {showToast} = useToastMessage();
 
   const transportations = [
     {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
@@ -72,22 +75,11 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
     (state: RootState) => state.chosenRouteIndex.value,
   );
 
+  const isLoading = useSelector((state: RootState) => state.isLoading.value);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const getData = async () => {
-      const data = await callRoutingAPI(
-        searchDirections[0].coordinates,
-        searchDirections[1].coordinates,
-        transportation,
-      );
-      dispatch(
-        setInstructions(data.Data?.features[0]?.properties?.segments[0]?.steps),
-      );
-      setDistance(data.Data.features[0].properties.summary.distance);
-      setDuration(data.Data.features[0].properties.summary.duration);
-    };
-    getData();
     setName(
       searchDirections[1]?.data?.properties?.searchName ||
         searchDirections[1]?.data?.object?.searchName ||
@@ -98,6 +90,32 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         searchDirections[1]?.data?.object?.searchAddress ||
         'Chưa có dữ liệu trên hệ thống',
     );
+    const getData = async () => {
+      try {
+        dispatch(setIsLoading({key: 'bottom_sheet', value: true}));
+        const data = await callRoutingAPI(
+          searchDirections[0].coordinates,
+          searchDirections[1].coordinates,
+          transportation,
+        );
+        dispatch(
+          setInstructions(
+            data.Data?.features[0]?.properties?.segments[0]?.steps,
+          ),
+        );
+        try {
+          setDistance(data.Data?.features[0]?.properties?.summary?.distance);
+          setDuration(data.Data?.features[0]?.properties?.summary?.duration);
+        } catch (error) {
+          throw new Error('Không tìm thấy tuyến đường !');
+        }
+      } catch (error) {
+        showToast(`${error}`, 'danger');
+      } finally {
+        dispatch(setIsLoading({key: 'bottom_sheet', value: false}));
+      }
+    };
+    getData();
   }, [searchDirections[0].coordinates, searchDirections[1].coordinates]);
 
   const panResponder = useRef(
@@ -158,58 +176,74 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
 
   const makeRoute = async () => {
     try {
-      if (searchDirections[1].coordinates) {
-        const route = await createMultipleRouterLine(
-          searchDirections[0].coordinates,
-          searchDirections[1].coordinates,
-          transportation,
-        );
+      dispatch(setIsLoading({key: 'common', value: true}));
+      if (duration && distance) {
+        if (searchDirections[1].coordinates) {
+          const route = await createMultipleRouterLine(
+            searchDirections[0].coordinates,
+            searchDirections[1].coordinates,
+            transportation,
+          );
 
-        if (route) {
-          setRouteNumbers(route.length);
-          dispatch(setRouteDirection(route));
+          if (route) {
+            setRouteNumbers(route.length);
+            dispatch(setRouteDirection(route));
+          } else {
+            throw new Error('Không thể tạo đường đi !');
+          }
         } else {
-          throw new Error('Failed to create route');
+          throw new Error('Không thể tạo đường đi !');
         }
+        setSelectedButton('route');
       } else {
-        throw new Error('Failed to create route');
+        throw new Error('Không tìm thấy tuyến đường !');
       }
     } catch (error: any) {
-      dispatch(initDirectionState());
-      showErrorToast(error.message);
-      throw error;
+      showToast(`${error}`, 'danger');
+      throw new Error('Có lỗi xảy ra !');
+    } finally {
+      dispatch(setIsLoading({key: 'common', value: false}));
     }
   };
 
   const instruct = async () => {
     try {
-      if (!routeDirection) {
-        await makeRoute();
+      dispatch(setIsLoading({key: 'common', value: true}));
+      if (duration && distance) {
+        if (!routeDirection) {
+          await makeRoute();
+        }
+        dispatch(setIsSearch(false));
+        dispatch(setIsInstructed(true));
+        dispatch(setIsLocated(false));
+        dispatch(setChosenRouteIndex(0));
+        dispatch(setRouteDirection(routeDirection?.[chosenRouteIndex]));
+      } else {
+        throw new Error('Không tìm thấy tuyến đường !');
       }
-      dispatch(setIsSearch(false));
-      dispatch(setIsInstructed(true));
-      dispatch(setIsLocated(false));
-      dispatch(setChosenRouteIndex(0));
-      dispatch(setRouteDirection(routeDirection?.[chosenRouteIndex]));
+      setSelectedButton('start');
     } catch (error: any) {
-      dispatch(initDirectionState());
-      showErrorToast(error.message);
+      showToast(`${error}`, 'danger');
       return null;
+    } finally {
+      dispatch(setIsLoading({key: 'common', value: false}));
     }
-  };                     
+  };
 
   const changeRoute = async () => {
     try {
+      dispatch(setIsLoading({key: 'common', value: true}));
       if (routeNumbers <= 0) {
         return null;
       }
       const updatedChosenRoute = (chosenRouteIndex + 1) % routeNumbers;
-      
       dispatch(setChosenRouteIndex(updatedChosenRoute));
-
+      setSelectedButton('changeRoute');
     } catch (error: any) {
-      showErrorToast(error.message);
+      showToast(`${error}`, 'danger');
       return null;
+    } finally {
+      dispatch(setIsLoading({key: 'common', value: false}));
     }
   };
 
@@ -224,29 +258,62 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
             style={{}}
             horizontal={true}
             showsHorizontalScrollIndicator={false}>
-            <TouchableOpacity style={styles.button} onPress={makeRoute}>
-              <FontAwesome6 name="route" size={16} />
-              <Text style={styles.text}>Đường đi</Text>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                selectedButton === 'route' && styles.selectedButton,
+              ]}
+              onPress={makeRoute}>
+              <FontAwesome6
+                name="route"
+                size={16}
+                color={selectedButton === 'route' ? 'white' : 'black'}
+              />
+              <Text
+                style={[
+                  styles.text,
+                  {color: selectedButton === 'route' ? 'white' : 'black'},
+                ]}>
+                Đường đi
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={instruct}>
-              <FontAwesome6 name="location-arrow" size={16} />
-              <Text style={styles.text}>Bắt đầu</Text>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                selectedButton === 'start' && styles.selectedButton,
+              ]}
+              onPress={instruct}>
+              <FontAwesome6
+                name="location-arrow"
+                size={16}
+                color={selectedButton === 'start' ? 'white' : 'black'}
+              />
+              <Text
+                style={[
+                  styles.text,
+                  {color: selectedButton === 'start' ? 'white' : 'black'},
+                ]}>
+                Bắt đầu
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={changeRoute} >
-              <FontAwesome6 name="bookmark" size={16} />
-              <Text style={styles.text}>Đổi tuyến đường</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <FontAwesome6 name="share" size={16} />
-              <Text style={styles.text}>Chia sẻ</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <FontAwesome6 name="plus" size={16} />
-              <Text style={styles.text}>Đăng</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <FontAwesome6 name="pen-to-square" size={16} />
-              <Text style={styles.text}>Post</Text>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                selectedButton === 'changeRoute' && styles.selectedButton,
+              ]}
+              onPress={changeRoute}>
+              <FontAwesome6
+                name="bookmark"
+                size={16}
+                color={selectedButton === 'changeRoute' ? 'white' : 'black'}
+              />
+              <Text
+                style={[
+                  styles.text,
+                  {color: selectedButton === 'changeRoute' ? 'white' : 'black'},
+                ]}>
+                Đổi tuyến đường
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -283,23 +350,42 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
             keyExtractor={item => item.label}
           />
         </View>
-        <View style={{margin: 8, marginLeft: 16 ,alignSelf:'flex-start'}}>
+        <View style={{margin: 8, marginLeft: 16, alignSelf: 'flex-start'}}>
           <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
           <Text style={{fontSize: 16}}>{address}</Text>
-          <View style={{flexDirection: 'row', marginTop: 8}}>
-            <FontAwesome6 name="car" size={17} />
-            <Text
-              style={{
-                marginLeft: 8,
-                color: 'forestgreen',
-                fontWeight: 'bold',
-                fontSize: 16,
-              }}>
-              {duration} s
-            </Text>
-            <Text style={{fontSize: 16, marginLeft: 8}}>({distance} km)</Text>
-          </View>
+          {!isLoading.bottom_sheet && (
+            <View>
+              {distance && duration ? (
+                <View style={styles.distanceWrapper}>
+                  <FontAwesome6 name="car" size={17} />
+                  <Text
+                    style={{
+                      marginLeft: 8,
+                      color: 'forestgreen',
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                    }}>
+                    {Math.round(duration / 60)} phút
+                  </Text>
+                  <Text style={{fontSize: 16, marginLeft: 8}}>
+                    ({Math.round(distance * 10) / 10} km)
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.distanceText}>
+                  Không tìm thấy tuyến đường !
+                </Text>
+              )}
+            </View>
+          )}
         </View>
+        {isLoading.bottom_sheet && (
+          <View>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size={54} color="gray" />
+            </View>
+          </View>
+        )}
       </View>
     </Animated.View>
   );
@@ -309,6 +395,7 @@ const styles = StyleSheet.create({
   bottom__container: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     position: 'absolute',
     width: '100%',
     height: BOTTOM_SHEET_MAX_HEIGHT,
@@ -343,13 +430,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginHorizontal: 8,
     borderRadius: 16,
-    borderColor: tertiaryColor,
-    borderWidth: 2.5,
-    elevation: 3,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    elevation: 2,
     backgroundColor: primaryColor,
     height: 45,
     flexDirection: 'row',
     paddingHorizontal: 16,
+  },
+  selectedButton: {
+    backgroundColor: '#1A73E8',
   },
   text: {
     fontSize: 16,
@@ -385,6 +475,18 @@ const styles = StyleSheet.create({
   },
   transportationIcon: {
     color: 'black',
+  },
+  distanceWrapper: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  distanceText: {
+    marginTop: 12,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  loadingContainer: {
+    alignSelf: 'center',
   },
 });
 

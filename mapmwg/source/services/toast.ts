@@ -1,11 +1,17 @@
-import Toast from 'react-native-toast-message';
+import {useToast} from 'react-native-toast-notifications';
 
-export const showErrorToast = (error: string) => {
-  Toast.show({
-    type: 'error',
-    text1: 'Lỗi',
-    text2: error,
-    position: 'top',
-    topOffset: 20,
-  });
-}
+export const useToastMessage = () => {
+  const toast = useToast();
+
+  const showToast = (content: string, type: string) => {
+    toast.show(content, {
+      type: type,
+      placement: 'top',
+      duration: 4000,
+      animationType: 'zoom-in',
+      style: {borderRadius: 20},
+    });
+  };
+
+  return {showToast};
+};
