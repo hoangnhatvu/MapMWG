@@ -35,7 +35,7 @@ import {useToast} from 'react-native-toast-notifications';
 import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
-import { findNearestCoordinate } from '../utils/findNearest';
+import {findNearestCoordinate} from '../utils/findNearest';
 
 // Init Project
 const APIKEY =
@@ -116,12 +116,13 @@ const MapScreen: React.FC = () => {
       chosenRoute,
     );
 
-    const coordinates = chosenRoute.features.geometry.coordinates;
+    const coordinates = chosenRoute?.features?.geometry?.coordinates;
 
-    const index = coordinates.findIndex((coord: [number,number]) => coord === nearestCoordinate);
+    const index = coordinates.findIndex(
+      (coord: [number, number]) => coord === nearestCoordinate,
+    );
     const newCoordinates = coordinates.slice(index);
-    setChosenRoute(makeRouterFeature(newCoordinates));    
-
+    setChosenRoute(makeRouterFeature(newCoordinates));
   }, [searchDirections[0], searchDirections[1]]);
 
   const handleUserLocationUpdate = async (location: any) => {
