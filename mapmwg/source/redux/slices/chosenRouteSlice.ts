@@ -1,23 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface ChosenRouteState {
+interface ChosenRouteIndexState {
   value: number;
 }
 
-const initialState: ChosenRouteState = {
+const initialState: ChosenRouteIndexState = {
   value: 0,
 };
 
-const chosenRouteSlice = createSlice({
-  name: 'chosenRoute',
+const chosenRouteIndexSlice = createSlice({
+  name: 'chosenRouteIndex',
   initialState,
   reducers: {
-    setChosenRoute: (state, action: PayloadAction<number>) => {
+    setChosenRouteIndex: (state, action: PayloadAction<number>) => {
       state.value = action.payload;
     },
   },
 });
 
-export const { setChosenRoute } = chosenRouteSlice.actions;
+export const { setChosenRouteIndex } = chosenRouteIndexSlice.actions;
 
-export default chosenRouteSlice.reducer;
+export default chosenRouteIndexSlice.reducer;
