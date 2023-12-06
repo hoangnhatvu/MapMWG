@@ -111,25 +111,22 @@ const MapScreen: React.FC = () => {
   }, [isDirected, isInstructed]);
 
   useEffect(() => {
+    if (!chosenRoute) {
+      return;
+    }
     const nearestCoordinate = findNearestCoordinate(
       currentLocation,
       chosenRoute,
     );
 
-    const coordinates = chosenRoute?.features?.geometry?.coordinates;
-    if (coordinates) {
-      const index = coordinates.findIndex(
-        (coord: [number, number]) => coord === nearestCoordinate,
-      );
-      if (index !== -1) {
-        const newCoordinates = coordinates.slice(index);
-        setChosenRoute(makeRouterFeature(newCoordinates));
-      }
-      const newCoordinates = coordinates.slice(index);
+    const coordinates = chosenRoute.features.geometry.coordinates;
+
+    const index = coordinates.findIndex(
+      (coord: [number, number]) => coord === nearestCoordinate,
+    );
+    const newCoordinates = coordinates.slice(index);
     setChosenRoute(makeRouterFeature(newCoordinates));
   }, [searchDirections[0], searchDirections[1]]);
-    }
-    
 
   const handleUserLocationUpdate = async (location: any) => {
     const {latitude, longitude} = location.coords;
