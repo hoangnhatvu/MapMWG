@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View, BackHandler, ActivityIndicator} from 'react-native';
 import Mapbox, {
+  Camera,
   UserLocation,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
@@ -35,7 +36,7 @@ import {useToast} from 'react-native-toast-notifications';
 import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
-import { findNearestCoordinate } from '../utils/findNearest';
+import {findNearestCoordinate} from '../utils/findNearest';
 
 // Init Project
 const APIKEY =
@@ -50,6 +51,7 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
+  const [destination, setDestination] = useState<[number, number]>([0, 0]);
 
   const thresholdDistance = 0.02;
   const toast = useToast();
@@ -111,17 +113,46 @@ const MapScreen: React.FC = () => {
   }, [isDirected, isInstructed]);
 
   useEffect(() => {
+    if (searchDirections[1].coordinates) {
+      setDestination(searchDirections[1].coordinates);
+    } else {
+      return;
+    }
+  }, [searchDirections[1]]);
+
+  useEffect(() => {
+    if (isInstructed === true && routeDirection) {
+      setChosenRoute(chosenRouteIndex);
+    } else if (isInstructed === false) {
+      setChosenRoute(null);
+    }
+  }, [isInstructed]);
+
+  useEffect(() => {
+    if (!chosenRoute) {
+      return;
+    }
+
     const nearestCoordinate = findNearestCoordinate(
       currentLocation,
       chosenRoute,
     );
 
-    const coordinates = chosenRoute.features.geometry.coordinates;
+    if (!nearestCoordinate) {
+      return;
+    }
 
-    const index = coordinates.findIndex((coord: [number,number]) => coord === nearestCoordinate);
+    const coordinates = chosenRoute?.features?.geometry?.coordinates;
+
+    if (!coordinates) {
+      return;
+    }
+
+    const index = coordinates.findIndex(
+      (coord: [number, number]) => coord === nearestCoordinate,
+    );
     const newCoordinates = coordinates.slice(index);
-    setChosenRoute(makeRouterFeature(newCoordinates));    
-
+    setChosenRoute(makeRouterFeature(newCoordinates));
   }, [searchDirections[0], searchDirections[1]]);
 
   const handleUserLocationUpdate = async (location: any) => {
@@ -136,9 +167,6 @@ const MapScreen: React.FC = () => {
         searchDirections[1].coordinates,
         transportation,
       );
-      if (route.length - 1 < chosenRouteIndex) {
-        dispatch(setChosenRouteIndex(route.length - 1));
-      }
     }
     if (instructions) {
       let minDistance = 1;
@@ -209,7 +237,6 @@ const MapScreen: React.FC = () => {
           throw new Error('Chưa có dữ liệu khu vực này !');
         }
       } catch (error) {
-        console.log(error);
         toast.show(`${error}`, {
           type: 'danger',
           placement: 'bottom',
@@ -282,6 +309,14 @@ const MapScreen: React.FC = () => {
               animationDuration={2000}
               zoomLevel={15}
               pitch={10}
+              bounds={{
+                ne: searchDirections[0].coordinates,
+                sw: searchDirections[1].coordinates,
+                paddingLeft: 20,
+                paddingRight: 20,
+                paddingTop: 20,
+                paddingBottom: 20,
+              }}
             />
           )}
           {(initial || isLocated) && (
@@ -314,7 +349,7 @@ const MapScreen: React.FC = () => {
                   coordinate={direction.coordinates}>
                   <View></View>
                 </Mapbox.PointAnnotation>
-              ),
+              )
           )}
           <Mapbox.UserLocation
             minDisplacement={50}
@@ -331,10 +366,7 @@ const MapScreen: React.FC = () => {
             routeDirection &&
             routeDirection.length > 0 &&
             routeDirection.map((route, index) => (
-              <Mapbox.ShapeSource
-                key={index.toString()}
-                id={`line-${index}`}
-                shape={route}>
+              <Mapbox.ShapeSource key={index.toString()} shape={route}>
                 <Mapbox.LineLayer
                   id={`routerLine-${index}`}
                   style={{
@@ -346,11 +378,9 @@ const MapScreen: React.FC = () => {
               </Mapbox.ShapeSource>
             ))}
           {isInstructed && chosenRoute && (
-            <Mapbox.ShapeSource
-              id={`shape-${chosenRouteIndex}`}
-              shape={chosenRoute}>
+            <Mapbox.ShapeSource key={'chosen'} shape={chosenRoute}>
               <Mapbox.LineLayer
-                id={`lin-${chosenRouteIndex}`}
+                id={`chosen-${chosenRouteIndex}`}
                 style={{
                   lineColor: 'forestgreen',
                   lineWidth: 4,

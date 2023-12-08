@@ -2,12 +2,16 @@ import {haversine} from './haversine';
 
 export const findNearestCoordinate = (
     targetCoordinate: [number, number],
-    coordinatesArray: Array<[number, number]>,
+    coordinatesArray: [number, number][],
   ): [number, number] | null => {
+    if(!coordinatesArray){
+      return null;
+    }
+
     let minDistance = Infinity;
     let nearestCoordinate: [number, number] | null = null;
   
-    for (let i = 0; i < coordinatesArray.length; i++) {
+    for (let i = 0; i < coordinatesArray.length-1; i++) {
       let distance = haversine(
         targetCoordinate[0],
         targetCoordinate[1],
