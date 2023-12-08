@@ -229,14 +229,8 @@ const MapScreen: React.FC = () => {
           throw new Error('Chưa có dữ liệu khu vực này !');
         }
       } catch (error) {
-        console.log(error);
-        toast.show(`${error}`, {
-          type: 'danger',
-          placement: 'bottom',
-          duration: 3000,
-          animationType: 'zoom-in',
-          style: {borderRadius: 50},
-        });
+        console.error(error);
+       
         dispatch(setIsLoading({key: 'common', value: false}));
       }
 
