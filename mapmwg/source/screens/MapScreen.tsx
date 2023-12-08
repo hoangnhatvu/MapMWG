@@ -32,11 +32,12 @@ import {
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import speakText from '../services/textToSpeechService.ts';
 import {haversine} from '../utils/haversine';
-import {useToast} from 'react-native-toast-notifications';
 import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
 import {calCoorCenter, calZoom} from '../utils/cameraUtils';
+import {useToastMessage} from '../services/toast';
+import toast from 'react-native-toast-notifications/lib/typescript/toast';
 
 // Init Project
 const APIKEY =
@@ -53,7 +54,6 @@ const MapScreen: React.FC = () => {
   ]);
 
   const thresholdDistance = 0.02;
-  const toast = useToast();
 
   // Redux
   const isLoading = useSelector((state: RootState) => state.isLoading.value);
@@ -89,6 +89,7 @@ const MapScreen: React.FC = () => {
 
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
+  const {showToast} = useToastMessage();
 
   // Locate when first open app
   useEffect(() => {
@@ -213,7 +214,6 @@ const MapScreen: React.FC = () => {
       return null;
     }
     dispatch(setRouteDirection(null));
-
     if (event.geometry) {
       const newDestination: [number, number] = [
         event.geometry.coordinates[0],
@@ -229,6 +229,7 @@ const MapScreen: React.FC = () => {
           throw new Error('Chưa có dữ liệu khu vực này !');
         }
       } catch (error) {
+        console.log(error);
         toast.show(`${error}`, {
           type: 'danger',
           placement: 'bottom',
@@ -238,6 +239,8 @@ const MapScreen: React.FC = () => {
         });
         dispatch(setIsLoading({key: 'common', value: false}));
       }
+
+      dispatch(setRouteDirection(null));
     }
   };
 
@@ -260,6 +263,7 @@ const MapScreen: React.FC = () => {
         dispatch(initDirectionState());
         dispatch(updateSearchDirection({id: 0, data: currentLocation}));
         dispatch(setRouteDirection(null));
+        dispatch(setSearchText(''));
         return true;
       } else if (isSearch) {
         dispatch(setIsSearch(false));
@@ -404,9 +408,7 @@ const MapScreen: React.FC = () => {
           )}
         </Mapbox.MapView>
       </View>
-
       <DirectionScreen />
-
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
       {isSearch && <SearchScreen />}
       {isSearchBar && <SearchBar />}
@@ -419,15 +421,14 @@ const MapScreen: React.FC = () => {
           />
         </>
       )}
-      {isLoading.common ? (
+      {isLoading.common && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size={54} color="gray" />
         </View>
-      ) : (
-        searchDirections[1].coordinates &&
-        searchDirections[0].coordinates &&
-        !isInstructed && <BottomSheet />
       )}
+      {searchDirections[1].coordinates &&
+        searchDirections[0].coordinates &&
+        !isInstructed && <BottomSheet />}
     </View>
   );
 };
@@ -479,6 +480,6 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'absolute',
     alignSelf: 'center',
-    top: WINDOW_HEIGHT / 2,
+    top: WINDOW_HEIGHT / 3,
   },
 });

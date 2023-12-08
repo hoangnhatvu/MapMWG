@@ -97,7 +97,6 @@ export async function getCoordinatesAPI(
     const responseData = await response.json();
     return responseData;
   } catch (error: any) {
-    console.error(error);
     throw new Error("Có lỗi xảy ra");
   }
 }

@@ -1,4 +1,4 @@
-import { callRoutingAPI } from "./fetchAPI";
+import {callRoutingAPI} from './fetchAPI';
 
 const APIKEY =
   'pk.eyJ1Ijoibmd1eWVuaDgiLCJhIjoiY2xvZHIwaWVoMDY2MzJpb2lnOHh1OTI4MiJ9.roagibKOQ4EdGvZaPdIgqg';
@@ -20,43 +20,73 @@ export function makeRouterFeature(coordinates: [number, number][]): any {
   return routerFeature;
 }
 
-export const createRouterLine = async (currentLocation: [number, number], destination: [number, number], transportation: string) => {
+export const createRouterLine = async (
+  currentLocation: [number, number],
+  destination: [number, number],
+  transportation: string,
+) => {
   try {
-    const data = await callRoutingAPI(currentLocation, destination, transportation);
+    const data = await callRoutingAPI(
+      currentLocation,
+      destination,
+      transportation,
+    );
 
-    if (data && data.Data && data.Data.features && data.Data.features.length > 0) {
+    if (
+      data &&
+      data.Data &&
+      data.Data.features &&
+      data.Data.features.length > 0
+    ) {
       const coordinates = data.Data.features[0].geometry.coordinates;
-      
+
       if (coordinates && coordinates.length) {
         const routerFeature = makeRouterFeature([...coordinates]);
         return routerFeature;
       }
     }
-
-    // If any of the expected properties are missing or empty, return null
     return null;
   } catch (error) {
     console.error('Error in createRouterLine:', error);
-    // Handle the error, you might want to return null or throw it depending on your use case
     return null;
   }
 };
 
-export const createMultipleRouterLine = async(currentLocation: [number,number], destination: [number, number], transportation: string) => {
-  const data = await callRoutingAPI(currentLocation, destination, transportation);
-  const routes = [];
-  
-  if (data && data.Data && data.Data.features && Array.isArray(data.Data.features)) {
-    for (let i = 0; i < data.Data.features.length; i++) {
-      if (data.Data.features[i].geometry && data.Data.features[i].geometry.coordinates) {
-        let coordinates = data.Data.features[i].geometry.coordinates;
-        routes.push(makeRouterFeature([...coordinates]));
-      } else {
-        console.error("Invalid data structure for feature " + i);
+export const createMultipleRouterLine = async (
+  currentLocation: [number, number],
+  destination: [number, number],
+  transportation: string,
+) => {
+  try {
+    const data = await callRoutingAPI(
+      currentLocation,
+      destination,
+      transportation,
+    );
+    const routes = [];
+
+    if (
+      data &&
+      data.Data &&
+      data.Data.features &&
+      Array.isArray(data.Data.features)
+    ) {
+      for (let i = 0; i < data.Data.features.length; i++) {
+        if (
+          data.Data.features[i].geometry &&
+          data.Data.features[i].geometry.coordinates
+        ) {
+          let coordinates = data.Data.features[i].geometry.coordinates;
+          routes.push(makeRouterFeature([...coordinates]));
+        } else {
+          console.error('Invalid data structure for feature ' + i);
+        }
       }
+    } else {
+      return null;
     }
-  } else {
-    return null;
+    return routes;
+  } catch (error) {
+    throw new Error('Có lỗi xảy ra !');
   }
-  return routes;
-}
+};
