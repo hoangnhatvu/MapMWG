@@ -53,11 +53,16 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const [routeNumbers, setRouteNumbers] = useState<number>(0);
 
   const transportations = [
-    {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
     {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
-    {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
     {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
   ];
+
+  // const transportations = [
+  //   {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
+  //   {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
+  //   {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
+  //   {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
+  // ];
 
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
@@ -189,7 +194,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       dispatch(setIsSearch(false));
       dispatch(setIsInstructed(true));
       dispatch(setIsLocated(false));
-      dispatch(setChosenRouteIndex(0));
+      
     } catch (error: any) {
       dispatch(initDirectionState());
       showErrorToast(error.message);
@@ -234,18 +239,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
             <TouchableOpacity style={styles.button} onPress={changeRoute} >
               <FontAwesome6 name="bookmark" size={16} />
               <Text style={styles.text}>Đổi tuyến đường</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <FontAwesome6 name="share" size={16} />
-              <Text style={styles.text}>Chia sẻ</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <FontAwesome6 name="plus" size={16} />
-              <Text style={styles.text}>Đăng</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <FontAwesome6 name="pen-to-square" size={16} />
-              <Text style={styles.text}>Post</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

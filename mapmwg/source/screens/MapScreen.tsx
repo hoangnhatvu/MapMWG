@@ -36,7 +36,7 @@ import {useToast} from 'react-native-toast-notifications';
 import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
-import {findNearestCoordinate} from '../utils/findNearest';
+import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 
 // Init Project
 const APIKEY =
@@ -51,7 +51,6 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [destination, setDestination] = useState<[number, number]>([0, 0]);
 
   const thresholdDistance = 0.02;
   const toast = useToast();
@@ -86,9 +85,7 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.chosenRouteIndex.value,
   );
 
-  const [chosenRoute, setChosenRoute] = useState<any>(
-    routeDirection?.[chosenRouteIndex],
-  );
+  const [chosenRoute, setChosenRoute] = useState<any | null>(null);
 
   const isLocated = useSelector((state: RootState) => state.isLocated.value);
   const dispatch = useDispatch();
@@ -104,6 +101,7 @@ const MapScreen: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  // Searchbar visible
   useEffect(() => {
     if (isInstructed === true) {
       dispatch(setIsSearchBar(false));
@@ -112,48 +110,42 @@ const MapScreen: React.FC = () => {
     }
   }, [isDirected, isInstructed]);
 
-  useEffect(() => {
-    if (searchDirections[1].coordinates) {
-      setDestination(searchDirections[1].coordinates);
-    } else {
-      return;
-    }
-  }, [searchDirections[1]]);
-
+  // choose route
   useEffect(() => {
     if (isInstructed === true && routeDirection) {
-      setChosenRoute(chosenRouteIndex);
+      if (chosenRouteIndex >= routeDirection.length) {
+        dispatch(setChosenRouteIndex(routeDirection.length));
+      }
+      setChosenRoute(routeDirection[chosenRouteIndex]);
     } else if (isInstructed === false) {
       setChosenRoute(null);
     }
   }, [isInstructed]);
 
+  // Render route when moving
   useEffect(() => {
     if (!chosenRoute) {
       return;
     }
+    const fetchData = async () => {
+      const route = await createRouterLine(
+        searchDirections[0].coordinates,
+        searchDirections[1].coordinates,
+        transportation,
+      );
 
-    const nearestCoordinate = findNearestCoordinate(
-      currentLocation,
-      chosenRoute,
-    );
+      dispatch(setRouteDirection(route));
+    };
 
-    if (!nearestCoordinate) {
-      return;
+    fetchData();
+
+    if (routeDirection) {
+      if (chosenRouteIndex > routeDirection.length - 1) {
+        setChosenRouteIndex(routeDirection.length - 1);
+      }
+      setChosenRoute(routeDirection[chosenRouteIndex]);
     }
-
-    const coordinates = chosenRoute?.features?.geometry?.coordinates;
-
-    if (!coordinates) {
-      return;
-    }
-
-    const index = coordinates.findIndex(
-      (coord: [number, number]) => coord === nearestCoordinate,
-    );
-    const newCoordinates = coordinates.slice(index);
-    setChosenRoute(makeRouterFeature(newCoordinates));
-  }, [searchDirections[0], searchDirections[1]]);
+  }, [searchDirections[0]]);
 
   const handleUserLocationUpdate = async (location: any) => {
     const {latitude, longitude} = location.coords;
@@ -217,10 +209,10 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
-    dispatch(updateSearchDirection({id: 1, data: null}));
     if (isDirected === true || isInstructed === true) {
       return null;
     }
+    dispatch(setRouteDirection(null));
 
     if (event.geometry) {
       const newDestination: [number, number] = [
@@ -246,8 +238,6 @@ const MapScreen: React.FC = () => {
         });
         dispatch(setIsLoading({key: 'common', value: false}));
       }
-
-      dispatch(setRouteDirection(null));
     }
   };
 
@@ -309,16 +299,36 @@ const MapScreen: React.FC = () => {
               animationDuration={2000}
               zoomLevel={15}
               pitch={10}
-              bounds={{
-                ne: searchDirections[0].coordinates,
-                sw: searchDirections[1].coordinates,
-                paddingLeft: 20,
-                paddingRight: 20,
-                paddingTop: 20,
-                paddingBottom: 20,
-              }}
             />
           )}
+          {routeDirection &&
+            searchDirections[0].coordinates &&
+            searchDirections[1].coordinates &&
+            !isInstructed && (
+              <Mapbox.Camera
+                centerCoordinate={calCoorCenter(
+                  searchDirections[0].coordinates,
+                  searchDirections[1].coordinates,
+                )}
+                animationMode={'flyTo'}
+                animationDuration={2000}
+                zoomLevel={calZoom(
+                  searchDirections[0].coordinates,
+                  searchDirections[1].coordinates,
+                )}
+                minZoomLevel={10}
+                maxZoomLevel={25}
+                pitch={10}
+                bounds={{
+                  ne: searchDirections[0].coordinates,
+                  sw: searchDirections[1].coordinates,
+                  paddingLeft: 40,
+                  paddingRight: 40,
+                  paddingTop: 40,
+                  paddingBottom: 40,
+                }}
+              />
+            )}
           {(initial || isLocated) && (
             <Mapbox.Camera
               centerCoordinate={currentLocation}
@@ -349,7 +359,7 @@ const MapScreen: React.FC = () => {
                   coordinate={direction.coordinates}>
                   <View></View>
                 </Mapbox.PointAnnotation>
-              )
+              ),
           )}
           <Mapbox.UserLocation
             minDisplacement={50}
@@ -362,11 +372,13 @@ const MapScreen: React.FC = () => {
             renderMode={
               UserLocationRenderModeType.Native
             }></Mapbox.UserLocation>
-          {!isInstructed &&
-            routeDirection &&
-            routeDirection.length > 0 &&
-            routeDirection.map((route, index) => (
-              <Mapbox.ShapeSource key={index.toString()} shape={route}>
+          {isSearchBar &&
+            routeDirection?.map((route, index) => {
+              return (
+              <Mapbox.ShapeSource
+                id={`shapeId${index}`}
+                key={`shapeKey${index}`}
+                shape={routeDirection[index]}>
                 <Mapbox.LineLayer
                   id={`routerLine-${index}`}
                   style={{
@@ -376,7 +388,9 @@ const MapScreen: React.FC = () => {
                   }}
                 />
               </Mapbox.ShapeSource>
-            ))}
+
+              )
+            })}
           {isInstructed && chosenRoute && (
             <Mapbox.ShapeSource key={'chosen'} shape={chosenRoute}>
               <Mapbox.LineLayer
