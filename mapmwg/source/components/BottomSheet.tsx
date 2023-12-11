@@ -56,11 +56,16 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const {showToast} = useToastMessage();
 
   const transportations = [
-    {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
     {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
-    {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
     {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
   ];
+
+  // const transportations = [
+  //   {id: 'walking', label: 'Walking', icon: 'walk-sharp'},
+  //   {id: 'motorcycle', label: 'Motorcycle', icon: 'bicycle-sharp'},
+  //   {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
+  //   {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
+  // ];
 
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
@@ -216,8 +221,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         dispatch(setIsSearch(false));
         dispatch(setIsInstructed(true));
         dispatch(setIsLocated(false));
-        dispatch(setChosenRouteIndex(0));
-        dispatch(setRouteDirection(routeDirection?.[chosenRouteIndex]));
       } else {
         throw new Error('Không tìm thấy tuyến đường !');
       }
