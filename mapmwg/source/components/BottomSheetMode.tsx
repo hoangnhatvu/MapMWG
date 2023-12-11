@@ -42,13 +42,13 @@ const BottomSheetMode: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <TouchableOpacity style={styles.button} onPress={close}>
-          <Ionicons name="close-circle-outline" size={55} color={textColor} />
-        </TouchableOpacity>
-        <Text>Các tuỳ chọn lái xe</Text>
-      </View>
       <View style={styles.optionsContainer}>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TouchableOpacity style={styles.button} onPress={close}>
+            <Ionicons name="close-circle-outline" size={55} color={textColor} />
+          </TouchableOpacity>
+          <Text>Các tuỳ chọn lái xe</Text>
+        </View>
         <View style={styles.option}>
           <CheckBox
             checked={avoidToll}
@@ -79,7 +79,7 @@ const BottomSheetMode: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: '12%',
+    height: '40%',
     position: 'absolute',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,

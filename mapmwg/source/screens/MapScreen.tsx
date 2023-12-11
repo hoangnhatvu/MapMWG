@@ -38,6 +38,7 @@ import {WINDOW_HEIGHT} from '../utils/window_height';
 import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
+import BottomSheetMode from '../components/BottomSheetMode';
 
 // Init Project
 const APIKEY =
@@ -230,7 +231,7 @@ const MapScreen: React.FC = () => {
         }
       } catch (error) {
         console.error(error);
-       
+
         dispatch(setIsLoading({key: 'common', value: false}));
       }
 
@@ -373,21 +374,20 @@ const MapScreen: React.FC = () => {
           {isSearchBar &&
             routeDirection?.map((route, index) => {
               return (
-              <Mapbox.ShapeSource
-                id={`shapeId${index}`}
-                key={`shapeKey${index}`}
-                shape={routeDirection[index]}>
-                <Mapbox.LineLayer
-                  id={`routerLine-${index}`}
-                  style={{
-                    lineColor:
-                      index === chosenRouteIndex ? 'forestgreen' : 'gray',
-                    lineWidth: index === chosenRouteIndex ? 4 : 2,
-                  }}
-                />
-              </Mapbox.ShapeSource>
-
-              )
+                <Mapbox.ShapeSource
+                  id={`shapeId${index}`}
+                  key={`shapeKey${index}`}
+                  shape={routeDirection[index]}>
+                  <Mapbox.LineLayer
+                    id={`routerLine-${index}`}
+                    style={{
+                      lineColor:
+                        index === chosenRouteIndex ? 'forestgreen' : 'gray',
+                      lineWidth: index === chosenRouteIndex ? 4 : 2,
+                    }}
+                  />
+                </Mapbox.ShapeSource>
+              );
             })}
           {isInstructed && chosenRoute && (
             <Mapbox.ShapeSource key={'chosen'} shape={chosenRoute}>
@@ -401,6 +401,7 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
+        <BottomSheetMode />
       </View>
       <DirectionScreen />
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
