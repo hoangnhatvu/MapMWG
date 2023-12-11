@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {View, StyleSheet, TouchableOpacity, Text, Animated} from 'react-native';
 import {CheckBox, Button} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {bgColor, lightGray, primaryColor, textColor} from '../constants/color';
@@ -14,8 +14,17 @@ import {
 } from '../redux/slices/searchDirectionsSlice';
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import Tts from 'react-native-tts';
+import {WINDOW_HEIGHT} from '../utils/window_height';
+
+const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
+const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
+const MAX_UPWARD_TRANSLATE_Y =
+  BOTTOM_SHEET_MIN_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT;
+const MAX_DOWNWARD_TRANSLATE_Y = 0;
+const DRAG_THRESHOLD = 0;
 
 const BottomSheetMode: React.FC = () => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
   Tts.setDefaultLanguage('vi-VN');
 
   const dispatch = useDispatch();
@@ -34,7 +43,17 @@ const BottomSheetMode: React.FC = () => {
     // Handle the changes in avoidToll, avoidHighway, and avoidFerry variables
     // You can dispatch actions or update the state accordingly
   }, [avoidToll, avoidHighway, avoidFerry]);
-
+  const bottomSheetAnimation = {
+    transform: [
+      {
+        translateY: animatedValue.interpolate({
+          inputRange: [MAX_UPWARD_TRANSLATE_Y, MAX_DOWNWARD_TRANSLATE_Y],
+          outputRange: [MAX_UPWARD_TRANSLATE_Y, MAX_DOWNWARD_TRANSLATE_Y],
+          extrapolate: 'clamp',
+        }),
+      },
+    ],
+  };
   const handleApply = () => {
     // Perform actions when the Apply button is pressed
     // You can access the values of avoidToll, avoidHighway, and avoidFerry here
