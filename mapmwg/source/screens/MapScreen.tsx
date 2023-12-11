@@ -401,7 +401,7 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
-        <BottomSheetMode />
+        {/* <BottomSheetMode /> */}
       </View>
       <DirectionScreen />
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
