@@ -45,9 +45,11 @@ const BottomSheetMode: React.FC = () => {
       <View style={styles.optionsContainer}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <TouchableOpacity style={styles.button} onPress={close}>
-            <Ionicons name="close-circle-outline" size={55} color={textColor} />
+            <Ionicons name="close-outline" size={40} color={textColor} />
           </TouchableOpacity>
-          <Text>Các tuỳ chọn lái xe</Text>
+          <Text style={{fontSize: 20, fontWeight: 'bold', color: 'black'}}>
+            Các tuỳ chọn lái xe
+          </Text>
         </View>
         <View style={styles.option}>
           <CheckBox
@@ -70,7 +72,11 @@ const BottomSheetMode: React.FC = () => {
             title="Tránh phà"
           />
         </View>
-        <Button title="Áp dụng" onPress={handleApply} />
+        <Button
+          buttonStyle={{borderRadius: 13}}
+          title="Áp dụng"
+          onPress={handleApply}
+        />
       </View>
     </View>
   );
