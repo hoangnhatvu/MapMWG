@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {CheckBox, Button} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {primaryColor, textColor} from '../constants/color';
+import {bgColor, lightGray, primaryColor, textColor} from '../constants/color';
 import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
@@ -43,6 +43,9 @@ const BottomSheetMode: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.optionsContainer}>
+        <View style={{alignItems: 'center'}}>
+          <Ionicons name="reorder-two-outline" size={30} color={lightGray} />
+        </View>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <TouchableOpacity style={styles.button} onPress={close}>
             <Ionicons name="close-outline" size={40} color={textColor} />
@@ -69,12 +72,13 @@ const BottomSheetMode: React.FC = () => {
           <CheckBox
             checked={avoidFerry}
             onPress={() => setAvoidFerry(!avoidFerry)}
-            title="Tránh phà"
+            title="Tránh phà (đi bộ, đạp xe và lái xe)"
           />
         </View>
         <Button
           buttonStyle={{borderRadius: 13}}
           title="Áp dụng"
+          titleStyle={{fontSize: 18}}
           onPress={handleApply}
         />
       </View>
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: primaryColor,
+    backgroundColor: bgColor,
     bottom: 0,
   },
   button: {
@@ -102,13 +106,13 @@ const styles = StyleSheet.create({
   optionsContainer: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 3,
   },
 });
 
