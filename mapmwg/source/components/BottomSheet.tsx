@@ -310,7 +310,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
               ]}
               onPress={changeRoute}>
               <FontAwesome6
-                name="bookmark"
+                name="rotate"
                 size={16}
                 color={selectedButton === 'changeRoute' ? 'white' : 'black'}
               />

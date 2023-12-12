@@ -38,6 +38,7 @@ import {WINDOW_HEIGHT} from '../utils/window_height';
 import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
+import BottomSheetMode from '../components/BottomSheetMode';
 
 // Init Project
 const APIKEY =
@@ -400,6 +401,7 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
+        {/* <BottomSheetMode /> */}
       </View>
       <DirectionScreen />
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
