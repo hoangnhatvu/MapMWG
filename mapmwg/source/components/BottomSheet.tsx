@@ -250,6 +250,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
     }
   };
 
+  useEffect(() => {
+    makeRoute();
+  }, [transportation])
+
   return (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>
       <View style={styles.dragable__area} {...panResponder.panHandlers}>

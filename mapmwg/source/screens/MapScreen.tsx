@@ -230,7 +230,7 @@ const MapScreen: React.FC = () => {
         }
       } catch (error) {
         console.error(error);
-       
+
         dispatch(setIsLoading({key: 'common', value: false}));
       }
 
@@ -373,21 +373,20 @@ const MapScreen: React.FC = () => {
           {isSearchBar &&
             routeDirection?.map((route, index) => {
               return (
-              <Mapbox.ShapeSource
-                id={`shapeId${index}`}
-                key={`shapeKey${index}`}
-                shape={routeDirection[index]}>
-                <Mapbox.LineLayer
-                  id={`routerLine-${index}`}
-                  style={{
-                    lineColor:
-                      index === chosenRouteIndex ? 'forestgreen' : 'gray',
-                    lineWidth: index === chosenRouteIndex ? 4 : 2,
-                  }}
-                />
-              </Mapbox.ShapeSource>
-
-              )
+                <Mapbox.ShapeSource
+                  id={`shapeId${index}`}
+                  key={`shapeKey${index}`}
+                  shape={routeDirection[index]}>
+                  <Mapbox.LineLayer
+                    id={`routerLine-${index}`}
+                    style={{
+                      lineColor:
+                        index === chosenRouteIndex ? 'forestgreen' : 'gray',
+                      lineWidth: index === chosenRouteIndex ? 4 : 2,
+                    }}
+                  />
+                </Mapbox.ShapeSource>
+              );
             })}
           {isInstructed && chosenRoute && (
             <Mapbox.ShapeSource key={'chosen'} shape={chosenRoute}>
@@ -422,7 +421,8 @@ const MapScreen: React.FC = () => {
       )}
       {searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
-        !isInstructed && <BottomSheet />}
+        !isInstructed &&
+        !isSearch && <BottomSheet />}
     </View>
   );
 };

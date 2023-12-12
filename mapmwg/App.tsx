@@ -25,11 +25,11 @@ const App: React.FC = () => {
     }
   }, []);
 
-  if (IS_ANDROID && !isAndroidPermissionGranted) {
-    if (isFetchingAndroidPermission) {
-      return null;
-    }
-  }
+  // if (IS_ANDROID && !isAndroidPermissionGranted) {
+  //   if (isFetchingAndroidPermission) {
+  //     return null;
+  //   }
+  // }
 
   return (
     <>
