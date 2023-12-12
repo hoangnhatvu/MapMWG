@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text, Platform} from 'react-native';
 import {CheckBox, Button} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {bgColor, lightGray, primaryColor, textColor} from '../constants/color';
@@ -7,37 +7,67 @@ import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
-import {setIsDirected} from '../redux/slices/isDirectedSlide';
-import {
-  initDirectionState,
-  updateSearchDirection,
-} from '../redux/slices/searchDirectionsSlice';
+
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import Tts from 'react-native-tts';
+import {setAvoidance} from '../redux/slices/avoidanceSlice';
 
-const BottomSheetMode: React.FC = () => {
+const RouteOptionsPanel = (props: any) => {
   Tts.setDefaultLanguage('vi-VN');
 
   const dispatch = useDispatch();
 
   const close = () => {
-    dispatch(setIsInstructed(false));
-    dispatch(setIsLocated(true));
-    dispatch(setRouteDirection(null));
+    props.onClose();
   };
+
+  const avoidanceArray: string[] = [];
 
   const [avoidToll, setAvoidToll] = useState(false);
   const [avoidHighway, setAvoidHighway] = useState(false);
   const [avoidFerry, setAvoidFerry] = useState(false);
 
+  const addAvoidanceItem = (item: string) => {
+    if (!avoidanceArray.includes(item)) {
+      avoidanceArray.push(item);
+    }
+  };
+  
+  const removeAvoidanceItem = (item: string) => {
+    const index = avoidanceArray.indexOf(item);
+    if (index !== -1) {
+      avoidanceArray.splice(index, 1);
+    }
+  };
+  
   useEffect(() => {
-    // Handle the changes in avoidToll, avoidHighway, and avoidFerry variables
-    // You can dispatch actions or update the state accordingly
-  }, [avoidToll, avoidHighway, avoidFerry]);
+    if (avoidToll) {
+      addAvoidanceItem('tollways');
+    } else {
+      removeAvoidanceItem('tollways');
+    }
+  
+    if (avoidHighway) {
+      addAvoidanceItem('highways');
+    } else {
+      removeAvoidanceItem('highways');
+    }
+  
+    if (avoidFerry) {
+      addAvoidanceItem('ferries');
+    } else {
+      removeAvoidanceItem('ferries');
+    }
+
+  }, [avoidToll, avoidFerry, avoidHighway]);
 
   const handleApply = () => {
-    // Perform actions when the Apply button is pressed
-    // You can access the values of avoidToll, avoidHighway, and avoidFerry here
+    try {
+      dispatch(setAvoidance(avoidanceArray));
+      close();
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   return (
@@ -99,6 +129,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: bgColor,
     bottom: 0,
+    zIndex: 50,
+    elevation: Platform.OS === 'android' ? 50 : 0,
   },
   button: {
     marginHorizontal: 10,
@@ -116,4 +148,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BottomSheetMode;
+export default RouteOptionsPanel;

@@ -24,12 +24,14 @@ export const createRouterLine = async (
   currentLocation: [number, number],
   destination: [number, number],
   transportation: string,
+  avoidance: string[],
 ) => {
   try {
     const data = await callRoutingAPI(
       currentLocation,
       destination,
       transportation,
+      avoidance
     );
 
     if (
@@ -56,12 +58,14 @@ export const createMultipleRouterLine = async (
   currentLocation: [number, number],
   destination: [number, number],
   transportation: string,
+  avoidance: string[],
 ) => {
   try {
     const data = await callRoutingAPI(
       currentLocation,
       destination,
       transportation,
+      avoidance,
     );
     const routes = [];
 
