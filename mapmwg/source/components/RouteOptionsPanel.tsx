@@ -1,5 +1,10 @@
+<<<<<<< HEAD:mapmwg/source/components/BottomSheetMode.tsx
 import React, {useEffect, useRef, useState} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text, Animated} from 'react-native';
+=======
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, TouchableOpacity, Text, Platform} from 'react-native';
+>>>>>>> main:mapmwg/source/components/RouteOptionsPanel.tsx
 import {CheckBox, Button} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {bgColor, lightGray, primaryColor, textColor} from '../constants/color';
@@ -7,13 +12,10 @@ import {useSelector, useDispatch} from 'react-redux';
 import RootState from '../../redux';
 import {setIsInstructed} from '../redux/slices/isInstructedSlice';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
-import {setIsDirected} from '../redux/slices/isDirectedSlide';
-import {
-  initDirectionState,
-  updateSearchDirection,
-} from '../redux/slices/searchDirectionsSlice';
+
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import Tts from 'react-native-tts';
+<<<<<<< HEAD:mapmwg/source/components/BottomSheetMode.tsx
 import {WINDOW_HEIGHT} from '../utils/window_height';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
@@ -25,21 +27,40 @@ const DRAG_THRESHOLD = 0;
 
 const BottomSheetMode: React.FC = () => {
   const animatedValue = useRef(new Animated.Value(0)).current;
+=======
+import {setAvoidance} from '../redux/slices/avoidanceSlice';
+
+const RouteOptionsPanel = (props: any) => {
+>>>>>>> main:mapmwg/source/components/RouteOptionsPanel.tsx
   Tts.setDefaultLanguage('vi-VN');
 
   const dispatch = useDispatch();
 
   const close = () => {
-    dispatch(setIsInstructed(false));
-    dispatch(setIsLocated(true));
-    dispatch(setRouteDirection(null));
+    props.onClose();
   };
+
+  const avoidanceArray: string[] = [];
 
   const [avoidToll, setAvoidToll] = useState(false);
   const [avoidHighway, setAvoidHighway] = useState(false);
   const [avoidFerry, setAvoidFerry] = useState(false);
 
+  const addAvoidanceItem = (item: string) => {
+    if (!avoidanceArray.includes(item)) {
+      avoidanceArray.push(item);
+    }
+  };
+  
+  const removeAvoidanceItem = (item: string) => {
+    const index = avoidanceArray.indexOf(item);
+    if (index !== -1) {
+      avoidanceArray.splice(index, 1);
+    }
+  };
+  
   useEffect(() => {
+<<<<<<< HEAD:mapmwg/source/components/BottomSheetMode.tsx
     // Handle the changes in avoidToll, avoidHighway, and avoidFerry variables
     // You can dispatch actions or update the state accordingly
   }, [avoidToll, avoidHighway, avoidFerry]);
@@ -54,9 +75,35 @@ const BottomSheetMode: React.FC = () => {
       },
     ],
   };
+=======
+    if (avoidToll) {
+      addAvoidanceItem('tollways');
+    } else {
+      removeAvoidanceItem('tollways');
+    }
+  
+    if (avoidHighway) {
+      addAvoidanceItem('highways');
+    } else {
+      removeAvoidanceItem('highways');
+    }
+  
+    if (avoidFerry) {
+      addAvoidanceItem('ferries');
+    } else {
+      removeAvoidanceItem('ferries');
+    }
+
+  }, [avoidToll, avoidFerry, avoidHighway]);
+
+>>>>>>> main:mapmwg/source/components/RouteOptionsPanel.tsx
   const handleApply = () => {
-    // Perform actions when the Apply button is pressed
-    // You can access the values of avoidToll, avoidHighway, and avoidFerry here
+    try {
+      dispatch(setAvoidance(avoidanceArray));
+      close();
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   return (
@@ -118,6 +165,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: bgColor,
     bottom: 0,
+    zIndex: 50,
+    elevation: Platform.OS === 'android' ? 50 : 0,
   },
   button: {
     marginHorizontal: 10,
@@ -135,4 +184,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BottomSheetMode;
+export default RouteOptionsPanel;

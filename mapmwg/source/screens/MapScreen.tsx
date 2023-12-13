@@ -7,7 +7,7 @@ import Mapbox, {
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import {createRouterLine, makeRouterFeature} from '../services/createRoute';
+import {createMultipleRouterLine, createRouterLine, makeRouterFeature} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
@@ -38,7 +38,6 @@ import {WINDOW_HEIGHT} from '../utils/window_height';
 import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
-import BottomSheetMode from '../components/BottomSheetMode';
 
 // Init Project
 const APIKEY =
@@ -82,6 +81,7 @@ const MapScreen: React.FC = () => {
   const transportation = useSelector(
     (state: RootState) => state.transportation.value,
   );
+  const avoidance = useSelector((state: RootState) => state.avoidance.value);
   const chosenRouteIndex = useSelector(
     (state: RootState) => state.chosenRouteIndex.value,
   );
@@ -130,10 +130,11 @@ const MapScreen: React.FC = () => {
       return;
     }
     const fetchData = async () => {
-      const route = await createRouterLine(
+      const route = await createMultipleRouterLine(
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
         transportation,
+        avoidance,
       );
 
       dispatch(setRouteDirection(route));
@@ -160,6 +161,7 @@ const MapScreen: React.FC = () => {
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
         transportation,
+        avoidance
       );
     }
     if (instructions) {
@@ -401,10 +403,10 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
-        <BottomSheetMode />
+        {/* <BottomSheetMode /> */}
       </View>
-      <DirectionScreen />
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
+      <DirectionScreen />
       {isSearch && <SearchScreen />}
       {isSearchBar && <SearchBar />}
       {isInstructed && (
@@ -423,7 +425,8 @@ const MapScreen: React.FC = () => {
       )}
       {searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
-        !isInstructed && <BottomSheet />}
+        !isInstructed &&
+        !isSearch && <BottomSheet />}
     </View>
   );
 };

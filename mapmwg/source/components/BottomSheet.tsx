@@ -31,6 +31,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 import {useToastMessage} from '../services/toast';
 import {setIsLoading} from '../redux/slices/isLoadingSlice';
+import RouteOptionsPanel from './RouteOptionsPanel';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -53,6 +54,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const [address, setAddress] = useState<string>('');
   const [routeNumbers, setRouteNumbers] = useState<number>(0);
   const [selectedButton, setSelectedButton] = useState<string>('');
+  const [showRouteOptions, setShowRouteOptions] = useState(false);
+
   const {showToast} = useToastMessage();
 
   const transportations = [
@@ -76,6 +79,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const transportation = useSelector(
     (state: RootState) => state.transportation.value,
   );
+  const avoidance = useSelector((state: RootState) => state.avoidance.value);
+
   const chosenRouteIndex = useSelector(
     (state: RootState) => state.chosenRouteIndex.value,
   );
@@ -102,6 +107,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
           searchDirections[0].coordinates,
           searchDirections[1].coordinates,
           transportation,
+          avoidance
         );
         dispatch(
           setInstructions(
@@ -179,6 +185,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
     ],
   };
 
+  const setupRoute = () => {
+    setShowRouteOptions(true);
+  };
+
   const makeRoute = async () => {
     try {
       dispatch(setIsLoading({key: 'common', value: true}));
@@ -188,6 +198,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
             searchDirections[0].coordinates,
             searchDirections[1].coordinates,
             transportation,
+            avoidance
           );
 
           if (route) {
@@ -200,12 +211,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
           throw new Error('Không thể tạo đường đi !');
         }
         setSelectedButton('route');
-      } else {
-        throw new Error('Không tìm thấy tuyến đường !');
       }
     } catch (error: any) {
       showToast(`${error}`, 'danger');
-      throw new Error('Có lỗi xảy ra !');
+      throw new Error('Có lỗi xảy ra !' + error);
     } finally {
       dispatch(setIsLoading({key: 'common', value: false}));
     }
@@ -250,7 +259,24 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
     }
   };
 
-  return (
+  useEffect(() => {
+    makeRoute();
+  }, [transportation]);
+
+  useEffect(() => {
+    const fetchData = async() => {
+      if(showRouteOptions == false){
+        await makeRoute();
+      }
+    }
+    fetchData();
+  }, [avoidance])
+
+  return showRouteOptions ? (
+    <RouteOptionsPanel
+      onClose={() => setShowRouteOptions(false)}
+    />
+  ) : (
     <Animated.View style={[styles.bottom__container, bottomSheetAnimation]}>
       <View style={styles.dragable__area} {...panResponder.panHandlers}>
         <View style={styles.drag_handle} />
@@ -266,7 +292,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
                 styles.button,
                 selectedButton === 'route' && styles.selectedButton,
               ]}
-              onPress={makeRoute}>
+              onPress={setupRoute}>
               <FontAwesome6
                 name="route"
                 size={16}

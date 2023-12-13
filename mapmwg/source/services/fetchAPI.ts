@@ -1,6 +1,6 @@
 import axios, {AxiosRequestConfig} from 'axios';
 
-export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number], transportation: string): Promise<any> {
+export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number], transportation: string, avoidance: string[]): Promise<any> {
   const url =
     `http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-${transportation}`;
 
@@ -18,7 +18,11 @@ export async function callRoutingAPI(currentLocation: [number, number], destinat
       target_count: 3,
       weight_factor: 1.5,
       share_factor: 0.6,
-    }
+    },
+    options: {
+      avoid_features: avoidance,
+    },
+
   };
 
   const headers = {

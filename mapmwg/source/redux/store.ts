@@ -14,6 +14,7 @@ import isHandleDirectReducer from './slices/isHandleDirectSlice';
 import searchDirectionsReducer from './slices/searchDirectionsSlice';
 import transportationReducer from './slices/transportationSlice';
 import chosenRouteIndexReducer from './slices/chosenRouteSlice';
+import avoidanceReducer from './slices/avoidanceSlice';
 
 const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ const store = configureStore({
     searchDirections: searchDirectionsReducer,
     transportation: transportationReducer,
     chosenRouteIndex: chosenRouteIndexReducer,
+    avoidance: avoidanceReducer,
   },
 });
 
