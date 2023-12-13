@@ -26,10 +26,14 @@ import {
 import {WINDOW_HEIGHT} from '../utils/window_height';
 import {getRouteMutilDestination} from '../services/getRouteMutilDestination';
 import {makeRouterFeature} from '../services/createRoute';
-import { setRouteDirection } from '../redux/slices/routeDirectionSlide';
+import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
+import {ActivityIndicator} from 'react-native';
+import {useToastMessage} from '../services/toast';
+import { setChosenRouteIndex } from '../redux/slices/chosenRouteSlice';
 
 const DirectionScreen = () => {
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
+  const [loader, setLoader] = useState<boolean>(false);
   const isSearchDirect = useSelector(
     (state: RootState) => state.isSearchDirect.value,
   );
@@ -39,6 +43,7 @@ const DirectionScreen = () => {
   const slideAnimation = new Animated.Value(0);
   const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 4.5);
   const [idSearchDirect, setIdSearchDirect] = useState<number>(0);
+  const {showToast} = useToastMessage();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -64,25 +69,41 @@ const DirectionScreen = () => {
     dispatch(setIsDirected(false));
     dispatch(setIsSearchDirect(false));
     dispatch(setIsSearchBar(true));
-    dispatch(initDirectionState());
     dispatch(setRouteDirection(null));
-    setViewHeight(WINDOW_HEIGHT / 4.5);
+    dispatch(initDirectionState());
   };
 
   const handleOnPress = () => {
+    dispatch(initDirectionState());
     dispatch(setIsDirected(true));
     dispatch(setIsSearchBar(false));
+    setViewHeight(WINDOW_HEIGHT / 4.5);
   };
   const handleFindRoute = async () => {
-    const data = searchDirections.map(values => values.coordinates);
-    const response = await getRouteMutilDestination(data);
-    console.log(response)
-    if (!response?.emptyResult) {
-      console.log(response?.features[0]?.geometry?.coordinates)
-      const route = makeRouterFeature([...response?.features[0]?.geometry?.coordinates]);
-      dispatch(setRouteDirection(route))
+    try {
+      setLoader(true);
+      const data = searchDirections.map(values => values.coordinates);
+      const response = await getRouteMutilDestination(data);
+      const routes = [];
+      if (!response?.emptyResult) {
+        const route = makeRouterFeature([
+          ...response?.features[0]?.geometry?.coordinates,
+        ]);
+        if (route) {
+          routes.push(route);
+          dispatch(setRouteDirection(routes));
+          dispatch(setChosenRouteIndex(0))
+        } else {
+          throw new Error('Không tìm thấy đường');
+        }
+      } else {
+        throw new Error('Không tìm thấy đường');
+      }
+    } catch (error) {
+      showToast(`${error}`, 'danger');
+    } finally {
+      setLoader(false);
     }
-    
   };
 
   return (
@@ -178,10 +199,14 @@ const DirectionScreen = () => {
                 <TouchableOpacity
                   style={styles.find_route}
                   onPress={handleFindRoute}>
-                  <Text
-                    style={{color: 'white', fontSize: 18, fontWeight: '500'}}>
-                    Tìm tuyến đường
-                  </Text>
+                  {loader ? (
+                    <ActivityIndicator color="black" />
+                  ) : (
+                    <Text
+                      style={{color: 'white', fontSize: 18, fontWeight: '500'}}>
+                      Tìm tuyến đường
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </View>
               <FontAwesome6

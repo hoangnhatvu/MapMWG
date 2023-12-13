@@ -29,7 +29,7 @@ export async function callRoutingAPI(
   };
 
   const headers = {
-    Authorization: 'Bearer 26a1edd9-f32f-4b24-9597-2ebd7c34427f',
+    Authorization: 'Bearer 74ff298c-dfe2-45f5-814d-ec9283bb65c5',
     'Content-Type': 'application/json',
   };
 
@@ -66,7 +66,7 @@ export async function callMultipleRoutingAPI(
   };
 
   const headers = {
-    Authorization: 'Bearer 26a1edd9-f32f-4b24-9597-2ebd7c34427f',
+    Authorization: 'Bearer 74ff298c-dfe2-45f5-814d-ec9283bb65c5',
     'Content-Type': 'application/json',
   };
 
@@ -92,7 +92,7 @@ export async function getCoordinatesAPI(
   const [longitude, latitude] = coordinates;
   const url = `https://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/els/nearest?lat=${latitude}&lon=${longitude}`;
   const headers = {
-    Authorization: 'Bearer 26a1edd9-f32f-4b24-9597-2ebd7c34427f',
+    Authorization: 'Bearer 74ff298c-dfe2-45f5-814d-ec9283bb65c5',
     'Content-Type': 'application/json',
   };
 
