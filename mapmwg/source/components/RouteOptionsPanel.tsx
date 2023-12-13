@@ -1,10 +1,5 @@
-<<<<<<< HEAD:mapmwg/source/components/BottomSheetMode.tsx
-import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, Text, Animated} from 'react-native';
-=======
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text, Platform} from 'react-native';
->>>>>>> main:mapmwg/source/components/RouteOptionsPanel.tsx
 import {CheckBox, Button} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {bgColor, lightGray, primaryColor, textColor} from '../constants/color';
@@ -15,23 +10,9 @@ import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 
 import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import Tts from 'react-native-tts';
-<<<<<<< HEAD:mapmwg/source/components/BottomSheetMode.tsx
-import {WINDOW_HEIGHT} from '../utils/window_height';
-
-const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
-const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
-const MAX_UPWARD_TRANSLATE_Y =
-  BOTTOM_SHEET_MIN_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT;
-const MAX_DOWNWARD_TRANSLATE_Y = 0;
-const DRAG_THRESHOLD = 0;
-
-const BottomSheetMode: React.FC = () => {
-  const animatedValue = useRef(new Animated.Value(0)).current;
-=======
 import {setAvoidance} from '../redux/slices/avoidanceSlice';
 
 const RouteOptionsPanel = (props: any) => {
->>>>>>> main:mapmwg/source/components/RouteOptionsPanel.tsx
   Tts.setDefaultLanguage('vi-VN');
 
   const dispatch = useDispatch();
@@ -60,22 +41,6 @@ const RouteOptionsPanel = (props: any) => {
   };
   
   useEffect(() => {
-<<<<<<< HEAD:mapmwg/source/components/BottomSheetMode.tsx
-    // Handle the changes in avoidToll, avoidHighway, and avoidFerry variables
-    // You can dispatch actions or update the state accordingly
-  }, [avoidToll, avoidHighway, avoidFerry]);
-  const bottomSheetAnimation = {
-    transform: [
-      {
-        translateY: animatedValue.interpolate({
-          inputRange: [MAX_UPWARD_TRANSLATE_Y, MAX_DOWNWARD_TRANSLATE_Y],
-          outputRange: [MAX_UPWARD_TRANSLATE_Y, MAX_DOWNWARD_TRANSLATE_Y],
-          extrapolate: 'clamp',
-        }),
-      },
-    ],
-  };
-=======
     if (avoidToll) {
       addAvoidanceItem('tollways');
     } else {
@@ -96,7 +61,6 @@ const RouteOptionsPanel = (props: any) => {
 
   }, [avoidToll, avoidFerry, avoidHighway]);
 
->>>>>>> main:mapmwg/source/components/RouteOptionsPanel.tsx
   const handleApply = () => {
     try {
       dispatch(setAvoidance(avoidanceArray));
