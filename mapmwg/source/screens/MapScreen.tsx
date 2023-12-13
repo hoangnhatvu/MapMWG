@@ -7,7 +7,7 @@ import Mapbox, {
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import {createRouterLine, makeRouterFeature} from '../services/createRoute';
+import {createMultipleRouterLine, createRouterLine, makeRouterFeature} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
@@ -130,7 +130,7 @@ const MapScreen: React.FC = () => {
       return;
     }
     const fetchData = async () => {
-      const route = await createRouterLine(
+      const route = await createMultipleRouterLine(
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
         transportation,
