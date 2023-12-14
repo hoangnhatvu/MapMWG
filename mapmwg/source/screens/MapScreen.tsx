@@ -1,13 +1,14 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View, BackHandler, ActivityIndicator} from 'react-native';
 import Mapbox, {
-  Camera,
-  UserLocation,
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
 } from '@rnmapbox/maps';
-import {createMultipleRouterLine, createRouterLine, makeRouterFeature} from '../services/createRoute';
+import {
+  createRouterLineWithAlternative,
+  createRouterLine,
+} from '../services/createRoute';
 import SearchScreen from './SearchScreen';
 import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
@@ -37,7 +38,7 @@ import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
 import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
-import toast from 'react-native-toast-notifications/lib/typescript/toast';
+import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 
 // Init Project
 const APIKEY =
@@ -61,7 +62,7 @@ const MapScreen: React.FC = () => {
   const isSearchBar = useSelector(
     (state: RootState) => state.isSearchBar.value,
   );
-  const isDirected = useSelector((state: RootState) => state.isSearch.value);
+  const isDirected = useSelector((state: RootState) => state.isDirected.value);
 
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
@@ -130,7 +131,7 @@ const MapScreen: React.FC = () => {
       return;
     }
     const fetchData = async () => {
-      const route = await createMultipleRouterLine(
+      const route = await createRouterLineWithAlternative(
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
         transportation,
@@ -161,9 +162,11 @@ const MapScreen: React.FC = () => {
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
         transportation,
-        avoidance
+        avoidance,
       );
     }
+
+    //Get instruction for route
     if (instructions) {
       let minDistance = 1;
       let newInstruction = '';
@@ -189,6 +192,7 @@ const MapScreen: React.FC = () => {
           }
         }
       }
+      // Check if the user arrive to destination
       if (routeDirection) {
         const routes = routeDirection[0]?.features[0]?.geometry?.coordinates;
         const destination = routes[routes.length - 1];
@@ -266,9 +270,12 @@ const MapScreen: React.FC = () => {
         dispatch(setIsSearch(false));
         dispatch(setSearchText(''));
         return true;
-      } else if (isDirected) {
+      } else if (isDirected && !isSearchBar) {
         dispatch(setIsDirected(false));
+        dispatch(setIsSearchBar(true));
+        dispatch(initDirectionState());
         dispatch(setRouteDirection(null));
+        return true;
       } else {
         return false;
       }
@@ -278,8 +285,14 @@ const MapScreen: React.FC = () => {
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
-  }, [isInstructed, dispatch, isSearch, searchDirections[1].coordinates]);
-
+  }, [
+    isInstructed,
+    dispatch,
+    isSearch,
+    searchDirections[1].coordinates,
+    isDirected,
+  ]);
+  
   return (
     <View style={styles.page}>
       <View style={styles.container}>
@@ -481,3 +494,6 @@ const styles = StyleSheet.create({
     top: WINDOW_HEIGHT / 3,
   },
 });
+function setViewHeight(arg0: number) {
+  throw new Error('Function not implemented.');
+}

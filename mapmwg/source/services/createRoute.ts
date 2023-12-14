@@ -54,7 +54,7 @@ export const createRouterLine = async (
   }
 };
 
-export const createMultipleRouterLine = async (
+export const createRouterLineWithAlternative = async (
   currentLocation: [number, number],
   destination: [number, number],
   transportation: string,

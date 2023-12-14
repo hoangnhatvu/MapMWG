@@ -39,6 +39,7 @@ const DirectionScreen = () => {
   const slideAnimation = new Animated.Value(0);
   const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 4.5);
   const [idSearchDirect, setIdSearchDirect] = useState<number>(0);
+  
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -73,6 +74,8 @@ const DirectionScreen = () => {
     dispatch(setIsDirected(true));
     dispatch(setIsSearchBar(false));
   };
+
+
   const handleFindRoute = async () => {
     const data = searchDirections.map(values => values.coordinates);
     const response = await getRouteMutilDestination(data);
