@@ -1,8 +1,12 @@
 import axios, {AxiosRequestConfig} from 'axios';
 
-export async function callRoutingAPI(currentLocation: [number, number], destination: [number, number], transportation: string, avoidance: string[]): Promise<any> {
-  const url =
-    `http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-${transportation}`;
+export async function callRoutingAPI(
+  currentLocation: [number, number],
+  destination: [number, number],
+  transportation: string,
+  avoidance: string[],
+): Promise<any> {
+  const url = `http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing?profile=driving-${transportation}`;
 
   const body = {
     coordinates: [currentLocation, destination],
@@ -22,11 +26,10 @@ export async function callRoutingAPI(currentLocation: [number, number], destinat
     options: {
       avoid_features: avoidance,
     },
-
   };
 
   const headers = {
-    Authorization: 'Bearer 26a1edd9-f32f-4b24-9597-2ebd7c34427f',
+    Authorization: 'Bearer 74ff298c-dfe2-45f5-814d-ec9283bb65c5',
     'Content-Type': 'application/json',
   };
 
@@ -45,7 +48,10 @@ export async function callRoutingAPI(currentLocation: [number, number], destinat
   }
 }
 
-export async function callMultipleRoutingAPI(coordinates: [number,number] [], transportation: string): Promise<any> {
+export async function callMultipleRoutingAPI(
+  coordinates: [number, number][],
+  transportation: string,
+): Promise<any> {
   const url = `'http://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/routing_genetic?profile=driving-${transportation}'`;
   const body = {
     coordinates: coordinates,
@@ -60,7 +66,7 @@ export async function callMultipleRoutingAPI(coordinates: [number,number] [], tr
   };
 
   const headers = {
-    Authorization: 'Bearer 26a1edd9-f32f-4b24-9597-2ebd7c34427f',
+    Authorization: 'Bearer 74ff298c-dfe2-45f5-814d-ec9283bb65c5',
     'Content-Type': 'application/json',
   };
 
@@ -80,14 +86,13 @@ export async function callMultipleRoutingAPI(coordinates: [number,number] [], tr
   }
 }
 
-
 export async function getCoordinatesAPI(
   coordinates: [number, number],
 ): Promise<any> {
   const [longitude, latitude] = coordinates;
   const url = `https://betaerp.tgdd.vn/mwg-app-service-gis-web-service/api/els/nearest?lat=${latitude}&lon=${longitude}`;
   const headers = {
-    Authorization: 'Bearer 26a1edd9-f32f-4b24-9597-2ebd7c34427f',
+    Authorization: 'Bearer 74ff298c-dfe2-45f5-814d-ec9283bb65c5',
     'Content-Type': 'application/json',
   };
 
@@ -101,8 +106,6 @@ export async function getCoordinatesAPI(
     const responseData = await response.json();
     return responseData;
   } catch (error: any) {
-    throw new Error("Có lỗi xảy ra");
+    throw new Error('Có lỗi xảy ra');
   }
 }
-
-

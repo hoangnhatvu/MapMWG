@@ -23,7 +23,7 @@ export default function requestApi({
   };
   headers['Content-Type'] = 'application/json';
   const instance = axios.create({headers});
-  const accessToken = '26a1edd9-f32f-4b24-9597-2ebd7c34427f';
+  const accessToken = '74ff298c-dfe2-45f5-814d-ec9283bb65c5';
   instance.interceptors.request.use(
     config => {
       if (!config.headers?.Authorization) {

@@ -6,7 +6,7 @@ import Mapbox, {
   UserTrackingMode,
 } from '@rnmapbox/maps';
 import {
-  createRouterLineWithAlternative,
+  createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
 import SearchScreen from './SearchScreen';
@@ -38,6 +38,7 @@ import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import {WINDOW_HEIGHT} from '../utils/window_height';
 import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
+import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 
 // Init Project
@@ -63,6 +64,10 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.isSearchBar.value,
   );
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
+
+  const isSearchDirect = useSelector(
+    (state: RootState) => state.isSearchDirect.value,
+  );
 
   const isInstructed = useSelector(
     (state: RootState) => state.isInstructed.value,
@@ -111,7 +116,7 @@ const MapScreen: React.FC = () => {
     } else {
       dispatch(setIsSearchBar(true));
     }
-  }, [isDirected, isInstructed]);
+  }, [isInstructed]);
 
   // choose route
   useEffect(() => {
@@ -127,27 +132,29 @@ const MapScreen: React.FC = () => {
 
   // Render route when moving
   useEffect(() => {
-    if (!chosenRoute) {
-      return;
-    }
-    const fetchData = async () => {
-      const route = await createRouterLineWithAlternative(
-        searchDirections[0].coordinates,
-        searchDirections[1].coordinates,
-        transportation,
-        avoidance,
-      );
-
-      dispatch(setRouteDirection(route));
-    };
-
-    fetchData();
-
-    if (routeDirection) {
-      if (chosenRouteIndex > routeDirection.length - 1) {
-        setChosenRouteIndex(routeDirection.length - 1);
+    if (!isDirected) {
+      if (!chosenRoute) {
+        return;
       }
-      setChosenRoute(routeDirection[chosenRouteIndex]);
+      const fetchData = async () => {
+        const route = await createMultipleRouterLine(
+          searchDirections[0].coordinates,
+          searchDirections[1].coordinates,
+          transportation,
+          avoidance,
+        );
+
+        dispatch(setRouteDirection(route));
+      };
+
+      fetchData();
+
+      if (routeDirection) {
+        if (chosenRouteIndex > routeDirection.length - 1) {
+          setChosenRouteIndex(routeDirection.length - 1);
+        }
+        setChosenRoute(routeDirection[chosenRouteIndex]);
+      }
     }
   }, [searchDirections[0]]);
 
@@ -203,7 +210,6 @@ const MapScreen: React.FC = () => {
           speakText(newInstruction);
           dispatch(setIsLocated(true));
           dispatch(setIsInstructed(false));
-          dispatch(setIsDirected(false));
           dispatch(initDirectionState());
         }
       }
@@ -217,7 +223,7 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
-    if (isDirected === true || isInstructed === true) {
+    if (isInstructed === true) {
       return null;
     }
     dispatch(setRouteDirection(null));
@@ -253,6 +259,12 @@ const MapScreen: React.FC = () => {
     dispatch(setIsLocated(!isLocated));
   };
 
+  useEffect(() => {
+    if (!isDirected && !isSearchDirect) {
+      dispatch(updateSearchDirection({id: 0, data: currentLocation}));
+    }
+  }, [isDirected]);
+
   // Handle backbutton
   useEffect(() => {
     const handleBackButton = () => {
@@ -272,8 +284,8 @@ const MapScreen: React.FC = () => {
         return true;
       } else if (isDirected && !isSearchBar) {
         dispatch(setIsDirected(false));
+        dispatch(setIsSearchDirect(false));
         dispatch(setIsSearchBar(true));
-        dispatch(initDirectionState());
         dispatch(setRouteDirection(null));
         return true;
       } else {
@@ -286,13 +298,13 @@ const MapScreen: React.FC = () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
   }, [
+    isDirected,
     isInstructed,
     dispatch,
     isSearch,
     searchDirections[1].coordinates,
-    isDirected,
   ]);
-  
+
   return (
     <View style={styles.page}>
       <View style={styles.container}>
@@ -304,17 +316,26 @@ const MapScreen: React.FC = () => {
           zoomEnabled={true}
           compassEnabled={true}
           compassFadeWhenNorth={true}
-          onPress={handleMapPress}
+          onPress={isDirected ? () => {} : handleMapPress}
           onTouchMove={handleTouchMove}>
-          {searchDirections[1]?.coordinates && (
-            <Mapbox.Camera
-              centerCoordinate={searchDirections[1].coordinates}
-              animationMode={'flyTo'}
-              animationDuration={2000}
-              zoomLevel={15}
-              pitch={10}
-            />
-          )}
+          {searchDirections[1]?.coordinates &&
+            !isDirected &&
+            !isSearchDirect && (
+              <>
+                <Mapbox.Camera
+                  centerCoordinate={searchDirections[1].coordinates}
+                  animationMode={'flyTo'}
+                  animationDuration={2000}
+                  zoomLevel={15}
+                  pitch={10}
+                />
+                <Mapbox.PointAnnotation
+                  id={`destination`}
+                  coordinate={searchDirections[1]?.coordinates}>
+                  <View></View>
+                </Mapbox.PointAnnotation>
+              </>
+            )}
           {routeDirection &&
             searchDirections[0].coordinates &&
             searchDirections[1].coordinates &&
@@ -365,14 +386,24 @@ const MapScreen: React.FC = () => {
             />
           )}
 
-          {searchDirections.slice(1).map(
+          {searchDirections.slice(0).map(
             (direction, index) =>
-              direction.coordinates !== null && (
-                <Mapbox.PointAnnotation
-                  id={`destination_${index}`}
-                  coordinate={direction.coordinates}>
-                  <View></View>
-                </Mapbox.PointAnnotation>
+              direction.coordinates !== null &&
+              isDirected && (
+                <>
+                  <Mapbox.PointAnnotation
+                    id={`destination_${index}`}
+                    coordinate={direction.coordinates}>
+                    <View></View>
+                  </Mapbox.PointAnnotation>
+                  <Mapbox.Camera
+                    centerCoordinate={direction.coordinates}
+                    animationMode={'flyTo'}
+                    animationDuration={2000}
+                    zoomLevel={15}
+                    pitch={10}
+                  />
+                </>
               ),
           )}
           <Mapbox.UserLocation
@@ -386,24 +417,24 @@ const MapScreen: React.FC = () => {
             renderMode={
               UserLocationRenderModeType.Native
             }></Mapbox.UserLocation>
-          {isSearchBar &&
-            routeDirection?.map((route, index) => {
-              return (
-                <Mapbox.ShapeSource
-                  id={`shapeId${index}`}
-                  key={`shapeKey${index}`}
-                  shape={routeDirection[index]}>
-                  <Mapbox.LineLayer
-                    id={`routerLine-${index}`}
-                    style={{
-                      lineColor:
-                        index === chosenRouteIndex ? 'forestgreen' : 'gray',
-                      lineWidth: index === chosenRouteIndex ? 4 : 2,
-                    }}
-                  />
-                </Mapbox.ShapeSource>
-              );
-            })}
+          {(isSearchBar || isDirected) &&
+              routeDirection?.map((route, index) => {
+                return (
+                  <Mapbox.ShapeSource
+                    id={`shapeId${index}`}
+                    key={`shapeKey${index}`}
+                    shape={routeDirection[index]}>
+                    <Mapbox.LineLayer
+                      id={`routerLine-${index}`}
+                      style={{
+                        lineColor:
+                          index === chosenRouteIndex ? 'forestgreen' : 'gray',
+                        lineWidth: index === chosenRouteIndex ? 4 : 2,
+                      }}
+                    />
+                  </Mapbox.ShapeSource>
+                );
+              })}
           {isInstructed && chosenRoute && (
             <Mapbox.ShapeSource key={'chosen'} shape={chosenRoute}>
               <Mapbox.LineLayer
@@ -439,7 +470,8 @@ const MapScreen: React.FC = () => {
       {searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
         !isInstructed &&
-        !isSearch && <BottomSheet />}
+        !isSearch &&
+        !isDirected && <BottomSheet />}
     </View>
   );
 };

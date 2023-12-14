@@ -57,16 +57,15 @@ const searchDirectionsSlice = createSlice({
       if (index !== -1) {
         const newValue = {
           id: id,
-          coordinates:
-            id === 0
+          coordinates: data
+            ? Array.isArray(data)
               ? data
-              : data
-              ? data?.geometry?.coordinates || [
+              : data?.geometry?.coordinates || [
                   data?.object?.location?.lon,
                   data?.object?.location?.lat,
                 ] ||
                 null
-              : null,
+            : null,
           data: data,
         };
 

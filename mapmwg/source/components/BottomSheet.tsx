@@ -89,6 +89,33 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
 
   const dispatch = useDispatch();
 
+  const getData = async (chooseIndex: number) => {
+    try {
+      dispatch(setIsLoading({key: 'bottom_sheet', value: true}));
+      const data = await callRoutingAPI(
+        searchDirections[0].coordinates,
+        searchDirections[1].coordinates,
+        transportation,
+        avoidance
+      );
+      dispatch(
+        setInstructions(
+          data.Data?.features[chooseIndex]?.properties?.segments[0]?.steps,
+        ),
+      );
+      try {
+        setDistance(data.Data?.features[chooseIndex]?.properties?.summary?.distance);
+        setDuration(data.Data?.features[chooseIndex]?.properties?.summary?.duration);
+      } catch (error) {
+        throw new Error('Không tìm thấy tuyến đường !');
+      }
+    } catch (error) {
+      showToast(`${error}`, 'danger');
+    } finally {
+      dispatch(setIsLoading({key: 'bottom_sheet', value: false}));
+    }
+  };
+
   useEffect(() => {
     setName(
       searchDirections[1]?.data?.properties?.searchName ||
@@ -100,33 +127,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         searchDirections[1]?.data?.object?.searchAddress ||
         'Chưa có dữ liệu trên hệ thống',
     );
-    const getData = async () => {
-      try {
-        dispatch(setIsLoading({key: 'bottom_sheet', value: true}));
-        const data = await callRoutingAPI(
-          searchDirections[0].coordinates,
-          searchDirections[1].coordinates,
-          transportation,
-          avoidance
-        );
-        dispatch(
-          setInstructions(
-            data.Data?.features[0]?.properties?.segments[0]?.steps,
-          ),
-        );
-        try {
-          setDistance(data.Data?.features[0]?.properties?.summary?.distance);
-          setDuration(data.Data?.features[0]?.properties?.summary?.duration);
-        } catch (error) {
-          throw new Error('Không tìm thấy tuyến đường !');
-        }
-      } catch (error) {
-        showToast(`${error}`, 'danger');
-      } finally {
-        dispatch(setIsLoading({key: 'bottom_sheet', value: false}));
-      }
-    };
-    getData();
+    getData(0);
   }, [searchDirections[0].coordinates, searchDirections[1].coordinates]);
 
   const panResponder = useRef(
@@ -203,7 +204,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
 
           if (route) {
             setRouteNumbers(route.length);
-            dispatch(setRouteDirection(route));
+            dispatch(setRouteDirection(route));            
           } else {
             throw new Error('Không thể tạo đường đi !');
           }
@@ -258,6 +259,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       dispatch(setIsLoading({key: 'common', value: false}));
     }
   };
+
+  useEffect(()=>{
+    getData(chosenRouteIndex);
+  }, [chosenRouteIndex])
 
   useEffect(() => {
     if(routeDirection){
