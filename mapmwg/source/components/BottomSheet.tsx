@@ -15,7 +15,7 @@ import {primaryColor, tertiaryColor, textColor} from '../constants/color';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {
-  createRouterLineWithAlternative,
+  createMultipleRouterLine,
   createRouterLine,
 } from '../services/createRoute';
 import {useDispatch, useSelector} from 'react-redux';
@@ -195,7 +195,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       dispatch(setIsLoading({key: 'common', value: true}));
       if (duration && distance) {
         if (searchDirections[1].coordinates) {
-          const route = await createRouterLineWithAlternative(
+          const route = await createMultipleRouterLine(
             searchDirections[0].coordinates,
             searchDirections[1].coordinates,
             transportation,

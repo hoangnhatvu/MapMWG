@@ -211,6 +211,8 @@ const MapScreen: React.FC = () => {
           dispatch(setIsLocated(true));
           dispatch(setIsInstructed(false));
           dispatch(initDirectionState());
+          setChosenRouteIndex(0);
+          setChosenRoute(null);
         }
       }
 
