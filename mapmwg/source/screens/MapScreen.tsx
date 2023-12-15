@@ -40,6 +40,7 @@ import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
+import { setInstructions } from '../redux/slices/instructionsSlice';
 
 // Init Project
 const APIKEY =
@@ -164,15 +165,6 @@ const MapScreen: React.FC = () => {
 
     dispatch(updateSearchDirection({id: 0, data: [longitude, latitude]}));
 
-    if (routeDirection && searchDirections[1].coordinates !== null) {
-      const route = await createRouterLine(
-        searchDirections[0].coordinates,
-        searchDirections[1].coordinates,
-        transportation,
-        avoidance,
-      );
-    }
-
     //Get instruction for route
     if (instructions) {
       let minDistance = 1;
@@ -211,8 +203,9 @@ const MapScreen: React.FC = () => {
           dispatch(setIsLocated(true));
           dispatch(setIsInstructed(false));
           dispatch(initDirectionState());
-          setChosenRouteIndex(0);
+          dispatch(setChosenRouteIndex(0));
           setChosenRoute(null);
+          dispatch(setRouteDirection(null));
         }
       }
 
@@ -419,7 +412,7 @@ const MapScreen: React.FC = () => {
             renderMode={
               UserLocationRenderModeType.Native
             }></Mapbox.UserLocation>
-          {(isSearchBar || isDirected) &&
+          {(isSearchBar || isDirected) && routeDirection &&
               routeDirection?.map((route, index) => {
                 return (
                   <Mapbox.ShapeSource

@@ -16,7 +16,6 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {
   createMultipleRouterLine,
-  createRouterLine,
 } from '../services/createRoute';
 import {useDispatch, useSelector} from 'react-redux';
 import RootState from '../../redux';
@@ -473,6 +472,7 @@ const styles = StyleSheet.create({
     height: 45,
     flexDirection: 'row',
     paddingHorizontal: 16,
+    flex: 0.3,
   },
   selectedButton: {
     backgroundColor: '#1A73E8',

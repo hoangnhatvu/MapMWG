@@ -43,8 +43,8 @@ export const createRouterLine = async (
       const coordinates = data.Data.features[0].geometry.coordinates;
 
       if (coordinates && coordinates.length) {
-        const routerFeature = makeRouterFeature([...coordinates]);
-        return routerFeature;
+        makeRouterFeature([...coordinates]);
+        return data;
       }
     }
     return null;
