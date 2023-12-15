@@ -28,8 +28,8 @@ import {getRouteMutilDestination} from '../services/getRouteMutilDestination';
 import {makeRouterFeature} from '../services/createRoute';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {ActivityIndicator} from 'react-native';
-import {useToastMessage} from '../services/toast';
 import { setChosenRouteIndex } from '../redux/slices/chosenRouteSlice';
+import { useToastMessage } from '../services/toast';
 
 const DirectionScreen = () => {
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
@@ -44,6 +44,7 @@ const DirectionScreen = () => {
   const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 4.5);
   const [idSearchDirect, setIdSearchDirect] = useState<number>(0);
   const dispatch = useDispatch();
+  const {showToast} = useToastMessage();
 
   useEffect(() => {
     Animated.timing(slideAnimation, {

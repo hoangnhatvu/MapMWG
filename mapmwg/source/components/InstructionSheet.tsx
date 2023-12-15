@@ -37,7 +37,7 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
           marginLeft: '20%',
         }}>
         <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
-          {time} min
+          {time} s
         </Text>
         <Text style={{color: 'lightgray', fontSize: 18}}>{distance} km</Text>
       </View>

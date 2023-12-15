@@ -31,6 +31,8 @@ import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
 import {useToastMessage} from '../services/toast';
 import {setIsLoading} from '../redux/slices/isLoadingSlice';
 import RouteOptionsPanel from './RouteOptionsPanel';
+import { setDistance } from '../redux/slices/distanceSlice';
+import { setDuration } from '../redux/slices/durationSlice';
 
 const BOTTOM_SHEET_MAX_HEIGHT = WINDOW_HEIGHT * 0.4;
 const BOTTOM_SHEET_MIN_HEIGHT = WINDOW_HEIGHT * 0.06;
@@ -47,8 +49,6 @@ interface BottomSheetProps {
 const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const lastGestureDy = useRef(0);
-  const [distance, setDistance] = useState<number | null>(null);
-  const [duration, setDuration] = useState<number | null>(null);
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [routeNumbers, setRouteNumbers] = useState<number>(0);
@@ -68,7 +68,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
   //   {id: 'car', label: 'Car', icon: 'car-sport-sharp'},
   //   {id: 'hgv', label: 'Truck', icon: 'car-sharp'},
   // ];
-
+  const distance = useSelector((state: RootState) => state.distance.value);
+  const duration = useSelector((state: RootState) => state.duration.value);
   const routeDirection = useSelector(
     (state: RootState) => state.routeDirection.value,
   );
@@ -103,8 +104,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         ),
       );
       try {
-        setDistance(data.Data?.features[chooseIndex]?.properties?.summary?.distance);
-        setDuration(data.Data?.features[chooseIndex]?.properties?.summary?.duration);
+        dispatch(setDistance(data.Data?.features[chooseIndex]?.properties?.summary?.distance));
+        dispatch(setDuration(data.Data?.features[chooseIndex]?.properties?.summary?.duration));
       } catch (error) {
         throw new Error('Không tìm thấy tuyến đường !');
       }
@@ -114,6 +115,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
       dispatch(setIsLoading({key: 'bottom_sheet', value: false}));
     }
   };
+
+  useEffect(()=> {
+    getData(chosenRouteIndex);
+  }, [searchDirections[0]])
 
   useEffect(() => {
     setName(

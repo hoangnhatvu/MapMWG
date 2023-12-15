@@ -15,6 +15,8 @@ import searchDirectionsReducer from './slices/searchDirectionsSlice';
 import transportationReducer from './slices/transportationSlice';
 import chosenRouteIndexReducer from './slices/chosenRouteSlice';
 import avoidanceReducer from './slices/avoidanceSlice';
+import distanceReducer from './slices/distanceSlice';
+import durationReducer from './slices/durationSlice';
 
 const store = configureStore({
   reducer: {
@@ -34,6 +36,8 @@ const store = configureStore({
     transportation: transportationReducer,
     chosenRouteIndex: chosenRouteIndexReducer,
     avoidance: avoidanceReducer,
+    distance:  distanceReducer,
+    duration: durationReducer,
   },
 });
 
