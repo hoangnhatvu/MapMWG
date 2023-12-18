@@ -192,7 +192,9 @@ const MapScreen: React.FC = () => {
   };
 
   useEffect(()=> {
-    getData(chosenRouteIndex);
+    if (!isDirected) {
+      getData(chosenRouteIndex);
+    }
   }, [searchDirections[0]])
 
   const handleUserLocationUpdate = async (location: any) => {
@@ -484,7 +486,6 @@ const MapScreen: React.FC = () => {
             </Mapbox.ShapeSource>
           )}
         </Mapbox.MapView>
-        {/* <BottomSheetMode /> */}
       </View>
       <LocateButton isLocated={isLocated} onPress={handleLocate} />
       <DirectionScreen />
