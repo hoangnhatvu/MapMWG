@@ -41,8 +41,8 @@ import {useToastMessage} from '../services/toast';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 import {setInstructions} from '../redux/slices/instructionsSlice';
-import { setDistance } from '../redux/slices/distanceSlice';
-import { setDuration } from '../redux/slices/durationSlice';
+import {setDistance} from '../redux/slices/distanceSlice';
+import {setDuration} from '../redux/slices/durationSlice';
 
 // Init Project
 const APIKEY =
@@ -171,7 +171,7 @@ const MapScreen: React.FC = () => {
         searchDirections[0].coordinates,
         searchDirections[1].coordinates,
         transportation,
-        avoidance
+        avoidance,
       );
       dispatch(
         setInstructions(
@@ -179,8 +179,16 @@ const MapScreen: React.FC = () => {
         ),
       );
       try {
-        dispatch(setDistance(data.Data?.features[chooseIndex]?.properties?.summary?.distance));
-        dispatch(setDuration(data.Data?.features[chooseIndex]?.properties?.summary?.duration));
+        dispatch(
+          setDistance(
+            data.Data?.features[chooseIndex]?.properties?.summary?.distance,
+          ),
+        );
+        dispatch(
+          setDuration(
+            data.Data?.features[chooseIndex]?.properties?.summary?.duration,
+          ),
+        );
       } catch (error) {
         throw new Error('Không tìm thấy tuyến đường !');
       }
@@ -191,11 +199,11 @@ const MapScreen: React.FC = () => {
     }
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     if (!isDirected) {
       getData(chosenRouteIndex);
     }
-  }, [searchDirections[0]])
+  }, [searchDirections[0]]);
 
   const handleUserLocationUpdate = async (location: any) => {
     const {latitude, longitude} = location.coords;
