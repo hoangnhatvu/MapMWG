@@ -29,7 +29,10 @@ import {makeRouterFeature} from '../services/createRoute';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import {ActivityIndicator} from 'react-native';
 import {useToastMessage} from '../services/toast';
-import { setChosenRouteIndex } from '../redux/slices/chosenRouteSlice';
+import {setChosenRouteIndex} from '../redux/slices/chosenRouteSlice';
+import {BackHandler} from 'react-native';
+import {setIsSearch} from '../redux/slices/isSearchSlice';
+import {setSearchText} from '../redux/slices/searchTextSlice';
 
 const DirectionScreen = () => {
   const isDirected = useSelector((state: RootState) => state.isDirected.value);
@@ -43,7 +46,7 @@ const DirectionScreen = () => {
   const slideAnimation = new Animated.Value(0);
   const [viewHeight, setViewHeight] = useState<number>(WINDOW_HEIGHT / 4.5);
   const [idSearchDirect, setIdSearchDirect] = useState<number>(0);
-  const {showToast} = useToastMessage()
+  const {showToast} = useToastMessage();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -72,6 +75,17 @@ const DirectionScreen = () => {
     dispatch(setIsSearchBar(true));
     dispatch(setRouteDirection(null));
   };
+  // const exitSearch = () => {
+  //   dispatch(setIsSearch(false));
+  //   {
+  //     isSearchDirect && dispatch(setIsDirected(true));
+  //   }
+  //   dispatch(setIsSearchDirect(false));
+  //   dispatch(setSearchText(''));
+  //    textInputRef.current.blur();
+ 
+  // };
+
 
   const handleOnPress = () => {
     dispatch(initDirectionState());
@@ -79,7 +93,6 @@ const DirectionScreen = () => {
     dispatch(setIsSearchBar(false));
     setViewHeight(WINDOW_HEIGHT / 4.5);
   };
-
 
   const handleFindRoute = async () => {
     try {
@@ -94,7 +107,7 @@ const DirectionScreen = () => {
         if (route) {
           routes.push(route);
           dispatch(setRouteDirection(routes));
-          dispatch(setChosenRouteIndex(0))
+          dispatch(setChosenRouteIndex(0));
         } else {
           throw new Error('Không tìm thấy đường');
         }

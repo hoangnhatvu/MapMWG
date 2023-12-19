@@ -334,6 +334,12 @@ const MapScreen: React.FC = () => {
         dispatch(setIsSearchBar(true));
         dispatch(setRouteDirection(null));
         return true;
+      } else if (isSearchDirect) {
+        dispatch(setIsDirected(true));
+        dispatch(setIsSearchDirect(false));
+
+        dispatch(setSearchText(''));
+        return true;
       } else {
         return false;
       }

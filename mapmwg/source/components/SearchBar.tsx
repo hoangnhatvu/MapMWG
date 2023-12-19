@@ -9,7 +9,7 @@ import {setSearchText} from '../redux/slices/searchTextSlice';
 import {useState} from 'react';
 import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
-import { setIsLoading } from '../redux/slices/isLoadingSlice';
+import {setIsLoading} from '../redux/slices/isLoadingSlice';
 
 const SearchBar = () => {
   const [isFocus, setIsFocus] = useState<boolean>(false);
@@ -24,7 +24,9 @@ const SearchBar = () => {
 
   const exitSearch = () => {
     dispatch(setIsSearch(false));
-    {isSearchDirect && dispatch(setIsDirected(true))};
+    {
+      isSearchDirect && dispatch(setIsDirected(true));
+    }
     dispatch(setIsSearchDirect(false));
     dispatch(setSearchText(''));
     textInputRef.current.blur();
@@ -79,7 +81,7 @@ const SearchBar = () => {
         onChangeText={value => {
           dispatch(setSearchText(value));
           setSearchKey(value);
-          dispatch(setIsLoading({key: "search", value: true}));
+          dispatch(setIsLoading({key: 'search', value: true}));
         }}
         value={isSearch || isSearchDirect ? searchKey : searchText}
       />
