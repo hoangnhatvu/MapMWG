@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {StyleSheet, View, BackHandler, ActivityIndicator} from 'react-native';
+import {StyleSheet, View, BackHandler, ActivityIndicator, Pressable} from 'react-native';
 import Mapbox, {
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
@@ -43,6 +43,9 @@ import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
 import {setInstructions} from '../redux/slices/instructionsSlice';
 import {setDistance} from '../redux/slices/distanceSlice';
 import {setDuration} from '../redux/slices/durationSlice';
+import {Button} from 'react-native-elements';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import Moving3DButton from '../components/Moving3DButton';
 
 // Init Project
 const APIKEY =
@@ -58,6 +61,7 @@ const MapScreen: React.FC = () => {
     106, 11,
   ]);
   const [instructionObject, setInstructionObject] = useState<any>(null);
+  const [moving3D, setMoving3D] = useState<boolean>(false);
 
   const thresholdDistance = 0.02;
 
@@ -431,8 +435,8 @@ const MapScreen: React.FC = () => {
               centerCoordinate={searchDirections[0].coordinates}
               animationMode={'flyTo'}
               animationDuration={2000}
-              zoomLevel={18}
-              pitch={60}
+              zoomLevel={moving3D ? 25 : 15}
+              pitch={moving3D ? 60 : 30}
               followUserMode={UserTrackingMode.FollowWithHeading}
               followHeading={0}
             />
@@ -508,6 +512,7 @@ const MapScreen: React.FC = () => {
       {isInstructed && (
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
+          <Moving3DButton onPress={() => setMoving3D(!moving3D)} is3D={moving3D} />
           <InstructionSheet
             distance={distance ? distance : null}
             time={duration ? duration : null}
@@ -519,6 +524,8 @@ const MapScreen: React.FC = () => {
           <ActivityIndicator size={54} color="gray" />
         </View>
       )}
+
+
       {searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
         !isInstructed &&
@@ -567,6 +574,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'gray',
+  },
+  moving3DButton: {
+    backgroundColor:'white',
+    flex: 1,
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+    zIndex: 1,
+    elevation: 50,
+    top: '30%',
+    right: '5%',
   },
   transportationIcon: {
     color: 'black',
