@@ -14,7 +14,7 @@ import DirectionScreen from './DirectionScreen';
 import BottomSheet from '../components/BottomSheet';
 import LocateButton from '../components/LocateButton';
 import RootState from '../../redux';
-import {callRoutingAPI, getCoordinatesAPI} from '../services/fetchAPI';
+import {getCoordinatesAPI} from '../services/fetchAPI';
 import {setRouteDirection} from '../redux/slices/routeDirectionSlide';
 import SearchBar from '../components/SearchBar';
 import {setIsDirected} from '../redux/slices/isDirectedSlide';
@@ -40,9 +40,6 @@ import {calCoorCenter, calZoom} from '../utils/cameraUtils';
 import {useToastMessage} from '../services/toast';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import {setIsSearchDirect} from '../redux/slices/isSearchDirectSlice';
-import {setInstructions} from '../redux/slices/instructionsSlice';
-import { setDistance } from '../redux/slices/distanceSlice';
-import { setDuration } from '../redux/slices/durationSlice';
 
 // Init Project
 const APIKEY =
@@ -57,7 +54,6 @@ const MapScreen: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
     106, 11,
   ]);
-  const [instructionObject, setInstructionObject] = useState<any>(null);
 
   const thresholdDistance = 0.02;
 
@@ -80,10 +76,8 @@ const MapScreen: React.FC = () => {
     (state: RootState) => state.routeDirection.value,
   );
   const instruction = useSelector(
-    (state: RootState) => state.instruction.value,
+    (state: RootState) => state.instruction.value,  
   );
-  const distance = useSelector((state: RootState) => state.distance.value);
-  const duration = useSelector((state: RootState) => state.duration.value);
   const instructions = useSelector(
     (state: RootState) => state.instructions.value,
   );
@@ -164,48 +158,25 @@ const MapScreen: React.FC = () => {
     }
   }, [searchDirections[0]]);
 
-  const getData = async (chooseIndex: number) => {
-    try {
-      dispatch(setIsLoading({key: 'bottom_sheet', value: true}));
-      const data = await callRoutingAPI(
-        searchDirections[0].coordinates,
-        searchDirections[1].coordinates,
-        transportation,
-        avoidance
-      );
-      dispatch(
-        setInstructions(
-          data.Data?.features[chooseIndex]?.properties?.segments[0]?.steps,
-        ),
-      );
-      try {
-        dispatch(setDistance(data.Data?.features[chooseIndex]?.properties?.summary?.distance));
-        dispatch(setDuration(data.Data?.features[chooseIndex]?.properties?.summary?.duration));
-      } catch (error) {
-        throw new Error('Không tìm thấy tuyến đường !');
-      }
-    } catch (error) {
-      showToast(`${error}`, 'danger');
-    } finally {
-      dispatch(setIsLoading({key: 'bottom_sheet', value: false}));
-    }
-  };
-
-  useEffect(()=> {
-    getData(chosenRouteIndex);
-  }, [searchDirections[0]])
-
   const handleUserLocationUpdate = async (location: any) => {
     const {latitude, longitude} = location.coords;
     setCurrentLocation([longitude, latitude]);
 
     dispatch(updateSearchDirection({id: 0, data: [longitude, latitude]}));
 
+    if (routeDirection && searchDirections[1].coordinates !== null) {
+      const route = await createRouterLine(
+        searchDirections[0].coordinates,
+        searchDirections[1].coordinates,
+        transportation,
+        avoidance,
+      );
+    }
+
     //Get instruction for route
     if (instructions) {
       let minDistance = 1;
       let newInstruction = '';
-      let instructionStep = null;
       if (instructions) {
         for (const step of instructions) {
           if (step?.maneuver?.location) {
@@ -223,7 +194,6 @@ const MapScreen: React.FC = () => {
               if (distance < minDistance) {
                 minDistance = distance;
                 newInstruction = step.instruction;
-                instructionStep = step;
               }
             }
           }
@@ -241,13 +211,9 @@ const MapScreen: React.FC = () => {
           dispatch(setIsLocated(true));
           dispatch(setIsInstructed(false));
           dispatch(initDirectionState());
-          dispatch(setChosenRouteIndex(0));
+          setChosenRouteIndex(0);
           setChosenRoute(null);
-          dispatch(setRouteDirection(null));
         }
-      }
-      if (instructionStep) {
-        setInstructionObject(instructionStep);
       }
 
       if (newInstruction) {
@@ -351,7 +317,6 @@ const MapScreen: React.FC = () => {
           rotateEnabled={true}
           zoomEnabled={true}
           compassEnabled={true}
-          compassFadeWhenNorth={true}
           onPress={isDirected ? () => {} : handleMapPress}
           onTouchMove={handleTouchMove}>
           {searchDirections[1]?.coordinates &&
@@ -415,8 +380,8 @@ const MapScreen: React.FC = () => {
               centerCoordinate={searchDirections[0].coordinates}
               animationMode={'flyTo'}
               animationDuration={2000}
-              zoomLevel={18}
-              pitch={60}
+              zoomLevel={20}
+              pitch={85}
               followUserMode={UserTrackingMode.FollowWithHeading}
               followHeading={0}
             />
@@ -440,7 +405,7 @@ const MapScreen: React.FC = () => {
                     pitch={10}
                   />
                 </>
-              ),
+              )
           )}
           <Mapbox.UserLocation
             minDisplacement={50}
@@ -454,24 +419,23 @@ const MapScreen: React.FC = () => {
               UserLocationRenderModeType.Native
             }></Mapbox.UserLocation>
           {(isSearchBar || isDirected) &&
-            routeDirection &&
-            routeDirection?.map((route, index) => {
-              return (
-                <Mapbox.ShapeSource
-                  id={`shapeId${index}`}
-                  key={`shapeKey${index}`}
-                  shape={routeDirection[index]}>
-                  <Mapbox.LineLayer
-                    id={`routerLine-${index}`}
-                    style={{
-                      lineColor:
-                        index === chosenRouteIndex ? 'forestgreen' : 'gray',
-                      lineWidth: index === chosenRouteIndex ? 4 : 2,
-                    }}
-                  />
-                </Mapbox.ShapeSource>
-              );
-            })}
+              routeDirection?.map((route, index) => {
+                return (
+                  <Mapbox.ShapeSource
+                    id={`shapeId${index}`}
+                    key={`shapeKey${index}`}
+                    shape={routeDirection[index]}>
+                    <Mapbox.LineLayer
+                      id={`routerLine-${index}`}
+                      style={{
+                        lineColor:
+                          index === chosenRouteIndex ? 'forestgreen' : 'gray',
+                        lineWidth: index === chosenRouteIndex ? 4 : 2,
+                      }}
+                    />
+                  </Mapbox.ShapeSource>
+                );
+              })}
           {isInstructed && chosenRoute && (
             <Mapbox.ShapeSource key={'chosen'} shape={chosenRoute}>
               <Mapbox.LineLayer
@@ -494,8 +458,8 @@ const MapScreen: React.FC = () => {
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
           <InstructionSheet
-            distance={distance ? distance : null}
-            time={duration ? duration : null}
+            distance={instructions ? instructions[0].distance : null}
+            time={instructions ? instructions[0].duration : null}
           />
         </>
       )}
