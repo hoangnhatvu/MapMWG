@@ -435,7 +435,7 @@ const MapScreen: React.FC = () => {
               centerCoordinate={searchDirections[0].coordinates}
               animationMode={'flyTo'}
               animationDuration={2000}
-              zoomLevel={moving3D ? 25 : 15}
+              zoomLevel={moving3D ? 19 : 15}
               pitch={moving3D ? 60 : 30}
               followUserMode={UserTrackingMode.FollowWithHeading}
               followHeading={0}
