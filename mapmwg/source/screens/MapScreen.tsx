@@ -258,7 +258,7 @@ const MapScreen: React.FC = () => {
         const routes = routeDirection[0]?.features[0]?.geometry?.coordinates;
         const destination = routes[routes.length - 1];
         if (
-          haversine(latitude, longitude, destination[1], destination[0]) < 0.015
+          haversine(latitude, longitude, destination[1], destination[0]) < 0.02
         ) {
           newInstruction = 'Đã đến';
           speakText(newInstruction);
@@ -268,6 +268,7 @@ const MapScreen: React.FC = () => {
           dispatch(setChosenRouteIndex(0));
           setChosenRoute(null);
           dispatch(setRouteDirection(null));
+          dispatch(setInstruction(null));
         }
       }
       if (instructionStep) {
