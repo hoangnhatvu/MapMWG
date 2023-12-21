@@ -9,6 +9,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Tts from 'react-native-tts';
 import HTML from 'react-native-render-html';
+import {removeHTMLTags} from '../utils/removeHTMLTag';
 
 interface InstructionProps {
   instruction: string;
@@ -22,7 +23,7 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
 
   useEffect(() => {
     const speak = () => {
-      Tts.speak(instruction);
+      Tts.speak(removeHTMLTags(instruction));
     };
     speak();
 
@@ -70,26 +71,23 @@ const InstructionModal: React.FC<InstructionProps> = ({instruction}) => {
 const styles = StyleSheet.create({
   container: {
     width: '80%',
-    height: '20%',
     position: 'absolute',
     alignSelf: 'center',
     borderRadius: 16,
     marginTop: '15%',
+    opacity: 0.95,
   },
   instructionContainer: {
     backgroundColor: 'forestgreen',
-    flex: 1,
     borderRadius: 16,
     flexDirection: 'row',
-    borderColor: tertiaryColor,
-    borderWidth: 1,
   },
   instructionText: {
+    marginLeft: -26,
+    marginVertical: 20,
     color: 'white',
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: 'bold',
-    overflow: 'hidden',
-    margin: 10,
   },
 });
 

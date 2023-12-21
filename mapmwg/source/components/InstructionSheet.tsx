@@ -9,8 +9,8 @@ import {setIsLocated} from '../redux/slices/isLocatedSlice';
 import Tts from 'react-native-tts';
 
 interface InstructionProps {
-  distance: number | null;
-  time: number | null;
+  distance: number;
+  time: number;
 }
 
 const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
@@ -22,7 +22,7 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
     dispatch(setIsInstructed(false));
     dispatch(setIsLocated(true));
     dispatch(setRouteDirection(null));
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -37,9 +37,11 @@ const InstructionSheet: React.FC<InstructionProps> = ({distance, time}) => {
           marginLeft: '20%',
         }}>
         <Text style={{color: 'forestgreen', fontWeight: 'bold', fontSize: 32}}>
-          {time} s
+          {Math.round(time / 60)} phút
         </Text>
-        <Text style={{color: 'lightgray', fontSize: 18}}>{distance} km</Text>
+        <Text style={{color: 'lightgray', fontSize: 18}}>
+          {Math.round(distance * 10) / 10} km
+        </Text>
       </View>
     </View>
   );

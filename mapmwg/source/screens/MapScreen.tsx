@@ -1,6 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {StyleSheet, View, BackHandler, ActivityIndicator, Pressable} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  BackHandler,
+  ActivityIndicator,
+  Pressable,
+} from 'react-native';
 import Mapbox, {
   UserLocationRenderMode as UserLocationRenderModeType,
   UserTrackingMode,
@@ -46,6 +52,7 @@ import {setDuration} from '../redux/slices/durationSlice';
 import {Button} from 'react-native-elements';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Moving3DButton from '../components/Moving3DButton';
+import {setAddress} from '../redux/slices/addressSlice';
 
 // Init Project
 const APIKEY =
@@ -62,6 +69,7 @@ const MapScreen: React.FC = () => {
   ]);
   const [instructionObject, setInstructionObject] = useState<any>(null);
   const [moving3D, setMoving3D] = useState<boolean>(false);
+  const [heading, setHeading] = useState<any>(null);
 
   const thresholdDistance = 0.02;
 
@@ -210,7 +218,9 @@ const MapScreen: React.FC = () => {
   }, [searchDirections[0]]);
 
   const handleUserLocationUpdate = async (location: any) => {
-    const {latitude, longitude} = location.coords;
+    const {latitude, longitude, heading} = location.coords;
+    setHeading(heading);
+
     setCurrentLocation([longitude, latitude]);
 
     dispatch(updateSearchDirection({id: 0, data: [longitude, latitude]}));
@@ -273,6 +283,8 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
+    dispatch(setDuration(null));
+    dispatch(setDistance(null));
     if (isInstructed === true) {
       return null;
     }
@@ -435,6 +447,7 @@ const MapScreen: React.FC = () => {
               centerCoordinate={searchDirections[0].coordinates}
               animationMode={'flyTo'}
               animationDuration={2000}
+              heading={heading}
               zoomLevel={moving3D ? 19 : 15}
               pitch={moving3D ? 60 : 30}
               followUserMode={UserTrackingMode.FollowWithHeading}
@@ -486,7 +499,7 @@ const MapScreen: React.FC = () => {
                     style={{
                       lineColor:
                         index === chosenRouteIndex ? 'forestgreen' : 'gray',
-                      lineWidth: index === chosenRouteIndex ? 4 : 2,
+                      lineWidth: index === chosenRouteIndex ? 5 : 2,
                     }}
                   />
                 </Mapbox.ShapeSource>
@@ -498,7 +511,7 @@ const MapScreen: React.FC = () => {
                 id={`chosen-${chosenRouteIndex}`}
                 style={{
                   lineColor: 'forestgreen',
-                  lineWidth: 4,
+                  lineWidth: 5,
                 }}
               />
             </Mapbox.ShapeSource>
@@ -512,10 +525,13 @@ const MapScreen: React.FC = () => {
       {isInstructed && (
         <>
           <InstructionModal instruction={instruction || 'Đi thẳng'} />
-          <Moving3DButton onPress={() => setMoving3D(!moving3D)} is3D={moving3D} />
+          <Moving3DButton
+            onPress={() => setMoving3D(!moving3D)}
+            is3D={moving3D}
+          />
           <InstructionSheet
-            distance={distance ? distance : null}
-            time={duration ? duration : null}
+            distance={distance ? distance : 0}
+            time={duration ? duration : 0}
           />
         </>
       )}
@@ -524,7 +540,6 @@ const MapScreen: React.FC = () => {
           <ActivityIndicator size={54} color="gray" />
         </View>
       )}
-
 
       {searchDirections[1].coordinates &&
         searchDirections[0].coordinates &&
@@ -576,7 +591,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'gray',
   },
   moving3DButton: {
-    backgroundColor:'white',
+    backgroundColor: 'white',
     flex: 1,
     position: 'absolute',
     width: 50,

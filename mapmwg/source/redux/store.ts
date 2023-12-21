@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import searchTextReducer from './slices/searchTextSlice';
 import isSearchReducer from './slices/isSearchSlice';
 import isSearchBarReducer from './slices/isSearchBarSlice';
@@ -17,6 +17,7 @@ import chosenRouteIndexReducer from './slices/chosenRouteSlice';
 import avoidanceReducer from './slices/avoidanceSlice';
 import distanceReducer from './slices/distanceSlice';
 import durationReducer from './slices/durationSlice';
+import lastToastReducer from './slices/lastToastSlice';
 
 const store = configureStore({
   reducer: {
@@ -36,8 +37,9 @@ const store = configureStore({
     transportation: transportationReducer,
     chosenRouteIndex: chosenRouteIndexReducer,
     avoidance: avoidanceReducer,
-    distance:  distanceReducer,
+    distance: distanceReducer,
     duration: durationReducer,
+    lastToast: lastToastReducer,
   },
 });
 
