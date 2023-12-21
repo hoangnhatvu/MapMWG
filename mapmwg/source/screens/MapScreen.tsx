@@ -283,8 +283,6 @@ const MapScreen: React.FC = () => {
   };
 
   const handleMapPress = async (event: any) => {
-    dispatch(setDuration(null));
-    dispatch(setDistance(null));
     if (isInstructed === true) {
       return null;
     }

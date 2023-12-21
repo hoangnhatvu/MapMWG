@@ -107,6 +107,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({getRoute, start}) => {
         dispatch(setDistance(data.Data?.features[chooseIndex]?.properties?.summary?.distance));
         dispatch(setDuration(data.Data?.features[chooseIndex]?.properties?.summary?.duration));
       } catch (error) {
+        dispatch(setDuration(null));
+        dispatch(setDistance(null));
         throw new Error('Không tìm thấy tuyến đường !');
       }
     } catch (error) {
